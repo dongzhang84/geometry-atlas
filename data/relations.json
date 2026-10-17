@@ -1,0 +1,645 @@
+{
+ "version": "0.1",
+ "external": [
+  {
+   "id": "X001",
+   "name": "完全四角形的调和性质",
+   "statement": "完全四角形的每个对角点处，过该点的两条对边与对角三角形在该点的两边构成调和线束。"
+  },
+  {
+   "id": "X002",
+   "name": "Ceva 定理的逆定理",
+   "statement": "三角形三边（或延长线）上的点 L、M、N 满足 AN·BL·CM = BN·CL·AM（有向线段），则 AL、BM、CN 共点或互相平行。"
+  },
+  {
+   "id": "X003",
+   "name": "余弦定理",
+   "statement": "三角形中 c² = a² + b² − 2ab·cos C。"
+  },
+  {
+   "id": "X004",
+   "name": "Stewart 定理",
+   "statement": "D 在边 BC 上，BD = m、DC = n，则 AB²·n + AC²·m = BC·(AD² + mn)。"
+  },
+  {
+   "id": "X005",
+   "name": "Ptolemy 不等式",
+   "statement": "任意四边形 ABCD 有 AC·BD ≤ AB·CD + AD·BC，等号当且仅当 A、B、C、D 依次共圆。"
+  },
+  {
+   "id": "X006",
+   "name": "圆周角定理",
+   "statement": "圆周角等于同弧所对圆心角的一半。"
+  }
+ ],
+ "edges": [
+  {
+   "from": "T287",
+   "to": "T067",
+   "type": "specializes",
+   "operation": "降维",
+   "note": "Pascal 定理的锥面形式被不过锥顶的平面截断，六角锥变为圆锥曲线的内接六角形",
+   "confidence": "确定"
+  },
+  {
+   "from": "T067",
+   "to": "T069",
+   "type": "specializes",
+   "operation": "退化",
+   "note": "圆锥曲线退化为两条直线，Pascal 六角形定理变为 Pappus 定理",
+   "confidence": "确定"
+  },
+  {
+   "from": "T067",
+   "to": "T070",
+   "type": "specializes",
+   "operation": "退化",
+   "note": "六角形的两个相邻顶点重合（边变为切线），Pascal 定理变为五点情形",
+   "confidence": "确定"
+  },
+  {
+   "from": "T070",
+   "to": "T071",
+   "type": "specializes",
+   "operation": "退化",
+   "note": "再让一对相邻顶点重合，五点情形变为四点情形",
+   "confidence": "确定"
+  },
+  {
+   "from": "T071",
+   "to": "T072",
+   "type": "specializes",
+   "operation": "退化",
+   "note": "再让一对相邻顶点重合，四点情形变为三点情形",
+   "confidence": "确定"
+  },
+  {
+   "from": "T069",
+   "to": "T119",
+   "type": "specializes",
+   "operation": "加度量",
+   "note": "Pappus 定理中三个交点所在的直线取为无穷远直线，「交点共线」变为「两双平行则第三双也平行」",
+   "confidence": "确定"
+  },
+  {
+   "from": "T067",
+   "to": "T068",
+   "type": "converse",
+   "operation": null,
+   "note": "Pascal 定理与其逆定理（三双对边交点共线则六顶点共圆锥曲线）；Brianchon 同理",
+   "confidence": "确定"
+  },
+  {
+   "from": "T061",
+   "to": "T060",
+   "type": "specializes",
+   "operation": "降维",
+   "note": "二次锥面上的对合被平面截断：共轭线的结平面过定线，变为共轭点连线过定点",
+   "confidence": "确定"
+  },
+  {
+   "from": "T282",
+   "to": "T062",
+   "type": "specializes",
+   "operation": "降维",
+   "note": "生成二次线把的两面束之轴在线把上，截到平面即生成线束的两心在曲线上",
+   "confidence": "确定"
+  },
+  {
+   "from": "T283",
+   "to": "T063",
+   "type": "specializes",
+   "operation": "降维",
+   "note": "二次线把同一平面上至多两条直线，截到平面即一直线上至多两个曲线点",
+   "confidence": "确定"
+  },
+  {
+   "from": "T284",
+   "to": "T064",
+   "type": "specializes",
+   "operation": "降维",
+   "note": "锥面版本截到平面，ss′ 的对应面变为 SS′ 的对应线",
+   "confidence": "可能"
+  },
+  {
+   "from": "T285",
+   "to": "T066",
+   "type": "specializes",
+   "operation": "降维",
+   "note": "二次线把由两母线射影得射影面束，截到平面即 Steiner 定理：由两点射影得射影线束",
+   "confidence": "确定"
+  },
+  {
+   "from": "T286",
+   "to": "T075",
+   "type": "specializes",
+   "operation": "降维",
+   "note": "二次线把的切面成二次面把，截到平面即曲线的切线成二次线束",
+   "confidence": "确定"
+  },
+  {
+   "from": "T310",
+   "to": "T063",
+   "type": "specializes",
+   "operation": "降维",
+   "note": "直线与二次曲面至多两交点，限制在过该直线的平面截线上即得二次曲线的情形",
+   "confidence": "确定"
+  },
+  {
+   "from": "T005",
+   "to": "T009",
+   "type": "specializes",
+   "operation": "降维",
+   "note": "空间 Desargues 定理把一个三角形投影到另一平面后得到平面情形",
+   "confidence": "可能"
+  },
+  {
+   "from": "T026",
+   "to": "T023",
+   "type": "specializes",
+   "operation": "降维",
+   "note": "调和面束的正弦关系，用垂直于轴的平面截断后变为调和线束的正弦比",
+   "confidence": "可能"
+  },
+  {
+   "from": "T026",
+   "to": "T024",
+   "type": "specializes",
+   "operation": "降维",
+   "note": "调和面束的正切关系，用垂直于轴的平面截断后变为调和线束的正切比",
+   "confidence": "可能"
+  },
+  {
+   "from": "T026",
+   "to": "T025",
+   "type": "specializes",
+   "operation": "降维",
+   "note": "调和面束的余切关系，用垂直于轴的平面截断后变为调和线束的余切关系",
+   "confidence": "可能"
+  },
+  {
+   "from": "T056",
+   "to": "T049",
+   "type": "specializes",
+   "operation": "退化",
+   "note": "圆锥曲线束中退化为两条直线的三条曲线就是完全四角形的三双对边，截线上得对合",
+   "confidence": "确定"
+  },
+  {
+   "from": "T056",
+   "to": "T051",
+   "type": "specializes",
+   "operation": "加度量",
+   "note": "四个基点中两个取为虚圆点，圆锥曲线束变为过两定点的圆束",
+   "confidence": "确定"
+  },
+  {
+   "from": "T056",
+   "to": "T171",
+   "type": "specializes",
+   "operation": "加度量",
+   "note": "Desargues 对合定理用于过 P、Q、R、S 的圆锥曲线束，截线取过中点的弦，对合以中点为对称中心，得蝴蝶定理",
+   "confidence": "可能"
+  },
+  {
+   "from": "T048",
+   "to": "T053",
+   "type": "specializes",
+   "operation": "加度量",
+   "note": "二重线与每对共轭线调和，取垂直的那一对共轭线（对合轴），调和且垂直即平分二重线夹角",
+   "confidence": "可能"
+  },
+  {
+   "from": "T053",
+   "to": "T185",
+   "type": "specializes",
+   "operation": "取特殊对象",
+   "note": "双曲线中心处共轭直径构成对合，渐近线为二重线、轴为垂直共轭对，故轴平分渐近线夹角",
+   "confidence": "可能"
+  },
+  {
+   "from": "T027",
+   "to": "T010",
+   "type": "specializes",
+   "operation": "参数取特殊值",
+   "note": "射影保持交比，交比取 −1 即射影保持调和",
+   "confidence": "确定"
+  },
+  {
+   "from": "T029",
+   "to": "T031",
+   "type": "specializes",
+   "operation": "参数取特殊值",
+   "note": "四点交比 24 种排列的取值公式中令 λ = −1，得调和点列各排列的交比值",
+   "confidence": "确定"
+  },
+  {
+   "from": "T020",
+   "to": "T018",
+   "type": "specializes",
+   "operation": "加度量",
+   "note": "调和点列 AB : BC = AD : CD 中让 D 取无穷远点，比值 AD : CD 趋于 1，得 B 为 AC 中点",
+   "confidence": "确定"
+  },
+  {
+   "from": "T019",
+   "to": "T166",
+   "type": "specializes",
+   "operation": "加度量",
+   "note": "内外角平分线与两边调和，截到对边 BC 上得调和点列，用度量表示即角平分线分对边之比等于两边之比",
+   "confidence": "确定"
+  },
+  {
+   "from": "X001",
+   "to": "T124",
+   "type": "specializes",
+   "operation": "加度量",
+   "note": "梯形的两底平行，对应的对角点取在无穷远处，调和共轭点即中点，故连线平分两底",
+   "confidence": "确定"
+  },
+  {
+   "from": "T134",
+   "to": "T135",
+   "type": "specializes",
+   "operation": "退化",
+   "note": "割线与双曲线的两交点 P、Q 重合成切点，MP = QN 变为切点平分切线段",
+   "confidence": "确定"
+  },
+  {
+   "from": "T009",
+   "to": "T272",
+   "type": "specializes",
+   "operation": "加度量",
+   "note": "Desargues 定理中对应边交点所在直线取为无穷远直线，即对应边平行时顶点连线共点",
+   "confidence": "可能"
+  },
+  {
+   "from": "X002",
+   "to": "T122",
+   "type": "converse",
+   "operation": null,
+   "note": "Ceva 定理与其逆定理",
+   "confidence": "确定"
+  },
+  {
+   "from": "X002",
+   "to": "T139",
+   "type": "specializes",
+   "operation": "参数取特殊值",
+   "note": "三个分点都取中点，各比值为 1，满足 Ceva 条件，三中线共点",
+   "confidence": "确定"
+  },
+  {
+   "from": "X002",
+   "to": "T141",
+   "type": "specializes",
+   "operation": "取特殊对象",
+   "note": "三个分点取高的垂足，比值由 cos 表示后乘积为 1，三高共点",
+   "confidence": "确定"
+  },
+  {
+   "from": "X002",
+   "to": "T142",
+   "type": "specializes",
+   "operation": "取特殊对象",
+   "note": "三个分点取内角平分线的足，由角平分线定理代入比值乘积为 1，三内角平分线共点",
+   "confidence": "确定"
+  },
+  {
+   "from": "X002",
+   "to": "T143",
+   "type": "specializes",
+   "operation": "取特殊对象",
+   "note": "取一条内角平分线和两条外角平分线的足（有向比值），乘积为 1，三线共点",
+   "confidence": "确定"
+  },
+  {
+   "from": "T141",
+   "to": "T140",
+   "type": "specializes",
+   "operation": "取特殊对象",
+   "note": "三边的垂直平分线就是中点三角形的三条高，对中点三角形用垂心定理",
+   "confidence": "确定"
+  },
+  {
+   "from": "T155",
+   "to": "T150",
+   "type": "specializes",
+   "operation": "参数取特殊值",
+   "note": "与三边成等角的直线，角度取 90° 即垂线，三交点变为三垂足，得西摩松线",
+   "confidence": "确定"
+  },
+  {
+   "from": "T156",
+   "to": "T150",
+   "type": "specializes",
+   "operation": "取特殊对象",
+   "note": "按名称为西摩松定理的推广之一；具体推广方式待核对原书",
+   "confidence": "可能"
+  },
+  {
+   "from": "T157",
+   "to": "T150",
+   "type": "specializes",
+   "operation": "取特殊对象",
+   "note": "按名称为西摩松定理的推广之一；具体推广方式待核对原书",
+   "confidence": "可能"
+  },
+  {
+   "from": "T158",
+   "to": "T150",
+   "type": "specializes",
+   "operation": "取特殊对象",
+   "note": "按名称为西摩松定理的推广之一；具体推广方式待核对原书",
+   "confidence": "可能"
+  },
+  {
+   "from": "T159",
+   "to": "T150",
+   "type": "specializes",
+   "operation": "取特殊对象",
+   "note": "按名称为西摩松定理的推广之一；具体推广方式待核对原书",
+   "confidence": "可能"
+  },
+  {
+   "from": "T160",
+   "to": "T150",
+   "type": "specializes",
+   "operation": "取特殊对象",
+   "note": "按名称为西摩松线的推广（康托尔线）；具体推广方式待核对原书",
+   "confidence": "可能"
+  },
+  {
+   "from": "X003",
+   "to": "T145",
+   "type": "specializes",
+   "operation": "取特殊对象",
+   "note": "余弦定理中 C 取直角，cos C = 0，得勾股定理",
+   "confidence": "确定"
+  },
+  {
+   "from": "X004",
+   "to": "T167",
+   "type": "specializes",
+   "operation": "参数取特殊值",
+   "note": "Stewart 定理中 D 取 BC 中点（m = n），整理即中线定理",
+   "confidence": "确定"
+  },
+  {
+   "from": "X005",
+   "to": "T182",
+   "type": "specializes",
+   "operation": "取特殊对象",
+   "note": "Ptolemy 不等式的取等情形：四点依次共圆",
+   "confidence": "确定"
+  },
+  {
+   "from": "T182",
+   "to": "T145",
+   "type": "specializes",
+   "operation": "取特殊对象",
+   "note": "圆内接四边形取矩形，Ptolemy 定理变为对角线² = 两邻边平方和",
+   "confidence": "确定"
+  },
+  {
+   "from": "T146",
+   "to": "T145",
+   "type": "specializes",
+   "operation": "取特殊对象",
+   "note": "三角形取直角三角形、两腰上的平行四边形取正方形，第三边上的平行四边形即斜边上的正方形",
+   "confidence": "确定"
+  },
+  {
+   "from": "X006",
+   "to": "T173",
+   "type": "specializes",
+   "operation": "取特殊对象",
+   "note": "弧取半圆，圆心角为 180°，圆周角为直角",
+   "confidence": "确定"
+  },
+  {
+   "from": "T173",
+   "to": "T242",
+   "type": "converse",
+   "operation": null,
+   "note": "半圆上的圆周角是直角；反之从圆上一点看成直角的弦必过圆心（是直径）",
+   "confidence": "确定"
+  },
+  {
+   "from": "T175",
+   "to": "T207",
+   "type": "specializes",
+   "operation": "退化",
+   "note": "两圆之一退化为点圆 D（到点圆的切线长即到 D 的距离），等幂轴即所求直线",
+   "confidence": "确定"
+  },
+  {
+   "from": "T268",
+   "to": "T271",
+   "type": "specializes",
+   "operation": "取特殊对象",
+   "note": "位似中心取为圆心，圆的位似图是同心圆",
+   "confidence": "确定"
+  },
+  {
+   "from": "T212",
+   "to": "T204",
+   "type": "specializes",
+   "operation": "参数取特殊值",
+   "note": "p·MA² + q·MB² = k² 中取 q = −λ²p、k = 0，即 MA : MB = λ，得阿波罗尼斯圆",
+   "confidence": "可能"
+  },
+  {
+   "from": "T204",
+   "to": "T198",
+   "type": "specializes",
+   "operation": "参数取特殊值",
+   "note": "距离之比取 1，阿波罗尼斯圆退化为两点连线的垂直平分线",
+   "confidence": "确定"
+  },
+  {
+   "from": "T206",
+   "to": "T202",
+   "type": "specializes",
+   "operation": "取特殊对象",
+   "note": "过定点 A 的弦中点轨迹都在以 OA 为直径的圆上；A 从圆外移到圆上即得",
+   "confidence": "可能"
+  },
+  {
+   "from": "T205",
+   "to": "T201",
+   "type": "specializes",
+   "operation": "取特殊对象",
+   "note": "直角三角形取等腰直角三角形，直角顶点的轨迹线段落在直角的平分线上",
+   "confidence": "确定"
+  },
+  {
+   "from": "T224",
+   "to": "T223",
+   "type": "specializes",
+   "operation": "取特殊对象",
+   "note": "已知三角形取等边三角形，位似比为 1、旋转角为 ±60°",
+   "confidence": "确定"
+  },
+  {
+   "from": "T225",
+   "to": "T203",
+   "type": "specializes",
+   "operation": "取特殊对象",
+   "note": "已知三角形取等边三角形，B 在定圆上时 C 的轨迹为定圆绕 A 旋转 ±60° 所得的两个等圆",
+   "confidence": "确定"
+  },
+  {
+   "from": "T161",
+   "to": "T194",
+   "type": "converse",
+   "operation": null,
+   "note": "角平分线上的点到两边等距；反之到两边等距的点在角平分线上（T194 的轨迹含两个方向）",
+   "confidence": "可能"
+  },
+  {
+   "from": "T241",
+   "to": "T240",
+   "type": "specializes",
+   "operation": "参数取特殊值",
+   "note": "距离之比取 1（异侧），所过定点即 AB 中点",
+   "confidence": "确定"
+  },
+  {
+   "from": "T251",
+   "to": "T249",
+   "type": "specializes",
+   "operation": "参数取特殊值",
+   "note": "距离之差取 0，即到同侧两点等距，所得方向平行于 AB",
+   "confidence": "确定"
+  },
+  {
+   "from": "T040",
+   "to": "T066",
+   "type": "converse",
+   "operation": null,
+   "note": "两射影线束对应线交点生成二次曲线；反之二次曲线上的点由其中两点射影得射影线束（Steiner）",
+   "confidence": "确定"
+  },
+  {
+   "from": "T087",
+   "to": "T088",
+   "type": "converse",
+   "operation": null,
+   "note": "共轭点连线过第三边的极点；反之过该极点的直线截两边于共轭点",
+   "confidence": "确定"
+  },
+  {
+   "from": "T100",
+   "to": "T101",
+   "type": "converse",
+   "operation": null,
+   "note": "书中给出的定理与逆定理",
+   "confidence": "确定"
+  },
+  {
+   "from": "T104",
+   "to": "T105",
+   "type": "converse",
+   "operation": null,
+   "note": "调和相应是对合；对合是调和相应",
+   "confidence": "确定"
+  },
+  {
+   "from": "T290",
+   "to": "T291",
+   "type": "converse",
+   "operation": null,
+   "note": "圆锥曲线都是二次曲线；二次曲线都是圆锥曲线",
+   "confidence": "确定"
+  },
+  {
+   "from": "T280",
+   "to": "T281",
+   "type": "converse",
+   "operation": null,
+   "note": "二次锥面被平面截得二次曲线；二次曲线由平面外一点射影得二次锥面",
+   "confidence": "确定"
+  },
+  {
+   "from": "T290",
+   "to": "T288",
+   "type": "specializes",
+   "operation": "取特殊对象",
+   "note": "圆是圆锥曲线的一种，故圆是二次曲线",
+   "confidence": "确定"
+  },
+  {
+   "from": "T315",
+   "to": "T316",
+   "type": "converse",
+   "operation": null,
+   "note": "直射把共线点变为共线点；反之保持共线的对应是直射",
+   "confidence": "确定"
+  },
+  {
+   "from": "T272",
+   "to": "T273",
+   "type": "converse",
+   "operation": null,
+   "note": "书中给出的定理与逆定理（各边平行且顶点连线共点则相似位似）",
+   "confidence": "确定"
+  },
+  {
+   "from": "T272",
+   "to": "T274",
+   "type": "converse",
+   "operation": null,
+   "note": "相似且各边平行则顶点连线共点；相似且顶点连线共点则各边平行",
+   "confidence": "确定"
+  },
+  {
+   "from": "T179",
+   "to": "T180",
+   "type": "converse",
+   "operation": null,
+   "note": "等腰梯形底角相等、对角线相等；反之底角或对角线相等的梯形是等腰梯形",
+   "confidence": "确定"
+  },
+  {
+   "from": "T275",
+   "to": "T277",
+   "type": "converse",
+   "operation": null,
+   "note": "反演是对合变换：不过中心的直线变为过中心的圆，过中心的圆变回不过中心的直线",
+   "confidence": "确定"
+  },
+  {
+   "from": "T112",
+   "to": "T113",
+   "type": "dual",
+   "operation": null,
+   "note": "一次点列与二次点列 ↔ 一次线束与二次线束，结论二次线束 ↔ 二次点列",
+   "confidence": "确定"
+  },
+  {
+   "from": "T114",
+   "to": "T115",
+   "type": "dual",
+   "operation": null,
+   "note": "两对对应点重合 ↔ 两对对应线重合，产物一次线束 ↔ 一次点列",
+   "confidence": "确定"
+  },
+  {
+   "from": "T304",
+   "to": "T305",
+   "type": "dual",
+   "operation": null,
+   "note": "空间对偶：点列 ↔ 面束、二次点列 ↔ 二次面把",
+   "confidence": "确定"
+  },
+  {
+   "from": "T311",
+   "to": "T312",
+   "type": "dual",
+   "operation": null,
+   "note": "空间对偶：对应于平面 SS′ 的直线是切线 ↔ 对应于直线 SS′ 的平面是切面",
+   "confidence": "可能"
+  }
+ ]
+}
