@@ -12,7 +12,7 @@
 index.html            页面（纯静态，无需编译）
 data/theorems.json    全部定理数据；改内容只改这个文件
 scripts/validate.py   数据检查脚本
-vendor/d3.min.js      D3 v7.8.5（画图库，BSD 许可证见 vendor/d3-LICENSE）
+vendor/d3.min.js      D3 v7.8.5（画图库，ISC 许可证见 vendor/d3-LICENSE）
 ```
 
 `theorems.json` 里每条定理的字段：
