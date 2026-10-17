@@ -175,7 +175,7 @@ function fill(d){
 }
 function opacity(d){ if(!visible(d.current))return 0; const s=leafShare(d); return s===0?0.12:(0.3+0.7*s); }
 const visible=d=>d.y1<=5.01&&d.y0>=1&&d.x1>d.x0;
-const labelVisible=d=>d.y1<=5.01&&d.y0>=1&&(d.y1-d.y0)*(d.x1-d.x0)>0.07&&d.depth<4;
+const labelVisible=d=>{const c=d.current;return c.y1<=5.01&&c.y0>=1&&(c.y1-c.y0)*(c.x1-c.x0)>0.07&&d.depth<4};
 
 const path=g.selectAll("path").data(root.descendants().slice(1)).join("path")
   .attr("class","arc").attr("d",d=>arc(d.current))
@@ -199,7 +199,7 @@ function paint(){
   path.attr("fill",d=>fill(d)).attr("fill-opacity",opacity).attr("pointer-events",d=>visible(d.current)?"auto":"none")
     .attr("stroke",d=>selected&&d===selected?css("--ink"):css("--paper"))
     .attr("stroke-width",d=>selected&&d===selected?2:.6);
-  label.attr("fill",css("--ink")).attr("fill-opacity",d=>+labelVisible(d.current)).attr("transform",d=>labelTransform(d.current));
+  label.attr("fill",css("--ink")).attr("fill-opacity",d=>+labelVisible(d)).attr("transform",d=>labelTransform(d.current));
   const n=focus.leaves().filter(matches).length;
   cNum.text(n).attr("fill",css("--ink"));
   cSub.text(focus===root?"条定理":"条 · 点此返回").attr("fill",css("--muted"));
