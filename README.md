@@ -68,6 +68,12 @@ npx serve .
 - 网页方式：把这个文件夹推到 GitHub 仓库，在 vercel.com 选 Add New → Project 导入，Framework Preset 选 Other，不填 Build Command，点 Deploy。
 - 命令行方式：在这个文件夹里运行 `npx vercel`（首次会要求登录），正式发布用 `npx vercel --prod`。
 
+## 许可证
+
+- 代码（`index.html`、`scripts/`）：MIT，见 [LICENSE](LICENSE)
+- 数据（`data/theorems.json`）：[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)，转载或改编请注明出处
+- `vendor/d3.min.js`：D3 自带的 ISC 许可证，见 `vendor/d3-LICENSE`
+
 ## 公开前待办
 
 - [ ] 对照原书核对 `status` 为 toc_only、placeholder 的矢野条目，补全 placeholder 的内容
