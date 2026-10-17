@@ -168,16 +168,20 @@ const matches=d=>{
   return true;
 };
 const leafShare=d=>{const ls=d.leaves();return ls.filter(matches).length/ls.length};
+// selected theorem: ink fill; its layer/class/subclass arcs drawn darker so the branch stands out
+const onPath=d=>selected&&d!==selected&&selected.ancestors().includes(d);
 function fill(d){
+  if(d===selected)return css("--ink");
   const base=d3.color(css(LAYER_VAR[d.layer]||"--proj"));
-  const t=[0,0,.22,.42,.6][d.depth]||.6;
+  const t=([0,0,.22,.42,.6][d.depth]||.6)*(onPath(d)?.25:1);
   return d3.interpolateRgb(base,css("--paper"))(t*0.9);
 }
-function opacity(d){ if(!visible(d.current))return 0; const s=leafShare(d); return s===0?0.12:(0.3+0.7*s); }
+function opacity(d){ if(!visible(d.current))return 0; if(d===selected||onPath(d))return 1; const s=leafShare(d); return s===0?0.12:(0.3+0.7*s); }
 const visible=d=>d.y1<=5.01&&d.y0>=1&&d.x1>d.x0;
 const labelVisible=d=>{const c=d.current;return c.y1<=5.01&&c.y0>=1&&(c.y1-c.y0)*(c.x1-c.x0)>0.07&&d.depth<4};
 
-const path=g.selectAll("path").data(root.descendants().slice(1)).join("path")
+const arcs=g.append("g");
+const path=arcs.selectAll("path").data(root.descendants().slice(1)).join("path")
   .attr("class","arc").attr("d",d=>arc(d.current))
   .on("click",(e,d)=>{ if(d.children)zoom(d); else pick(d); });
 path.append("title").text(d=>d.ancestors().map(a=>a.data.name).reverse().slice(1).join(" › ")+(d.children?`（${d.value} 条）`:""));
@@ -188,6 +192,8 @@ const label=g.append("g").attr("text-anchor","middle").selectAll("text")
   .text(d=>shortName(d));
 function shortName(d){let n=d.data.name.replace(/^\d(\.\d)?\.?\s*/,"").replace(/（.*?）/g,""); if(d.depth===1)n=n; return n.length>9?n.slice(0,8)+"…":n}
 
+// pointer just outside the ring at the selected theorem (a single leaf is ~1° wide at full view)
+const marker=g.append("path").attr("d","M0,0L11,-7L11,7Z").attr("pointer-events","none");
 const centre=g.append("circle").attr("r",R).attr("fill","var(--panel)").attr("stroke","var(--rule)").style("cursor","pointer")
   .on("click",()=>zoom(focus.parent||root));
 const cText=g.append("text").attr("text-anchor","middle").attr("font-family","var(--serif)");
@@ -197,8 +203,13 @@ const cSub=cText.append("tspan").attr("x",0).attr("dy","1.6em").attr("font-size"
 let focus=root;
 function paint(){
   path.attr("fill",d=>fill(d)).attr("fill-opacity",opacity).attr("pointer-events",d=>visible(d.current)?"auto":"none")
-    .attr("stroke",d=>selected&&d===selected?css("--ink"):css("--paper"))
-    .attr("stroke-width",d=>selected&&d===selected?2:.6);
+    .attr("stroke",css("--paper")).attr("stroke-width",.6);
+  if(selected)path.filter(d=>d===selected).raise();
+  const m=selected&&(selected.target||selected.current);
+  if(m&&visible(m)){
+    const a=(m.x0+m.x1)/2*180/Math.PI;
+    marker.attr("hidden",null).attr("fill",css("--ink")).attr("transform",`rotate(${a-90}) translate(${m.y1*R+2},0)`);
+  } else marker.attr("hidden","");
   label.attr("fill",css("--ink")).attr("fill-opacity",d=>+labelVisible(d)).attr("transform",d=>labelTransform(d.current));
   const n=focus.leaves().filter(matches).length;
   cNum.text(n).attr("fill",css("--ink"));
