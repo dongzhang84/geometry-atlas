@@ -11,7 +11,7 @@
 ```
 index.html            页面（纯静态，无需编译）
 data/theorems.json    全部定理数据；改内容只改这个文件
-data/relations.json   定理之间的推广—特例、对偶、逆命题关系
+data/relations.json   定理之间的推广、对偶、逆命题关系
 scripts/validate.py   数据检查脚本
 vendor/d3.min.js      D3 v7.8.5（画图库，ISC 许可证见 vendor/d3-LICENSE）
 vendor/dagre.min.js   dagre 0.8.5（推广图的分层布局，MIT 许可证见 vendor/dagre-LICENSE）
@@ -49,7 +49,7 @@ vendor/dagre.min.js   dagre 0.8.5（推广图的分层布局，MIT 许可证见 
 
 | type | 含义 | 方向 |
 |---|---|---|
-| specializes | to 是 from 的特例：对 from 的条件加限制或让对象退化即得 to | from 更一般，to 是特例 |
+| generalizes | to 是 from 的推广：放宽 from 的条件、把退化的对象换成一般对象，即得 to | from 简单（特殊），to 更一般 |
 | dual | 射影对偶，只连拆成两条记录的对偶对（同一条里已写【对偶】的不连） | 无方向 |
 | converse | 互为逆命题 | 无方向 |
 
@@ -57,10 +57,10 @@ vendor/dagre.min.js   dagre 0.8.5（推广图的分层布局，MIT 许可证见 
 
 | 字段 | 含义 |
 |---|---|
-| from / to | 定理 id（T001…）或目录外节点 id（X001…） |
+| from / to | 定理 id（T001…）或目录外节点 id（X001…）；generalizes 边从简单指向一般 |
 | type | 上表三种之一 |
-| operation | 仅 specializes 填写：退化 / 加度量 / 取特殊对象 / 降维 / 参数取特殊值；其他类型为 null |
-| note | 一句话说明从 from 怎样得到 to |
+| operation | 仅 generalizes 填写，表示 from 相对 to 是哪一种特殊化：退化 / 加度量 / 取特殊对象 / 降维 / 参数取特殊值；其他类型为 null |
+| note | 一句话说明从 from 怎样推到 to |
 | confidence | 确定（标准数学事实）/ 可能（编者推断，待人工核对） |
 
 `external` 数组放目录外的著名定理（如余弦定理），id 从 X001 起编，只有 name 和 statement，不进 theorems.json，总数不超过 30 个。
@@ -73,7 +73,7 @@ vendor/dagre.min.js   dagre 0.8.5（推广图的分层布局，MIT 许可证见 
 python3 scripts/validate.py
 ```
 
-只用 Python 标准库。theorems.json：检查 id 连续且唯一、count 等于条目数、必填字段非空、status / books / layer / conclusion 的取值、status 与来源书是否对得上、subcategory 编号与 category 是否一致。relations.json：检查边上的 id 都存在、type / operation / confidence 的取值、没有重复边和自环、specializes 边不成环、目录外节点编号连续且不超过 30 个。全部通过时退出码为 0，否则列出每个问题并以 1 退出。
+只用 Python 标准库。theorems.json：检查 id 连续且唯一、count 等于条目数、必填字段非空、status / books / layer / conclusion 的取值、status 与来源书是否对得上、subcategory 编号与 category 是否一致。relations.json：检查边上的 id 都存在、type / operation / confidence 的取值、没有重复边和自环、generalizes 边不成环、目录外节点编号连续且不超过 30 个。全部通过时退出码为 0，否则列出每个问题并以 1 退出。
 
 ## 本地预览
 

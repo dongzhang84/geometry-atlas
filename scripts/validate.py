@@ -20,7 +20,7 @@ LAYERS = {"射影", "仿射", "欧氏"}
 CONCLUSIONS = {"共点", "共线", "共圆", "共面", "轨迹", "包络", "射影对应", "对合", "调和",
                "交比", "比例", "等长", "等角", "平行", "垂直", "相切", "面积", "不等式",
                "分类", "其他"}
-EDGE_TYPES = {"specializes", "dual", "converse"}
+EDGE_TYPES = {"generalizes", "dual", "converse"}
 OPERATIONS = {"退化", "加度量", "取特殊对象", "降维", "参数取特殊值"}
 CONFIDENCE = {"确定", "可能"}
 MAX_EXTERNAL = 30
@@ -110,7 +110,7 @@ def check_relations(rel, theorem_ids):
         if ty not in EDGE_TYPES:
             err(where, f"type 取值无效：{ty!r}")
         op = e.get("operation")
-        if ty == "specializes" and op not in OPERATIONS:
+        if ty == "generalizes" and op not in OPERATIONS:
             err(where, f"operation 取值无效：{op!r}")
         if ty in ("dual", "converse") and op is not None:
             err(where, f"{ty} 边的 operation 应为 null")
@@ -119,21 +119,21 @@ def check_relations(rel, theorem_ids):
         if not e.get("note"):
             err(where, "缺少说明 note")
         # dual / converse 不分方向
-        key = (ty, f, t) if ty == "specializes" else (ty, *sorted((f, t)))
+        key = (ty, f, t) if ty == "generalizes" else (ty, *sorted((f, t)))
         if key in seen:
             err(where, "重复边")
         seen.add(key)
-        if ty == "specializes":
+        if ty == "generalizes":
             children.setdefault(f, []).append(t)
 
-    # specializes 边不能成环（DFS 三色标记）
+    # generalizes 边不能成环（DFS 三色标记）
     state = {}
     def visit(u, stack):
         state[u] = 1
         for v in children.get(u, []):
             if state.get(v) == 1:
                 cyc = stack[stack.index(v):] + [v] if v in stack else [u, v]
-                err("specializes", "成环：" + " → ".join(cyc))
+                err("generalizes", "成环：" + " → ".join(cyc))
             elif not state.get(v):
                 visit(v, stack + [v])
         state[u] = 2
