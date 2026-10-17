@@ -14,6 +14,7 @@ data/theorems.json    全部定理数据；改内容只改这个文件
 data/relations.json   定理之间的推广—特例、对偶、逆命题关系
 scripts/validate.py   数据检查脚本
 vendor/d3.min.js      D3 v7.8.5（画图库，ISC 许可证见 vendor/d3-LICENSE）
+vendor/dagre.min.js   dagre 0.8.5（推广图的分层布局，MIT 许可证见 vendor/dagre-LICENSE）
 ```
 
 `theorems.json` 里每条定理的字段：
@@ -96,6 +97,7 @@ npx serve .
 - 代码（`index.html`、`scripts/`）：MIT，见 [LICENSE](LICENSE)
 - 数据（`data/theorems.json`）：[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)，转载或改编请注明出处
 - `vendor/d3.min.js`：D3 自带的 ISC 许可证，见 `vendor/d3-LICENSE`
+- `vendor/dagre.min.js`：dagre 自带的 MIT 许可证，见 `vendor/dagre-LICENSE`
 
 ## 公开前待办
 

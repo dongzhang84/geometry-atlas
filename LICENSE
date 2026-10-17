@@ -26,3 +26,4 @@ This MIT license covers the code (index.html, scripts/).
 data/theorems.json is licensed under CC BY 4.0:
 https://creativecommons.org/licenses/by/4.0/
 vendor/d3.min.js is D3, under its own ISC license (vendor/d3-LICENSE).
+vendor/dagre.min.js is dagre, under its own MIT license (vendor/dagre-LICENSE).
