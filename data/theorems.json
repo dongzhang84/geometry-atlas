@@ -1,0 +1,5252 @@
+{
+ "version": "0.1",
+ "updated": "2026-10-16",
+ "count": 327,
+ "books": {
+  "吉川": "吉川实夫著、王邦珍译《近世综合几何学》，商务印书馆，1925",
+  "严": "严济慈《几何证题法》，1928 年初版；依据 1982 年高等教育出版社白话本",
+  "矢野": "矢野健太郎《几何有名定理》（只依据目录整理）"
+ },
+ "theorems": [
+  {
+   "id": "T001",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.1 基本图形、截断与射影",
+   "label": "定理 1",
+   "name": "线束被直线截成点列",
+   "statement": "线束 S 为不过其心之一直线 u 所截断，则成点列 u。　【对偶】点列 u 为不在其台上之一点 S 所射影，则成线束 S。",
+   "note": "",
+   "source": "吉川 p4 定理 1",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T002",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.1 基本图形、截断与射影",
+   "label": "定理 2",
+   "name": "面束被直线截成点列",
+   "statement": "面束 u 为不在其面上之一直线 v 所截断，则成点列 v。　【对偶】点列 v 为不过其点之一直线 u 所射影，则成面束 u。",
+   "note": "",
+   "source": "吉川 p4 定理 2",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T003",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.1 基本图形、截断与射影",
+   "label": "定理 3",
+   "name": "面束被平面截成线束",
+   "statement": "面束为不过其轴之平面截断时，成线束。　【对偶】线束为不在其台上之一点射影时，成面束。",
+   "note": "",
+   "source": "吉川 p4 定理 3",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T004",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.1 基本图形、截断与射影",
+   "label": "定理 4",
+   "name": "把被平面截得平面场",
+   "statement": "把为不过其心之平面截断时，得一野。　【对偶】野为不在其台上之一点射影时，得一把。",
+   "note": "",
+   "source": "吉川 p4 定理 4",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T005",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.2 Desargues 构型与完全四角形",
+   "label": "定理 1",
+   "name": "空间 Desargues 定理",
+   "statement": "在异平面上二个互关联之三角形 ABC、A'B'C'，若三双对应边 (BC,B'C')、(CA,C'A')、(AB,A'B') 各相交，则三双对应顶点之连线 AA'、BB'、CC' 会于一点。其逆亦真。",
+   "note": "",
+   "source": "吉川 p12 定理 1",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "共点",
+   "status": "extracted"
+  },
+  {
+   "id": "T006",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.2 Desargues 构型与完全四角形",
+   "label": "定理 2",
+   "name": "异面完全四角形第六对边相交",
+   "statement": "异平面上二个相关联之完全四角形 ABCD、A'B'C'D'，若五双对应边（如 AB 与 A'B'）各相交，则第六双对应边 (CD, C'D') 亦相交。",
+   "note": "",
+   "source": "吉川 p13 定理 2",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T007",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.2 Desargues 构型与完全四角形",
+   "label": "定理 3",
+   "name": "完全四角形对应边交点共线",
+   "statement": "二个相关联之完全四角形，其五双对应边各相交，且其交点在一直线上，则第六双对应边亦在此线上相交。",
+   "note": "",
+   "source": "吉川 p14 定理 3",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "共线",
+   "status": "extracted"
+  },
+  {
+   "id": "T008",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.2 Desargues 构型与完全四角形",
+   "label": "定理 4",
+   "name": "四角形对角线截定直线于定点",
+   "statement": "直线 u 上有三定点 P、Q、R。在过 u 之任一平面 σ 上作四角形 ABCD，使一双对边 AB、CD 过第一点 P，一对角线 AC 过第二点 Q，他双对边 AD、BC 过第三点 R，则第二对角线 BD 截 u 之点 S 为定点，无论平面 σ 及四角形 ABCD 如何变动。",
+   "note": "",
+   "source": "吉川 p14 定理 4",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "共点",
+   "status": "extracted"
+  },
+  {
+   "id": "T009",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.2 Desargues 构型与完全四角形",
+   "label": "问题 1",
+   "name": "Desargues 定理（平面）",
+   "statement": "某平面上二个三角形 ABC、A'B'C'，其三双对应顶点 AA'、BB'、CC' 之连线过同一点 U，则三双对应边 (BC,B'C')、(CA,C'A')、(AB,A'B') 之交点在一直线 u 上。　【对偶】某平面上二个三角形 ABC、A'B'C'，其三双对应边之交点在一直线 u 上，则三双对应顶点 AA'、BB'、CC' 之连线过同一点 U。",
+   "note": "",
+   "source": "吉川 p35 问题 1；严 p120 例 2；矢野 §12.2–12.3 p127–128",
+   "books": [
+    "吉川",
+    "严",
+    "矢野"
+   ],
+   "conclusion": "共线",
+   "status": "extracted"
+  },
+  {
+   "id": "T010",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.3 调和点列与交比",
+   "label": "定理 5",
+   "name": "调和图形经射影仍调和",
+   "statement": "调和图形经截断或射影之，亦得调和图形。分七种情形：I 调和点列由一点射影之得调和线束；II 调和点列由一线射影之得调和面束；III 调和线束由一点射影之得调和面束；IV 调和线束由一线截断之得调和点列；V 调和线束由一面截断之得调和点列；VI 调和面束由一线截断之得调和点列；VII 调和面束由一面截断之得调和线束。",
+   "note": "",
+   "source": "吉川 p15 定理 5",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "调和",
+   "status": "extracted"
+  },
+  {
+   "id": "T011",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.3 调和点列与交比",
+   "label": "定理 6",
+   "name": "顺列四点的两点对互相分隔",
+   "statement": "直线上四点 A、B、C、D 顺列时，则二个点对 AC·BD 为椭圆的（互相分隔）。",
+   "note": "",
+   "source": "吉川 p19 定理 6",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T012",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.3 调和点列与交比",
+   "label": "定理 7",
+   "name": "四点只有一组分隔点对",
+   "statement": "一直线上四点，惟有一组椭圆的二点对。",
+   "note": "",
+   "source": "吉川 p19 定理 7",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T013",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.3 调和点列与交比",
+   "label": "定理 8",
+   "name": "点对分隔性是射影性质",
+   "statement": "二点对为椭圆的或双曲的，施以截断、射影，其性质不变，即所谓射影的性质。",
+   "note": "",
+   "source": "吉川 p19 定理 8",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T014",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.3 调和点列与交比",
+   "label": "定理 9",
+   "name": "调和点列的两点对互相分隔",
+   "statement": "调和点列 ABCD，其二点对 AC·BD 为椭圆的。",
+   "note": "",
+   "source": "吉川 p20 定理 9",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "调和",
+   "status": "extracted"
+  },
+  {
+   "id": "T015",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.3 调和点列与交比",
+   "label": "定理 10",
+   "name": "调和点列换序（ADCB 等）",
+   "statement": "ABCD 为调和点列，则 ADCB、CBAD、CDAB 亦为调和点列。",
+   "note": "",
+   "source": "吉川 p21 定理 10",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "调和",
+   "status": "extracted"
+  },
+  {
+   "id": "T016",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.3 调和点列与交比",
+   "label": "定理 11",
+   "name": "调和点列换序（BADC）",
+   "statement": "ABCD 为调和点列，则 BADC 亦为调和点列。",
+   "note": "",
+   "source": "吉川 p21 定理 11",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "调和",
+   "status": "extracted"
+  },
+  {
+   "id": "T017",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.3 调和点列与交比",
+   "label": "定理 12",
+   "name": "两点对的公共调和点对",
+   "statement": "两点对 BD·B'D' 为椭圆的，则同时分调和之第三点对不存在；两点对 BD·B'D' 为双曲的，则同时分调和之第三点对存在。",
+   "note": "",
+   "source": "吉川 p22 定理 12",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "调和",
+   "status": "extracted"
+  },
+  {
+   "id": "T018",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.3 调和点列与交比",
+   "label": "定理 13",
+   "name": "两点、中点与无穷远点调和",
+   "statement": "一直线上任意二点 A、C，与其中点 B 及无穷远点 D 分调和。",
+   "note": "",
+   "source": "吉川 p23 定理 13",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "调和",
+   "status": "extracted"
+  },
+  {
+   "id": "T019",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.3 调和点列与交比",
+   "label": "定理 14",
+   "name": "角平分线与两边调和",
+   "statement": "角 ac 之二等分线 b、d，与 a、c 分调和。",
+   "note": "",
+   "source": "吉川 p23 定理 14",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "调和",
+   "status": "extracted"
+  },
+  {
+   "id": "T020",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.3 调和点列与交比",
+   "label": "问题 7",
+   "name": "调和点列的线段比",
+   "statement": "ABCD 为调和点列，则线分 AB : BC = AD : CD。",
+   "note": "",
+   "source": "吉川 p25 问题 7",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "比例",
+   "status": "extracted"
+  },
+  {
+   "id": "T021",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.3 调和点列与交比",
+   "label": "问题 8",
+   "name": "调和点列的比例中项",
+   "statement": "ABCD 为调和点列，线分 BD 之中点为 M，则线分 BM 为线分 AM、CM 之比例中项（AM : BM = BM : CM）。",
+   "note": "",
+   "source": "吉川 p26 问题 8",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "比例",
+   "status": "extracted"
+  },
+  {
+   "id": "T022",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.3 调和点列与交比",
+   "label": "问题 9",
+   "name": "调和点列成调和级数",
+   "statement": "调和点列 ABCD 之三线分 AB、AC、AD 成调和级数，即 1/AB − 1/AC = 1/AC − 1/AD。",
+   "note": "",
+   "source": "吉川 p26 问题 9",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "比例",
+   "status": "extracted"
+  },
+  {
+   "id": "T023",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.3 调和点列与交比",
+   "label": "问题 10",
+   "name": "调和线束的正弦比",
+   "statement": "abcd 为调和线束，则 sin(ab) : sin(bc) = sin(ad) : sin(cd)。",
+   "note": "",
+   "source": "吉川 p26 问题 10",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "比例",
+   "status": "extracted"
+  },
+  {
+   "id": "T024",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.3 调和点列与交比",
+   "label": "问题 11",
+   "name": "调和线束的正切比",
+   "statement": "abcd 为调和线束，m 为角 ac 之二等分线，则 tan(mb) : tan(mc) = tan(mc) : tan(md)。",
+   "note": "",
+   "source": "吉川 p27 问题 11",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "比例",
+   "status": "extracted"
+  },
+  {
+   "id": "T025",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.3 调和点列与交比",
+   "label": "问题 12",
+   "name": "调和线束的余切关系",
+   "statement": "abcd 为调和线束，则 1/tan(ab) − 1/tan(ac) = 1/tan(ac) − 1/tan(ad)。",
+   "note": "",
+   "source": "吉川 p28 问题 12",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "比例",
+   "status": "extracted"
+  },
+  {
+   "id": "T026",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.3 调和点列与交比",
+   "label": "问题 13",
+   "name": "度量关系推广到调和面束",
+   "statement": "问题 10 至 12 之结论可扩张于调和面束（以二面角之平面角代替线间夹角）。",
+   "note": "",
+   "source": "吉川 p28 问题 13",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "比例",
+   "status": "extracted"
+  },
+  {
+   "id": "T027",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.3 调和点列与交比",
+   "label": "定理 8",
+   "name": "射影保持交比",
+   "statement": "二个射影的图形，其一形任意四元素之复比，等于他形对应四元素之复比。",
+   "note": "",
+   "source": "吉川 p37 定理 8",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "交比",
+   "status": "extracted"
+  },
+  {
+   "id": "T028",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.3 调和点列与交比",
+   "label": "定理 9",
+   "name": "交比在两对对换下不变",
+   "statement": "(ABCD) = (BADC) = (CDAB) = (DCBA)。",
+   "note": "",
+   "source": "吉川 p37 定理 9",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "交比",
+   "status": "extracted"
+  },
+  {
+   "id": "T029",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.3 调和点列与交比",
+   "label": "问题 2",
+   "name": "四点交比的二十四种排列",
+   "statement": "设 (ABCD)=(BADC)=(CDAB)=(DCBA)=λ，则 (ADCB)=(DABC)=(CBAD)=(BCDA)=1/λ；(ACBD)=(CADB)=(BDAC)=(BCDA)=1−λ；(ADBC)=(DACB)=(BCAD)=(CBDA)=1/(1−λ)；(ACDB)=(CABD)=(DBAC)=(BDCA)=(λ−1)/λ；(ABDC)=(BACD)=(DCAB)=(CDBA)=λ/(λ−1)。",
+   "note": "",
+   "source": "吉川 p37 问题 2",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "交比",
+   "status": "extracted"
+  },
+  {
+   "id": "T030",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.3 调和点列与交比",
+   "label": "问题 3",
+   "name": "交比为 −1 即调和",
+   "statement": "若 (ABCD) = −1，则 ABCD 为调和点列。",
+   "note": "",
+   "source": "吉川 p39 问题 3",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "调和",
+   "status": "extracted"
+  },
+  {
+   "id": "T031",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.3 调和点列与交比",
+   "label": "问题 4",
+   "name": "调和点列各排列的交比值",
+   "statement": "若 ABCD 为调和点列，即 (ABCD)=(BADC)=(CDAB)=(DCBA)=−1，则 (ADCB)=(DABC)=(CBAD)=(BCDA)=−1；(ACBD)=(CADB)=(BDAC)=(BCDA)=(ADBC)=(DACB)=(BCAD)=(CBDA)=2；(ACDB)=(CABD)=(DBAC)=(BDCA)=(ABDC)=(BACD)=(DCAB)=(CDBA)=1/2。",
+   "note": "",
+   "source": "吉川 p39 问题 4",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "交比",
+   "status": "extracted"
+  },
+  {
+   "id": "T032",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.3 调和点列与交比",
+   "label": "§13.1–13.2",
+   "name": "调和点列",
+   "statement": "",
+   "note": "目录中对应章节为调和点列的定义与性质，具体定理待核对原书。",
+   "source": "矢野 §13.1–13.2 p134–137",
+   "books": [
+    "矢野"
+   ],
+   "conclusion": "调和",
+   "status": "placeholder"
+  },
+  {
+   "id": "T033",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.4 一级图形的射影对应",
+   "label": "定理 1",
+   "name": "射影对应保持排列次序",
+   "statement": "有射影的关联之二个一级图形，一形之各元素与他形之对应元素，其排列次序相同。",
+   "note": "",
+   "source": "吉川 p31 定理 1",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "射影对应",
+   "status": "extracted"
+  },
+  {
+   "id": "T034",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.4 一级图形的射影对应",
+   "label": "定理 2",
+   "name": "三对对应元素决定射影",
+   "statement": "二个一级图形有对应之三元素，即可定为射影的关联。",
+   "note": "",
+   "source": "吉川 p32 定理 2",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "射影对应",
+   "status": "extracted"
+  },
+  {
+   "id": "T035",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.4 一级图形的射影对应",
+   "label": "定理 3",
+   "name": "三对元素重合则两形相同",
+   "statement": "射影的关联之二个一级图形，有三双对应元素相重时，则他双对应元素悉相重，即两图形为同物。",
+   "note": "",
+   "source": "吉川 p33 定理 3",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "射影对应",
+   "status": "extracted"
+  },
+  {
+   "id": "T036",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.4 一级图形的射影对应",
+   "label": "定理 4",
+   "name": "点列与线束三对重合则配景",
+   "statement": "点列 u 与其射影的线束 U，若有三双对应元素 A、B、C 与 a、b、c 相重（即 a、b、c 分别过 A、B、C），则两者在配景位置。",
+   "note": "",
+   "source": "吉川 p34 定理 4",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "射影对应",
+   "status": "extracted"
+  },
+  {
+   "id": "T037",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.4 一级图形的射影对应",
+   "label": "定理 5",
+   "name": "一对对应点重合则配景",
+   "statement": "一平面上二个互射影的点列 s(ABM)⊼s'(A'B'M')，其一双对应点 M、M' 一致，则两者在配景位置。　【对偶】一平面上二个互射影的线束 S(abm)⊼S'(a'b'm')，其一双对应线 m、m' 一致，则两者在配景位置。",
+   "note": "",
+   "source": "吉川 p34 定理 5",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "射影对应",
+   "status": "extracted"
+  },
+  {
+   "id": "T038",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.4 一级图形的射影对应",
+   "label": "定理 6",
+   "name": "三对对应点连线共点则配景",
+   "statement": "一平面上二个互射影的点列 s(ABC)⊼s'(A'B'C')，其三双对应点之连线过同一点 K，则两者在配景位置。　【对偶】一平面上二个互射影的线束 S(abc)⊼S'(a'b'c')，其三双对应线之交点在一直线 k 上，则两者在配景位置。",
+   "note": "",
+   "source": "吉川 p34 定理 6",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "射影对应",
+   "status": "extracted"
+  },
+  {
+   "id": "T039",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.4 一级图形的射影对应",
+   "label": "定理 7",
+   "name": "四元素两两互换仍射影",
+   "statement": "一级图形顺列四元素之群，其中两组二元素各同时互交换之，所得与原图形为射影的。例如点列 ABCD⊼BADC⊼CDAB⊼DCBA。",
+   "note": "",
+   "source": "吉川 p35 定理 7",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "射影对应",
+   "status": "extracted"
+  },
+  {
+   "id": "T040",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.4 一级图形的射影对应",
+   "label": "定理 1",
+   "name": "射影线束生成一次或二次点列",
+   "statement": "二个射影的一次线束，属于同一面不同心，两者配景之，则产出一次点列或二次点列。　【对偶】二个射影的一次面束，属于同一把不同台，两者配景之，则产出一次面束或二次面把。",
+   "note": "",
+   "source": "吉川 p106 定理 1",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "分类",
+   "status": "extracted"
+  },
+  {
+   "id": "T041",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.4 一级图形的射影对应",
+   "label": "定理 2",
+   "name": "异台射影点列的产物",
+   "statement": "异台二个射影的一次点列，两者配景之，产出一次线束、二次线束或二次线聚。　【对偶】异轴二个射影的一次面束，两者配景之，产出一次线束、二次线把或二次线聚。",
+   "note": "",
+   "source": "吉川 p107 定理 2",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "分类",
+   "status": "extracted"
+  },
+  {
+   "id": "T042",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.4 一级图形的射影对应",
+   "label": "定理 3",
+   "name": "三对元素决定二次曲线射影",
+   "statement": "二个二次曲线有三双对应元素 AA', BB', CC'，得定为射影的关联。",
+   "note": "",
+   "source": "吉川 p107 定理 3",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "射影对应",
+   "status": "extracted"
+  },
+  {
+   "id": "T043",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.4 一级图形的射影对应",
+   "label": "定理 4",
+   "name": "二次点列射影的射影轴",
+   "statement": "同台之二个射影的二次点列，任取其二双对应点 AA', BB'，连线 AB', A'B 之交点必在某定线上（射影轴）。　【对偶】同台之二个射影的二次线束，任取其二双对应线 aa', bb'，交点 ab', a'b 之连线必过某定点（射影心）。",
+   "note": "",
+   "source": "吉川 p108 定理 4",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "共线",
+   "status": "extracted"
+  },
+  {
+   "id": "T044",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.4 一级图形的射影对应",
+   "label": "定理 10",
+   "name": "一次与二次图形的配景条件",
+   "statement": "一次图形与二次图形互射影的，若一形之元素含其对应元素超过三个，则两图形在配景位置。",
+   "note": "",
+   "source": "吉川 p112 定理 10",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "射影对应",
+   "status": "extracted"
+  },
+  {
+   "id": "T045",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.5 对合",
+   "label": "问题 2",
+   "name": "无二重点的同台射影",
+   "statement": "在线 t 上有椭圆的二点对 MN、M'N'，求此点对之调和共轭点 AB、A'B'，则得同台 t 射影的二点列，然此种关联无二重点。　【对偶】过 T 点有椭圆的二线对 mn、m'n'，求此线对之调和共轭线 ab、a'b'，则得同台 T 射影的二线束，然此种关联无二重线。",
+   "note": "",
+   "source": "吉川 p41 问题 2",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "射影对应",
+   "status": "extracted"
+  },
+  {
+   "id": "T046",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.5 对合",
+   "label": "定理 1",
+   "name": "射影中一对互换则全部互换",
+   "statement": "同台射影的点列 u、u'，其一双对应点 A、A' 二重相对应时，则他双对应点 P、P' 亦二重相对应。",
+   "note": "",
+   "source": "吉川 p41 定理 1",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "对合",
+   "status": "extracted"
+  },
+  {
+   "id": "T047",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.5 对合",
+   "label": "定理 2",
+   "name": "对合由两对共轭元素决定",
+   "statement": "对合由其二双共轭元素决定之。",
+   "note": "与 T058 内容相近，待核对原书判断是否重复。",
+   "source": "吉川 p42 定理 2",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "对合",
+   "status": "extracted"
+  },
+  {
+   "id": "T048",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.5 对合",
+   "label": "定理 3",
+   "name": "二重元素与共轭对调和",
+   "statement": "双曲的对合之二个二重元素 M、N，与各双共轭元素对 AA' 分调和。",
+   "note": "",
+   "source": "吉川 p43 定理 3",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "调和",
+   "status": "extracted"
+  },
+  {
+   "id": "T049",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.5 对合",
+   "label": "定理 4",
+   "name": "直线截完全四角形成对合",
+   "statement": "在某平面上任引一直线 u，其与完全四角形 PQRS 三双对边之交点 AA'、BB'、CC'（亦称六点形）成对合共轭点对。　【对偶】在某平面上任取一点 U，其与完全四边形 pqrs 三双对点之连线 aa'、bb'、cc'（亦称六线形）成对合共轭线对。",
+   "note": "",
+   "source": "吉川 p44 定理 4",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "对合",
+   "status": "extracted"
+  },
+  {
+   "id": "T050",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.5 对合",
+   "label": "定理 5",
+   "name": "对合中心到共轭点的距离积",
+   "statement": "点对合由其中心至任意共轭点对距离之积有定值（AO·A'O = BO·B'O）。",
+   "note": "",
+   "source": "吉川 p45 定理 5",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "等长",
+   "status": "extracted"
+  },
+  {
+   "id": "T051",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.5 对合",
+   "label": "定理 6",
+   "name": "直线截圆束成对合",
+   "statement": "任意直线截圆束（过二定点之圆的集合）成对合点列。",
+   "note": "",
+   "source": "吉川 p45 定理 6",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "对合",
+   "status": "extracted"
+  },
+  {
+   "id": "T052",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.5 对合",
+   "label": "定理 7",
+   "name": "对合线束有一对垂直共轭线",
+   "statement": "对合线束常有一双垂直共轭线。",
+   "note": "",
+   "source": "吉川 p47 定理 7",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "垂直",
+   "status": "extracted"
+  },
+  {
+   "id": "T053",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.5 对合",
+   "label": "问题 3",
+   "name": "对合轴平分二重线夹角",
+   "statement": "双曲的对合线束 P 之对合轴，必平分其二重线 m、n 之夹角。",
+   "note": "",
+   "source": "吉川 p47 问题 3",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "等角",
+   "status": "extracted"
+  },
+  {
+   "id": "T054",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.5 对合",
+   "label": "定理 8",
+   "name": "两对垂直则全部垂直",
+   "statement": "对合线束 P 有二双垂直共轭线时，则他双共轭线亦互垂直。",
+   "note": "",
+   "source": "吉川 p48 定理 8",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "垂直",
+   "status": "extracted"
+  },
+  {
+   "id": "T055",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.5 对合",
+   "label": "定理 14",
+   "name": "Desargues 定理",
+   "statement": "圆锥曲线与其内接四角形之对边，为一线 u 所截断之点对，成对合共轭点对。　【对偶】对圆锥曲线与其外切四边形之对点，为一点 U 所射影之线对，成对合共轭线对。",
+   "note": "",
+   "source": "吉川 p81 定理 14",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "对合",
+   "status": "extracted"
+  },
+  {
+   "id": "T056",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.5 对合",
+   "label": "定理 15",
+   "name": "直线截圆锥曲线束成对合",
+   "statement": "圆锥曲线束（过四点之圆锥曲线之集合）为截线所截，成对合点列。",
+   "note": "",
+   "source": "吉川 p82 定理 15",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "对合",
+   "status": "extracted"
+  },
+  {
+   "id": "T057",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.5 对合",
+   "label": "定理 5",
+   "name": "一对互换的射影是对合",
+   "statement": "同台射影的关联图形，其一双对应元素互二重对应时，则其关联为对合。",
+   "note": "",
+   "source": "吉川 p109 定理 5",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "对合",
+   "status": "extracted"
+  },
+  {
+   "id": "T058",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.5 对合",
+   "label": "定理 6",
+   "name": "对合由两对共轭元素决定",
+   "statement": "对合可由其二双共轭元素决定之。",
+   "note": "与 T047 内容相近，待核对原书判断是否重复。",
+   "source": "吉川 p111 定理 6",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "对合",
+   "status": "extracted"
+  },
+  {
+   "id": "T059",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.5 对合",
+   "label": "定理 7",
+   "name": "双曲对合二重元素分调和",
+   "statement": "双曲的对合，其二个贰重元素与其共轭元素分调和。",
+   "note": "",
+   "source": "吉川 p111 定理 7",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "调和",
+   "status": "extracted"
+  },
+  {
+   "id": "T060",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.5 对合",
+   "label": "定理 8",
+   "name": "圆锥曲线上对合的对合心",
+   "statement": "圆锥曲线上之对合，其共轭点之联线悉过一定点 U（对合心）。　【对偶】圆锥曲线上之对合，其共轭切线之交点悉在一定线 u 上（对合轴）。",
+   "note": "",
+   "source": "吉川 p111 定理 8",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "共点",
+   "status": "extracted"
+  },
+  {
+   "id": "T061",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.5 对合",
+   "label": "定理 9",
+   "name": "二次锥面上对合的对合线",
+   "statement": "二次锥形上之对合，其共轭线之结平面悉过一定线 w（对合线）。　【对偶】二次锥形上之对合，其共轭切面之交线悉在一定面 ω 上（对合面）。",
+   "note": "",
+   "source": "吉川 p111 定理 9",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "对合",
+   "status": "extracted"
+  },
+  {
+   "id": "T062",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.6 圆锥曲线的射影生成（Steiner、Pascal、Brianchon、Pappus）",
+   "label": "定理 1",
+   "name": "生成线束的中心在曲线上",
+   "statement": "（产生二次点列的）两线束之心 S、S' 亦为 k² 之元素。　【对偶】（产生二次线束的）两点列之台 s、s' 亦为 K² 之元素。",
+   "note": "",
+   "source": "吉川 p50 定理 1",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T063",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.6 圆锥曲线的射影生成（Steiner、Pascal、Brianchon、Pappus）",
+   "label": "定理 2",
+   "name": "直线与二次曲线至多两交点",
+   "statement": "二次点列在同一直线上之点不能多于二。　【对偶】二次线束过同一点之线不能多于二。",
+   "note": "",
+   "source": "吉川 p51 定理 2",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T064",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.6 圆锥曲线的射影生成（Steiner、Pascal、Brianchon、Pappus）",
+   "label": "定理 3",
+   "name": "SS′ 的对应线上只有一点",
+   "statement": "二次点列之点在 SS' 之对应线 m'、n' 上者只有一个。　【对偶】二次线束之线过 ss' 之对应点 M'、N' 者只有一个。",
+   "note": "",
+   "source": "吉川 p51 定理 3",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T065",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.6 圆锥曲线的射影生成（Steiner、Pascal、Brianchon、Pappus）",
+   "label": "问题 1",
+   "name": "定角顶点三角形底边画二次线束",
+   "statement": "某平面上三角形 ASA' 之二顶点 A、A' 常动于二定线 s、s' 上，他顶点 S 为定点，顶角 S 有定值，则其底边 AA' 画一二次线束，且此线束含二定线 s、s'。",
+   "note": "",
+   "source": "吉川 p53 问题 1",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "轨迹",
+   "status": "extracted"
+  },
+  {
+   "id": "T066",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.6 圆锥曲线的射影生成（Steiner、Pascal、Brianchon、Pappus）",
+   "label": "定理 4",
+   "name": "Steiner 定理",
+   "statement": "由二次点列中任意二点射影其余各点，得二个射影的线束。　【对偶】由二次线束中任意二线截断其余各线，得二个射影的点列。",
+   "note": "",
+   "source": "吉川 p54 定理 4",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "射影对应",
+   "status": "extracted"
+  },
+  {
+   "id": "T067",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.6 圆锥曲线的射影生成（Steiner、Pascal、Brianchon、Pappus）",
+   "label": "定理 5",
+   "name": "Pascal 定理 / Brianchon 定理",
+   "statement": "由 k² 之六点 A、B、C、D、E、F 所成简单六角形，其三双对边之交点在一直线上。（Pascal）　【对偶】由 K² 之六线 a、b、c、d、e、f 所成简单六边形，其三双对点之连线过同一点。（Brianchon）",
+   "note": "",
+   "source": "吉川 p55 定理 5；矢野 §14.2–14.3 p146–152",
+   "books": [
+    "吉川",
+    "矢野"
+   ],
+   "conclusion": "共线",
+   "status": "extracted"
+  },
+  {
+   "id": "T068",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.6 圆锥曲线的射影生成（Steiner、Pascal、Brianchon、Pappus）",
+   "label": "定理 6",
+   "name": "Pascal 定理之逆；Brianchon 定理之逆",
+   "statement": "简单六角形三双对边之交点在一直线上，则其顶点属于某二次点列。　【对偶】简单六边形三双对点之连线过同一点，则其边属于某二次线束。",
+   "note": "",
+   "source": "吉川 p56 定理 6",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T069",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.6 圆锥曲线的射影生成（Steiner、Pascal、Brianchon、Pappus）",
+   "label": "定理 5 系 1",
+   "name": "Pappus 定理（六点共线）",
+   "statement": "二次点列若分解为二个一次点列，则：简单六角形 ABCDEF 之顶点更迭在二定线 m、k 上，其三双对边之交点在一直线 p 上。　【对偶】二次线束若分解为二个一次线束，则：简单六边形 abcdef 之各边更迭过二定点 M、K，其三双对点之连线通过一点 P。",
+   "note": "",
+   "source": "吉川 p57 定理 5 系 1；矢野 §14.1 p144",
+   "books": [
+    "吉川",
+    "矢野"
+   ],
+   "conclusion": "共线",
+   "status": "extracted"
+  },
+  {
+   "id": "T070",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.6 圆锥曲线的射影生成（Steiner、Pascal、Brianchon、Pappus）",
+   "label": "定理 5 系 2",
+   "name": "Pascal 定理的五点情形",
+   "statement": "由 k² 之五点所成简单五角形，其一顶点之切线与对边之交点，及他二双不相邻边之交点，在一直线上。　【对偶】由 K² 之五线所成简单五边形，其一边之切点与对点之连线，及他二双不相邻顶点之连线，通过同一点。",
+   "note": "",
+   "source": "吉川 p57 定理 5 系 2",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "共线",
+   "status": "extracted"
+  },
+  {
+   "id": "T071",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.6 圆锥曲线的射影生成（Steiner、Pascal、Brianchon、Pappus）",
+   "label": "定理 5 系 3",
+   "name": "Pascal 定理的四点情形",
+   "statement": "由 k² 之四点所成简单四角形，其二双对边之交点，与二双对点切线之交点，在一直线上。　【对偶】由 K² 之四线所成简单四边形，其二双对点之连线，与二双对边切点之连线，通过同一点。",
+   "note": "",
+   "source": "吉川 p58 定理 5 系 3",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "共线",
+   "status": "extracted"
+  },
+  {
+   "id": "T072",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.6 圆锥曲线的射影生成（Steiner、Pascal、Brianchon、Pappus）",
+   "label": "定理 5 系 4",
+   "name": "Pascal 定理的三点情形",
+   "statement": "由 k² 之三点所成三角形，其各顶点切线与对边之交点在一直线上。　【对偶】由 K² 之三线所成三边形，其各边切点与对顶之连线通过同一点。",
+   "note": "",
+   "source": "吉川 p58 定理 5 系 4",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "共线",
+   "status": "extracted"
+  },
+  {
+   "id": "T073",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.6 圆锥曲线的射影生成（Steiner、Pascal、Brianchon、Pappus）",
+   "label": "定理 7",
+   "name": "五点决定唯一二次曲线",
+   "statement": "任意五点可定一二次点列，然以一为限。　【对偶】任意五线可定一二次线束，然以一为限。",
+   "note": "",
+   "source": "吉川 p60 定理 7",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T074",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.6 圆锥曲线的射影生成（Steiner、Pascal、Brianchon、Pappus）",
+   "label": "定理 8",
+   "name": "内接四角形与外切四边形同三角形",
+   "statement": "二次曲线 k² 上任意取四点 A、B、C、D 及其切线 a、b、c、d，则完全四角形 ABCD 之对边点 X、Y、Z 与完全四边形 abcd 之对角线 x、y、z 成同一三角形。",
+   "note": "",
+   "source": "吉川 p62 定理 8",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T075",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.6 圆锥曲线的射影生成（Steiner、Pascal、Brianchon、Pappus）",
+   "label": "定理 9",
+   "name": "二次曲线的切线成二次线束",
+   "statement": "二次点列总切线之集合成二次线束。　【对偶】二次线束总切点之集合成二次点列。",
+   "note": "",
+   "source": "吉川 p62 定理 9",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T076",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.7 极点与极线",
+   "label": "定理 1",
+   "name": "切线交点在极线上",
+   "statement": "过 A、B、C、D 之切线为 a、b、c、d，则交点 a·c、b·d 在极线 x 上。　【对偶】a、b、c、d 上之切点为 A、B、C、D，则连线 AC、BD 过极点 X。",
+   "note": "",
+   "source": "吉川 p72 定理 1",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "共线",
+   "status": "extracted"
+  },
+  {
+   "id": "T077",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.7 极点与极线",
+   "label": "定理 2",
+   "name": "极线上的调和共轭点",
+   "statement": "X 关于二点 A、C 或 B、D 之调和共轭点，均在其极线 x 上。　【对偶】x 关于二线 a、c 或 b、d 之调和共轭线，均过其极点 X。",
+   "note": "",
+   "source": "吉川 p73 定理 2",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "调和",
+   "status": "extracted"
+  },
+  {
+   "id": "T078",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.7 极点与极线",
+   "label": "定理 3",
+   "name": "极点与极线一一对应",
+   "statement": "一点只有一个极线。　【对偶】一线只有一个极点。",
+   "note": "",
+   "source": "吉川 p73 定理 3",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T079",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.7 极点与极线",
+   "label": "定理 4",
+   "name": "极点极线互逆",
+   "statement": "x 为 X 之极线，则 X 为 x 之极点。　【对偶】X 为 x 之极点，则 x 为 X 之极线。",
+   "note": "",
+   "source": "吉川 p74 定理 4",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T080",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.7 极点与极线",
+   "label": "定理 5",
+   "name": "共轭点关系对称",
+   "statement": "关于圆锥曲线二点 X、Y 之极线为 x、y。若 X 在 y 上，则 Y 亦在 x 上。　【对偶】若 x 通过 Y，则 y 亦通过 X。",
+   "note": "",
+   "source": "吉川 p74 定理 5",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T081",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.7 极点与极线",
+   "label": "定理 6",
+   "name": "内接四角形对角三角形自共轭",
+   "statement": "内接于圆锥曲线之完全四角形，其对角三角形为自共轭三角形。　【对偶】外切于圆锥曲线之完全四边形，其对角三角形为自共轭三角形。",
+   "note": "",
+   "source": "吉川 p76 定理 6",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T082",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.7 极点与极线",
+   "label": "定理 7",
+   "name": "动点与其极线成射影",
+   "statement": "某点 Y 动于定线 x 上，其极线 y 回转于 x 之极点 X 之周，则得 列(x)⊼束(X)。　【对偶】某线 y 动于定点 X 之周，其极点 Y 移动于 X 之极线 x 上，则得 束(X)⊼列(x)。",
+   "note": "",
+   "source": "吉川 p76 定理 7",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "射影对应",
+   "status": "extracted"
+  },
+  {
+   "id": "T083",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.7 极点与极线",
+   "label": "定理 8",
+   "name": "共轭点对成对合点列",
+   "statement": "在某圆锥曲线平面上，任意一线上共轭点对之集合成对合点列，其直线与曲线之交点为对合二重点。　【对偶】在某圆锥曲线平面上，过任意一点共轭线对之集合成对合线束，由其点引曲线之切线为对合二重线。",
+   "note": "",
+   "source": "吉川 p77 定理 8",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "对合",
+   "status": "extracted"
+  },
+  {
+   "id": "T084",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.7 极点与极线",
+   "label": "定理 9",
+   "name": "一次点列的极图形",
+   "statement": "一次点列之极图形为射影的一次线束。　【对偶】一次线束之极图形为射影的一次点列。",
+   "note": "",
+   "source": "吉川 p78 定理 9",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "射影对应",
+   "status": "extracted"
+  },
+  {
+   "id": "T085",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.7 极点与极线",
+   "label": "定理 10",
+   "name": "二次点列的极图形",
+   "statement": "二次点列之极图形为二次线束。　【对偶】二次线束之极图形为二次点列。",
+   "note": "",
+   "source": "吉川 p78 定理 10",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T086",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.7 极点与极线",
+   "label": "定理 11",
+   "name": "两非共轭线上的共轭点射影",
+   "statement": "在某圆锥曲线平面上，有二个非共轭线 s, s'，第一线上各点 P 与第二线上其共轭点 P' 配合之，则两点列 s, s' 为射影的，乃产出二次线束。　【对偶】在某圆锥曲线平面上，有二个非共轭点 S, S'，过第一点各线 p 与过第二点其共轭线 p' 配合之，则线束 S, S' 为射影的，乃产出二次点列。",
+   "note": "",
+   "source": "吉川 p79 定理 11",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "射影对应",
+   "status": "extracted"
+  },
+  {
+   "id": "T087",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.7 极点与极线",
+   "label": "定理 12",
+   "name": "Staudt 定理",
+   "statement": "圆锥曲线内接三角形之二边 MA, MB' 上共轭点之连线，必过第三边 AB' 之极点。　【对偶】圆锥曲线外切三边形过二顶点 ma, mb' 共轭线之交点，必在第三顶点 ab' 之极线上。",
+   "note": "",
+   "source": "吉川 p79 定理 12",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "共点",
+   "status": "extracted"
+  },
+  {
+   "id": "T088",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.7 极点与极线",
+   "label": "定理 13",
+   "name": "过极点的直线截出共轭点",
+   "statement": "圆锥曲线内接三角形 AMB' 一边 AB' 之极点为 O，过 O 引各直线，截断他二边为共轭点 P, P'。　【对偶】圆锥曲线外切三边形 amb' 一顶点 ab' 之极线为 o，o 上各点射影于各二顶点为共轭线 p, p'。",
+   "note": "",
+   "source": "吉川 p81 定理 13",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T089",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.8 平面射影变换（直射、对射、极系）",
+   "label": "定理 1",
+   "name": "直射保持调和点列",
+   "statement": "在二个相称的平面 σ, σ' 上，σ 之四点 A, B, C, D 成调和点列，则 σ' 之对应点 A', B', C', D' 亦成调和点列。　【对偶】在二个相称的平面 σ, σ' 上，σ 之四线 a, b, c, d 成调和线束，则 σ' 之对应线 a', b', c', d' 亦成调和线束。",
+   "note": "",
+   "source": "吉川 p133 定理 1",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "调和",
+   "status": "extracted"
+  },
+  {
+   "id": "T090",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.8 平面射影变换（直射、对射、极系）",
+   "label": "定理 2",
+   "name": "直射下对应一级图形射影",
+   "statement": "二个相称的二级图形，其中二个相对应一级图形互为射影的。",
+   "note": "",
+   "source": "吉川 p134 定理 2",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "射影对应",
+   "status": "extracted"
+  },
+  {
+   "id": "T091",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.8 平面射影变换（直射、对射、极系）",
+   "label": "定理 3",
+   "name": "对射把调和点列变调和线束",
+   "statement": "二个相反的平面 σ, σ'，而 σ 上之四点 A, B, C, D 为调和点列，则 σ' 上之对应线 a, b, c, d 成调和线束。",
+   "note": "",
+   "source": "吉川 p135 定理 3",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "调和",
+   "status": "extracted"
+  },
+  {
+   "id": "T092",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.8 平面射影变换（直射、对射、极系）",
+   "label": "定理 4",
+   "name": "对射下对应一级图形射影",
+   "statement": "二个相反的二级图形，其中二个相对应一级图形互为射影的。",
+   "note": "",
+   "source": "吉川 p135 定理 4",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "射影对应",
+   "status": "extracted"
+  },
+  {
+   "id": "T093",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.8 平面射影变换（直射、对射、极系）",
+   "label": "定理 5",
+   "name": "射影二级图形的一级图形射影",
+   "statement": "二个二级图形互射影的，则其二个相对应之一级图形亦互射影的。",
+   "note": "",
+   "source": "吉川 p135 定理 5",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "射影对应",
+   "status": "extracted"
+  },
+  {
+   "id": "T094",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.8 平面射影变换（直射、对射、极系）",
+   "label": "定理 6",
+   "name": "两对线束射影确定直射",
+   "statement": "甲乙二平面上，各取线束 A, B 及 A', B'，而 A ⊼ A', B ⊼ B'，共通线 AB, A'B' 相对应，则甲乙为相称。　【对偶】甲乙二平面上，各取点列 a, b 及 a', b'，而 a ⊼ a', b ⊼ b'，共通点 ab, a'b' 相对应，则甲乙为相称。",
+   "note": "",
+   "source": "吉川 p135 定理 6",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "射影对应",
+   "status": "extracted"
+  },
+  {
+   "id": "T095",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.8 平面射影变换（直射、对射、极系）",
+   "label": "定理 7",
+   "name": "线束对点列射影确定对射",
+   "statement": "甲乙二平面，甲的二线束 A, B 与乙之二点列 a', b'，其 A ⊼ a', B ⊼ b'，线 AB 对应于点 a'b'，则两平面为相反的。",
+   "note": "",
+   "source": "吉川 p136 定理 7",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "射影对应",
+   "status": "extracted"
+  },
+  {
+   "id": "T096",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.8 平面射影变换（直射、对射、极系）",
+   "label": "定理 8",
+   "name": "四对对应线确定直射",
+   "statement": "于甲乙二平面上，得取四双之任意对应线 abcd, a'b'c'd'（每三线不过同一点），则两平面为相称。　【对偶】于甲乙二平面上，得取四双之任意对应点 ABCD, A'B'C'D'（每三点不在一线上），则两平面为相称。",
+   "note": "",
+   "source": "吉川 p136 定理 8",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "射影对应",
+   "status": "extracted"
+  },
+  {
+   "id": "T097",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.8 平面射影变换（直射、对射、极系）",
+   "label": "定理 9",
+   "name": "四点对四线确定对射",
+   "statement": "甲乙二平面，甲之任意四点 ABCD 各对应于乙之任意四线 a'b'c'd'，则两平面间成一相反的关联。",
+   "note": "",
+   "source": "吉川 p137 定理 9",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "射影对应",
+   "status": "extracted"
+  },
+  {
+   "id": "T098",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.8 平面射影变换（直射、对射、极系）",
+   "label": "定理 10",
+   "name": "共通线上点自对应则配景",
+   "statement": "二个相称平面，其共通线 u 上之点均自对应时，则此二面在配景位置。　【对偶】二个相称把，过其共通线 u 之平面均自对应时，则此二把在配景位置。",
+   "note": "",
+   "source": "吉川 p137 定理 10",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "射影对应",
+   "status": "extracted"
+  },
+  {
+   "id": "T099",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.8 平面射影变换（直射、对射、极系）",
+   "label": "定理 11",
+   "name": "平面直射的二重点至多三个",
+   "statement": "一平面上之相称，其贰重点（每三点不在一直线上）及贰重线（每三线不过同一点）不能有三个以上。",
+   "note": "",
+   "source": "吉川 p138 定理 11",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T100",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.8 平面射影变换（直射、对射、极系）",
+   "label": "定理 12",
+   "name": "对应线交点在二重点列上",
+   "statement": "一平面上相称之二野，其各双对应线之交点，必在于贰重点点列 u 上。　【对偶】一平面上相称之二野，其各双对应点之联线，必通过贰重线线束 U。",
+   "note": "",
+   "source": "吉川 p138 定理 12",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "共线",
+   "status": "extracted"
+  },
+  {
+   "id": "T101",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.8 平面射影变换（直射、对射、极系）",
+   "label": "逆定理",
+   "name": "交点在定线上则全为二重点",
+   "statement": "一平面上相称之二野，其各双对应线之交点在某定线上，则此线上之点悉为贰重点。　【对偶】一平面上相称之二野，其各双对应点之联线过某定点，则过此点之线悉为贰重线。",
+   "note": "",
+   "source": "吉川 p139 逆定理",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T102",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.8 平面射影变换（直射、对射、极系）",
+   "label": "定理 13",
+   "name": "二重点列与二重线束并存",
+   "statement": "同台之相称二野 σ, σ'，若贰重点点列 u 存在，则贰重线线束 U 亦存在。　【对偶】同台之相称二野 σ, σ'，若贰重线线束 U 存在，则贰重点点列 u 亦存在。",
+   "note": "",
+   "source": "吉川 p139 定理 13",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T103",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.8 平面射影变换（直射、对射、极系）",
+   "label": "定理 14",
+   "name": "轴、心和一对对应点确定相应",
+   "statement": "一平面相应，其轴 u 与其心 U 并其一双对应点 AA'（其结线过 U）定时，则其相应亦从之而定。　【对偶】一平面相应，其轴 u 与其心 U 并其一双对应线 aa'（其交点在 u 上）定时，则其相应亦从之而定。",
+   "note": "",
+   "source": "吉川 p140 定理 14",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "射影对应",
+   "status": "extracted"
+  },
+  {
+   "id": "T104",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.8 平面射影变换（直射、对射、极系）",
+   "label": "定理 15",
+   "name": "调和相应是对合",
+   "statement": "调和相应者，一个对合也。",
+   "note": "",
+   "source": "吉川 p141 定理 15",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "对合",
+   "status": "extracted"
+  },
+  {
+   "id": "T105",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.8 平面射影变换（直射、对射、极系）",
+   "label": "定理 16",
+   "name": "对合是调和相应",
+   "statement": "对合者，调和相应也。",
+   "note": "",
+   "source": "吉川 p141 定理 16",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "调和",
+   "status": "extracted"
+  },
+  {
+   "id": "T106",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.8 平面射影变换（直射、对射、极系）",
+   "label": "（无编号）I",
+   "name": "直线上各点的极线共点",
+   "statement": "某直线 x 上诸点之极线，均过同一点（x 之极点）。　【对偶】过某点 X 诸线之极点，均在一直线上（X 之极线）。",
+   "note": "",
+   "source": "吉川 p141 （无编号）I",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "共点",
+   "status": "extracted"
+  },
+  {
+   "id": "T107",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.8 平面射影变换（直射、对射、极系）",
+   "label": "（无编号）II",
+   "name": "点列与其极线束射影",
+   "statement": "一动点 Y 画点列 x，则其极线 y 画线束 X，且点列 x ⊼ 线束 X。　【对偶】一动线 y 画线束 X，则其极点 Y 画点列 x，且线束 X ⊼ 点列 x。",
+   "note": "",
+   "source": "吉川 p141 （无编号）II",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "射影对应",
+   "status": "extracted"
+  },
+  {
+   "id": "T108",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.8 平面射影变换（直射、对射、极系）",
+   "label": "（无编号）III",
+   "name": "两共轭点连线为极线",
+   "statement": "二点 Y, Z 各与第三点 X 为共轭，则其连线 YZ 为 X 之极线。　【对偶】二线 y, z 各与第三线 x 为共轭，则其交点 yz 为 x 之极点。",
+   "note": "",
+   "source": "吉川 p142 （无编号）III",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T109",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.8 平面射影变换（直射、对射、极系）",
+   "label": "定理 17",
+   "name": "顶点对应对边的对射成极系",
+   "statement": "一平面上相反，某三角形之顶点各对应于其对边，则此关联成一极系。",
+   "note": "",
+   "source": "吉川 p142 定理 17",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "射影对应",
+   "status": "extracted"
+  },
+  {
+   "id": "T110",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.8 平面射影变换（直射、对射、极系）",
+   "label": "定理 18",
+   "name": "一点、其极线与极三角形定极系",
+   "statement": "知一点及其极线并一极三角形，可定一极系。",
+   "note": "",
+   "source": "吉川 p143 定理 18",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "射影对应",
+   "status": "extracted"
+  },
+  {
+   "id": "T111",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.9 射影生成的平面高次图形",
+   "label": "定理 11",
+   "name": "产物过一点的线至多三条",
+   "statement": "在某平面上，一次点列 s 与二次点列 k² 相互射影的，对应点之连线成一线图形，则通过任意点 S 之直线不能多于三个。　【对偶】在某平面上，一次线束 S 与二次线束 K² 相互射影的，对应线之交点成一点图形，则在任意线 s 上之点不能多于三个。",
+   "note": "",
+   "source": "吉川 p113 定理 11",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T112",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.9 射影生成的平面高次图形",
+   "label": "问题 3",
+   "name": "一对重合时产物为二次线束",
+   "statement": "在一平面上，一次点列 s 与二次点列 k² 相互射影的，其一双对应点 AA' 相一致，则其产物为一个二次线束（另加一次线束 A）。",
+   "note": "",
+   "source": "吉川 p115 问题 3",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "分类",
+   "status": "extracted"
+  },
+  {
+   "id": "T113",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.9 射影生成的平面高次图形",
+   "label": "问题 4",
+   "name": "一对重合时产物为二次点列",
+   "statement": "在一平面上，一次线束 S 与二次线束 K² 相互射影的，其一双对应线 aa' 相一致，则其产物为一个二次点列（另加一次点列 a）。",
+   "note": "",
+   "source": "吉川 p116 问题 4",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "分类",
+   "status": "extracted"
+  },
+  {
+   "id": "T114",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.9 射影生成的平面高次图形",
+   "label": "问题 5",
+   "name": "两对重合时产物为一次线束",
+   "statement": "在一平面上，一次点列 s 与二次点列 k² 互射影时，且其二双对应点 AA', BB' 一致，则其产物为一次线束（共分解为三个一次线束，含 A、B）。",
+   "note": "",
+   "source": "吉川 p116 问题 5",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "分类",
+   "status": "extracted"
+  },
+  {
+   "id": "T115",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.9 射影生成的平面高次图形",
+   "label": "问题 6",
+   "name": "两对重合时产物为一次点列",
+   "statement": "在一平面上，一次线束 S 与二次线束 K² 互射影时，且其二双对应线 aa', bb' 一致，则其产物为一次点列（共分解为三个一次点列，含 a、b）。",
+   "note": "",
+   "source": "吉川 p116 问题 6",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "分类",
+   "status": "extracted"
+  },
+  {
+   "id": "T116",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.9 射影生成的平面高次图形",
+   "label": "定理 17",
+   "name": "两二次点列产物过一点至多四线",
+   "statement": "某平面上，二个射影的二次点列 h²(ABCDE) ⊼ k²(A'B'C'D'E')，对应点之连线成线图形，此图形之线不有四个以上过同一点 S（四次线束）。　【对偶】某平面上，二个射影的二次线束 H²(abcde) ⊼ K²(a'b'c'd'e')，对应线之交点成点图形，此图形之点不有四个以上在一直线 s 上（四次点列）。",
+   "note": "",
+   "source": "吉川 p119 定理 17",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T117",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.9 射影生成的平面高次图形",
+   "label": "定理 18",
+   "name": "两二次点列两对重合的产物",
+   "statement": "某平面上，二个互射影的二次点列 h², k² 有二双对应点 AA', BB' 相一致，则其产物为一个二次线束（四次图形分解为二次线束与一次线束 A、B）。　【对偶】某平面上，二个互射影的二次线束 H², K² 有二双对应线 aa', bb' 相一致，则其产物为一个二次点列（分解为二次点列与一次点列 a、b）。",
+   "note": "",
+   "source": "吉川 p120 定理 18",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "分类",
+   "status": "extracted"
+  },
+  {
+   "id": "T118",
+   "layer": "射影",
+   "category": "1. 射影几何",
+   "subcategory": "1.9 射影生成的平面高次图形",
+   "label": "定理 19",
+   "name": "两二次点列三对重合的产物",
+   "statement": "某平面上，二个射影的二次点列有三双自对应点 A, B, C，则其产物得分解为四个一次线束 A, B, C, S，但 S 为两点列所含曲线之第四公用点。　【对偶】某平面上，二个射影的二次线束有三双自对应线 a, b, c，则其产物得分解为四个一次点列 a, b, c, s，但 s 为两线束所包曲线之第四公切线。",
+   "note": "",
+   "source": "吉川 p121 定理 19",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "分类",
+   "status": "extracted"
+  },
+  {
+   "id": "T119",
+   "layer": "仿射",
+   "category": "2. 仿射几何",
+   "subcategory": "2.1 线段比、共线与共点（Menelaus、Ceva、Newton 线）",
+   "label": "问题 2",
+   "name": "Pappus 定理的平行形式",
+   "statement": "二线 m、k 上各有三点 A、B、C 与 A'、B'、C'，若二双直线 (BC',B'C)、(CA',C'A) 互平行，则第三双直线 (AB',A'B) 亦平行。",
+   "note": "",
+   "source": "吉川 p59 问题 2",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "平行",
+   "status": "extracted"
+  },
+  {
+   "id": "T120",
+   "layer": "仿射",
+   "category": "2. 仿射几何",
+   "subcategory": "2.1 线段比、共线与共点（Menelaus、Ceva、Newton 线）",
+   "label": "例 3",
+   "name": "共点三线的分比之和为 1",
+   "statement": "自三角形 ABC 的三顶点作 AD、BE、CF 三直线相交于一点 O，则 DO/AD + EO/BE + FO/CF = 1。",
+   "note": "",
+   "source": "严 p116 例 3",
+   "books": [
+    "严"
+   ],
+   "conclusion": "比例",
+   "status": "extracted"
+  },
+  {
+   "id": "T121",
+   "layer": "仿射",
+   "category": "2. 仿射几何",
+   "subcategory": "2.1 线段比、共线与共点（Menelaus、Ceva、Newton 线）",
+   "label": "例 4",
+   "name": "Menelaus 定理",
+   "statement": "截线 LMN 截三角形 ABC 的三边（或延长线）于 L、M、N，则 AL·BM·CN = BL·CM·AN。",
+   "note": "",
+   "source": "严 p116 例 4；严 p121 例 2；矢野 §5.1–5.2 p54–56",
+   "books": [
+    "严",
+    "矢野"
+   ],
+   "conclusion": "比例",
+   "status": "extracted"
+  },
+  {
+   "id": "T122",
+   "layer": "仿射",
+   "category": "2. 仿射几何",
+   "subcategory": "2.1 线段比、共线与共点（Menelaus、Ceva、Newton 线）",
+   "label": "例 5",
+   "name": "Ceva 定理",
+   "statement": "连接 O 点与三角形 ABC 三顶点的直线各交对边于 L、M、N，则 AN·BL·CM = BN·CL·AM。",
+   "note": "",
+   "source": "严 p117 例 5；矢野 §5.3–5.4 p57–59",
+   "books": [
+    "严",
+    "矢野"
+   ],
+   "conclusion": "比例",
+   "status": "extracted"
+  },
+  {
+   "id": "T123",
+   "layer": "仿射",
+   "category": "2. 仿射几何",
+   "subcategory": "2.1 线段比、共线与共点（Menelaus、Ceva、Newton 线）",
+   "label": "定理",
+   "name": "顶点沿平行线动时截段定长",
+   "statement": "三角形的顶点在它底边的平行线上移动，则三角形的两边在底边平行线上所截线段的长度为一定：C 移到 C′（CC′∥AB），MN、M′N′ 为 AB 的平行线所截，求证 MN = M′N′。",
+   "note": "",
+   "source": "严 p137 定理",
+   "books": [
+    "严"
+   ],
+   "conclusion": "等长",
+   "status": "extracted"
+  },
+  {
+   "id": "T124",
+   "layer": "仿射",
+   "category": "2. 仿射几何",
+   "subcategory": "2.1 线段比、共线与共点（Menelaus、Ceva、Newton 线）",
+   "label": "例 7 定理 1°",
+   "name": "梯形两交点连线平分两底",
+   "statement": "梯形不相平行两边的交点，与其对角线的交点的连接线，必经过它上、下两底的中点。",
+   "note": "",
+   "source": "严 p157 例 7 定理 1°",
+   "books": [
+    "严"
+   ],
+   "conclusion": "共线",
+   "status": "extracted"
+  },
+  {
+   "id": "T125",
+   "layer": "仿射",
+   "category": "2. 仿射几何",
+   "subcategory": "2.1 线段比、共线与共点（Menelaus、Ceva、Newton 线）",
+   "label": "例 7 定理 2°",
+   "name": "梯形对角线分段成比例",
+   "statement": "梯形的两对角线相交，所成线段之比等于它们的全长之比：IA/IB = IC/ID = AC/BD。",
+   "note": "",
+   "source": "严 p157 例 7 定理 2°",
+   "books": [
+    "严"
+   ],
+   "conclusion": "比例",
+   "status": "extracted"
+  },
+  {
+   "id": "T126",
+   "layer": "仿射",
+   "category": "2. 仿射几何",
+   "subcategory": "2.1 线段比、共线与共点（Menelaus、Ceva、Newton 线）",
+   "label": "§12.1",
+   "name": "牛顿定理与牛顿线",
+   "statement": "完全四边形三条对角线的中点共线（牛顿线）。",
+   "note": "",
+   "source": "矢野 §12.1 p123",
+   "books": [
+    "矢野"
+   ],
+   "conclusion": "共线",
+   "status": "toc_only"
+  },
+  {
+   "id": "T127",
+   "layer": "仿射",
+   "category": "2. 仿射几何",
+   "subcategory": "2.2 平行四边形、梯形与面积",
+   "label": "例 2",
+   "name": "内接平行四边形对角线共点",
+   "statement": "平行四边形 ABCD 外接于平行四边形 EFGH，则其对角线 AC、BD、EG 和 FH 必同交于一点。",
+   "note": "",
+   "source": "严 p24 例 2",
+   "books": [
+    "严"
+   ],
+   "conclusion": "共点",
+   "status": "extracted"
+  },
+  {
+   "id": "T128",
+   "layer": "仿射",
+   "category": "2. 仿射几何",
+   "subcategory": "2.2 平行四边形、梯形与面积",
+   "label": "例 3",
+   "name": "共角三角形面积比",
+   "statement": "一角相等的两个三角形的面积之比，等于夹此角的两边的乘积之比：△AEF : △ABC = AE·AF : AB·AC。",
+   "note": "",
+   "source": "严 p102 例 3",
+   "books": [
+    "严"
+   ],
+   "conclusion": "面积",
+   "status": "extracted"
+  },
+  {
+   "id": "T129",
+   "layer": "仿射",
+   "category": "2. 仿射几何",
+   "subcategory": "2.2 平行四边形、梯形与面积",
+   "label": "例 1",
+   "name": "对角线定长定角的四边形面积",
+   "statement": "AC 和 BD 为两定长的直线，它们的交角为一定，则四边形 ABCD 的面积也为一定（等于以 AC、BD 为邻边、夹角为该交角的平行四边形面积之半）。",
+   "note": "",
+   "source": "严 p112 例 1",
+   "books": [
+    "严"
+   ],
+   "conclusion": "面积",
+   "status": "extracted"
+  },
+  {
+   "id": "T130",
+   "layer": "仿射",
+   "category": "2. 仿射几何",
+   "subcategory": "2.2 平行四边形、梯形与面积",
+   "label": "例 3",
+   "name": "奇数边凸多边形由边中点确定",
+   "statement": "凸多边形的边数为奇数时，若已知它各边的中点，则此凸多边形的形状为一定（唯一确定）。",
+   "note": "",
+   "source": "严 p113 例 3",
+   "books": [
+    "严"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T131",
+   "layer": "仿射",
+   "category": "2. 仿射几何",
+   "subcategory": "2.2 平行四边形、梯形与面积",
+   "label": "例 3",
+   "name": "Prouhet 定理",
+   "statement": "两凸多边形边数各为 2n，且各边的中点均相同，则此两凸多边形的面积相等。",
+   "note": "",
+   "source": "严 p122 例 3",
+   "books": [
+    "严"
+   ],
+   "conclusion": "面积",
+   "status": "extracted"
+  },
+  {
+   "id": "T132",
+   "layer": "仿射",
+   "category": "2. 仿射几何",
+   "subcategory": "2.3 圆锥曲线的仿射性质（直径、共轭直径、渐近线）",
+   "label": "问题 2",
+   "name": "外切平行四边形对角线共轭",
+   "statement": "外切于圆锥曲线之平行四边形，其二个对角线为曲线之共轭直径。",
+   "note": "",
+   "source": "吉川 p84 问题 2",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T133",
+   "layer": "仿射",
+   "category": "2. 仿射几何",
+   "subcategory": "2.3 圆锥曲线的仿射性质（直径、共轭直径、渐近线）",
+   "label": "问题 3",
+   "name": "内接平行四边形边平行共轭径",
+   "statement": "内接于圆锥曲线之平行四边形，其各边平行于一双共轭直径。",
+   "note": "",
+   "source": "吉川 p84 问题 3",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "平行",
+   "status": "extracted"
+  },
+  {
+   "id": "T134",
+   "layer": "仿射",
+   "category": "2. 仿射几何",
+   "subcategory": "2.3 圆锥曲线的仿射性质（直径、共轭直径、渐近线）",
+   "label": "定理 17",
+   "name": "双曲线与渐近线间截段等长",
+   "statement": "一直线夹于双曲线与两渐近线间之线分等长（即截线交曲线于 P, Q、交渐近线于 M, N，则 MP = QN）。",
+   "note": "",
+   "source": "吉川 p85 定理 17",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "等长",
+   "status": "extracted"
+  },
+  {
+   "id": "T135",
+   "layer": "仿射",
+   "category": "2. 仿射几何",
+   "subcategory": "2.3 圆锥曲线的仿射性质（直径、共轭直径、渐近线）",
+   "label": "问题 8",
+   "name": "渐近线间切线段被切点平分",
+   "statement": "各切线夹于两渐近线间线分，为切点所平分。",
+   "note": "",
+   "source": "吉川 p88 问题 8",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "等长",
+   "status": "extracted"
+  },
+  {
+   "id": "T136",
+   "layer": "欧氏",
+   "category": "3. 欧氏几何：三角形",
+   "subcategory": "3.1 三角形的心、九点圆与欧拉线",
+   "label": "例 5",
+   "name": "九点圆",
+   "statement": "三角形三边的三个中点、三个垂足，以及垂心与三个顶点连线的三个中点，同在一圆周上。设 D、E、F 为三角形 ABC 三边的中点，K、I、G 为三垂足，H 为垂心，L、M、N 是 AH、BH、CH 的中点，求证九点共圆。",
+   "note": "",
+   "source": "严 p21 例 5；矢野 §2.4 p24",
+   "books": [
+    "严",
+    "矢野"
+   ],
+   "conclusion": "共圆",
+   "status": "extracted"
+  },
+  {
+   "id": "T137",
+   "layer": "欧氏",
+   "category": "3. 欧氏几何：三角形",
+   "subcategory": "3.1 三角形的心、九点圆与欧拉线",
+   "label": "例 5 注意 1°",
+   "name": "九点圆心 / 欧拉线",
+   "statement": "九点圆的圆心是垂心 H 与外心 O 连线的中点 O'；直线 OO'H 称为欧拉（Euler）线。",
+   "note": "",
+   "source": "严 p22 例 5 注意 1°",
+   "books": [
+    "严"
+   ],
+   "conclusion": "共线",
+   "status": "extracted"
+  },
+  {
+   "id": "T138",
+   "layer": "欧氏",
+   "category": "3. 欧氏几何：三角形",
+   "subcategory": "3.1 三角形的心、九点圆与欧拉线",
+   "label": "例 5 注意 2°",
+   "name": "九点圆半径",
+   "statement": "九点圆的半径等于三角形外接圆半径之半。",
+   "note": "",
+   "source": "严 p22 例 5 注意 2°",
+   "books": [
+    "严"
+   ],
+   "conclusion": "等长",
+   "status": "extracted"
+  },
+  {
+   "id": "T139",
+   "layer": "欧氏",
+   "category": "3. 欧氏几何：三角形",
+   "subcategory": "3.1 三角形的心、九点圆与欧拉线",
+   "label": "§2.1",
+   "name": "三角形的重心",
+   "statement": "三条中线交于一点（重心）。",
+   "note": "",
+   "source": "矢野 §2.1 p16",
+   "books": [
+    "矢野"
+   ],
+   "conclusion": "共点",
+   "status": "toc_only"
+  },
+  {
+   "id": "T140",
+   "layer": "欧氏",
+   "category": "3. 欧氏几何：三角形",
+   "subcategory": "3.1 三角形的心、九点圆与欧拉线",
+   "label": "§2.2",
+   "name": "三角形的外心",
+   "statement": "三边的垂直平分线交于一点（外心）。",
+   "note": "",
+   "source": "矢野 §2.2 p20",
+   "books": [
+    "矢野"
+   ],
+   "conclusion": "共点",
+   "status": "toc_only"
+  },
+  {
+   "id": "T141",
+   "layer": "欧氏",
+   "category": "3. 欧氏几何：三角形",
+   "subcategory": "3.1 三角形的心、九点圆与欧拉线",
+   "label": "§2.3",
+   "name": "三角形的垂心",
+   "statement": "三条高交于一点（垂心）。",
+   "note": "",
+   "source": "矢野 §2.3 p21",
+   "books": [
+    "矢野"
+   ],
+   "conclusion": "共点",
+   "status": "toc_only"
+  },
+  {
+   "id": "T142",
+   "layer": "欧氏",
+   "category": "3. 欧氏几何：三角形",
+   "subcategory": "3.1 三角形的心、九点圆与欧拉线",
+   "label": "§2.5",
+   "name": "三角形的内心",
+   "statement": "三条内角平分线交于一点（内心）。",
+   "note": "",
+   "source": "矢野 §2.5 p29",
+   "books": [
+    "矢野"
+   ],
+   "conclusion": "共点",
+   "status": "toc_only"
+  },
+  {
+   "id": "T143",
+   "layer": "欧氏",
+   "category": "3. 欧氏几何：三角形",
+   "subcategory": "3.1 三角形的心、九点圆与欧拉线",
+   "label": "§2.6",
+   "name": "三角形的旁心",
+   "statement": "一个内角平分线与另两个外角平分线交于一点（旁心）。",
+   "note": "",
+   "source": "矢野 §2.6 p32",
+   "books": [
+    "矢野"
+   ],
+   "conclusion": "共点",
+   "status": "toc_only"
+  },
+  {
+   "id": "T144",
+   "layer": "欧氏",
+   "category": "3. 欧氏几何：三角形",
+   "subcategory": "3.1 三角形的心、九点圆与欧拉线",
+   "label": "§10.1–10.2",
+   "name": "费尔巴哈定理",
+   "statement": "三角形的九点圆与内切圆、三个旁切圆都相切。",
+   "note": "",
+   "source": "矢野 §10.1–10.2 p104–108",
+   "books": [
+    "矢野"
+   ],
+   "conclusion": "相切",
+   "status": "toc_only"
+  },
+  {
+   "id": "T145",
+   "layer": "欧氏",
+   "category": "3. 欧氏几何：三角形",
+   "subcategory": "3.2 勾股定理及其推广",
+   "label": "§1.1–1.5",
+   "name": "毕达哥拉斯定理",
+   "statement": "直角三角形两直角边的平方和等于斜边的平方。",
+   "note": "书中给出欧几里得证法、别证、婆什迦罗证法及其他证法。",
+   "source": "矢野 §1.1–1.5 p2–9",
+   "books": [
+    "矢野"
+   ],
+   "conclusion": "等长",
+   "status": "toc_only"
+  },
+  {
+   "id": "T146",
+   "layer": "欧氏",
+   "category": "3. 欧氏几何：三角形",
+   "subcategory": "3.2 勾股定理及其推广",
+   "label": "§3.3",
+   "name": "巴布斯定理（面积定理）",
+   "statement": "以三角形两边为边向外作任意平行四边形，可作出第三边上的平行四边形，使其面积等于前两者之和。",
+   "note": "勾股定理的推广。内容据章节位置推测。",
+   "source": "矢野 §3.3 p38",
+   "books": [
+    "矢野"
+   ],
+   "conclusion": "面积",
+   "status": "toc_only"
+  },
+  {
+   "id": "T147",
+   "layer": "欧氏",
+   "category": "3. 欧氏几何：三角形",
+   "subcategory": "3.3 正三角形相关定理",
+   "label": "§4.1–4.2",
+   "name": "关于正三角形的定理",
+   "statement": "",
+   "note": "目录只列标题，具体内容待核对原书；书中用复数证明。",
+   "source": "矢野 §4.1–4.2 p47–48",
+   "books": [
+    "矢野"
+   ],
+   "conclusion": "其他",
+   "status": "placeholder"
+  },
+  {
+   "id": "T148",
+   "layer": "欧氏",
+   "category": "3. 欧氏几何：三角形",
+   "subcategory": "3.3 正三角形相关定理",
+   "label": "§4.3",
+   "name": "爱可尔斯定理（Echols）",
+   "statement": "两个同向正三角形对应顶点连线的中点构成正三角形。",
+   "note": "",
+   "source": "矢野 §4.3 p51",
+   "books": [
+    "矢野"
+   ],
+   "conclusion": "其他",
+   "status": "toc_only"
+  },
+  {
+   "id": "T149",
+   "layer": "欧氏",
+   "category": "3. 欧氏几何：三角形",
+   "subcategory": "3.3 正三角形相关定理",
+   "label": "§11.1–11.2",
+   "name": "莫利定理",
+   "statement": "三角形三个内角的相邻三等分线两两相交，三个交点构成正三角形。",
+   "note": "",
+   "source": "矢野 §11.1–11.2 p114–119",
+   "books": [
+    "矢野"
+   ],
+   "conclusion": "其他",
+   "status": "toc_only"
+  },
+  {
+   "id": "T150",
+   "layer": "欧氏",
+   "category": "3. 欧氏几何：三角形",
+   "subcategory": "3.4 西摩松线及其推广",
+   "label": "例 3",
+   "name": "西摩松线（Simson 线）",
+   "statement": "M 为三角形 ABC 外接圆上任意一点，自 M 作各边的垂线 MP、MQ、MR，则垂足 P、Q、R 共线。",
+   "note": "",
+   "source": "严 p12 例 3；矢野 §6.1–6.3 p63–66",
+   "books": [
+    "严",
+    "矢野"
+   ],
+   "conclusion": "共线",
+   "status": "extracted"
+  },
+  {
+   "id": "T151",
+   "layer": "欧氏",
+   "category": "3. 欧氏几何：三角形",
+   "subcategory": "3.4 西摩松线及其推广",
+   "label": "§6.4",
+   "name": "史坦纳定理（西摩松线）",
+   "statement": "西摩松线平分该点与三角形垂心的连线。",
+   "note": "内容据章节位置推测。",
+   "source": "矢野 §6.4 p69",
+   "books": [
+    "矢野"
+   ],
+   "conclusion": "等长",
+   "status": "toc_only"
+  },
+  {
+   "id": "T152",
+   "layer": "欧氏",
+   "category": "3. 欧氏几何：三角形",
+   "subcategory": "3.4 西摩松线及其推广",
+   "label": "§7.1–7.2",
+   "name": "西摩松线的性质",
+   "statement": "",
+   "note": "目录标题为西摩松线的应用与复数研究，具体定理待核对原书。",
+   "source": "矢野 §7.1–7.2 p74–75",
+   "books": [
+    "矢野"
+   ],
+   "conclusion": "其他",
+   "status": "placeholder"
+  },
+  {
+   "id": "T153",
+   "layer": "欧氏",
+   "category": "3. 欧氏几何：三角形",
+   "subcategory": "3.4 西摩松线及其推广",
+   "label": "§7.3",
+   "name": "波朗杰–藤下定理及其推论",
+   "statement": "",
+   "note": "目录只列标题，具体内容待核对原书。",
+   "source": "矢野 §7.3 p77",
+   "books": [
+    "矢野"
+   ],
+   "conclusion": "其他",
+   "status": "placeholder"
+  },
+  {
+   "id": "T154",
+   "layer": "欧氏",
+   "category": "3. 欧氏几何：三角形",
+   "subcategory": "3.4 西摩松线及其推广",
+   "label": "§7.4",
+   "name": "关于西摩松线的两个定理",
+   "statement": "",
+   "note": "目录只列标题，具体内容待核对原书。",
+   "source": "矢野 §7.4 p82",
+   "books": [
+    "矢野"
+   ],
+   "conclusion": "其他",
+   "status": "placeholder"
+  },
+  {
+   "id": "T155",
+   "layer": "欧氏",
+   "category": "3. 欧氏几何：三角形",
+   "subcategory": "3.4 西摩松线及其推广",
+   "label": "§8.1",
+   "name": "卡诺定理（西摩松定理的推广）",
+   "statement": "自外接圆上一点作与三边成等角的直线，三个交点共线。",
+   "note": "内容据章节位置推测。",
+   "source": "矢野 §8.1 p85",
+   "books": [
+    "矢野"
+   ],
+   "conclusion": "共线",
+   "status": "toc_only"
+  },
+  {
+   "id": "T156",
+   "layer": "欧氏",
+   "category": "3. 欧氏几何：三角形",
+   "subcategory": "3.4 西摩松线及其推广",
+   "label": "§8.2",
+   "name": "奥倍尔定理",
+   "statement": "",
+   "note": "目录中列为西摩松定理的推广之一，具体内容待核对原书。",
+   "source": "矢野 §8.2 p86",
+   "books": [
+    "矢野"
+   ],
+   "conclusion": "其他",
+   "status": "placeholder"
+  },
+  {
+   "id": "T157",
+   "layer": "欧氏",
+   "category": "3. 欧氏几何：三角形",
+   "subcategory": "3.4 西摩松线及其推广",
+   "label": "§8.3",
+   "name": "清宫定理",
+   "statement": "",
+   "note": "目录中列为西摩松定理的推广之一，具体内容待核对原书。",
+   "source": "矢野 §8.3 p88",
+   "books": [
+    "矢野"
+   ],
+   "conclusion": "其他",
+   "status": "placeholder"
+  },
+  {
+   "id": "T158",
+   "layer": "欧氏",
+   "category": "3. 欧氏几何：三角形",
+   "subcategory": "3.4 西摩松线及其推广",
+   "label": "§8.4",
+   "name": "他拿定理",
+   "statement": "",
+   "note": "目录中列为西摩松定理的推广之一，具体内容待核对原书。",
+   "source": "矢野 §8.4 p90",
+   "books": [
+    "矢野"
+   ],
+   "conclusion": "其他",
+   "status": "placeholder"
+  },
+  {
+   "id": "T159",
+   "layer": "欧氏",
+   "category": "3. 欧氏几何：三角形",
+   "subcategory": "3.4 西摩松线及其推广",
+   "label": "§8.5",
+   "name": "朗古来定理",
+   "statement": "",
+   "note": "目录中列为西摩松定理的推广之一，具体内容待核对原书。",
+   "source": "矢野 §8.5 p92",
+   "books": [
+    "矢野"
+   ],
+   "conclusion": "其他",
+   "status": "placeholder"
+  },
+  {
+   "id": "T160",
+   "layer": "欧氏",
+   "category": "3. 欧氏几何：三角形",
+   "subcategory": "3.4 西摩松线及其推广",
+   "label": "§9.1–9.2",
+   "name": "康托尔定理与康托尔线",
+   "statement": "",
+   "note": "目录只列标题，位置紧接西摩松线的推广，具体内容待核对原书。",
+   "source": "矢野 §9.1–9.2 p95–98",
+   "books": [
+    "矢野"
+   ],
+   "conclusion": "其他",
+   "status": "placeholder"
+  },
+  {
+   "id": "T161",
+   "layer": "欧氏",
+   "category": "3. 欧氏几何：三角形",
+   "subcategory": "3.5 三角形的其他度量性质",
+   "label": "无编号",
+   "name": "角平分线性质",
+   "statement": "角平分线上各点与角两边的距离相等。",
+   "note": "",
+   "source": "严 p7",
+   "books": [
+    "严"
+   ],
+   "conclusion": "等长",
+   "status": "extracted"
+  },
+  {
+   "id": "T162",
+   "layer": "欧氏",
+   "category": "3. 欧氏几何：三角形",
+   "subcategory": "3.5 三角形的其他度量性质",
+   "label": "例 2",
+   "name": "M 与三个构造点共圆",
+   "statement": "M 是三角形 ABC 平面上任意一点，作 ∠BAP = ∠MAC 并取 AP = AM；同样作 ∠CBQ = ∠MBA、BQ = BM，以及 ∠ACR = ∠MCB、CR = CM。求证 M、P、Q、R 四点共圆。",
+   "note": "",
+   "source": "严 p10 例 2",
+   "books": [
+    "严"
+   ],
+   "conclusion": "共圆",
+   "status": "extracted"
+  },
+  {
+   "id": "T163",
+   "layer": "欧氏",
+   "category": "3. 欧氏几何：三角形",
+   "subcategory": "3.5 三角形的其他度量性质",
+   "label": "例 1",
+   "name": "底边点到两腰距离和为定值",
+   "statement": "等腰三角形底边上任一点到两腰距离之和为定值；底边延长线上任一点到两腰距离之差也为定值（都等于腰上的高）。",
+   "note": "",
+   "source": "严 p16 例 1；严 p104 例 1；严 p115 例 2",
+   "books": [
+    "严"
+   ],
+   "conclusion": "等长",
+   "status": "extracted"
+  },
+  {
+   "id": "T164",
+   "layer": "欧氏",
+   "category": "3. 欧氏几何：三角形",
+   "subcategory": "3.5 三角形的其他度量性质",
+   "label": "例 1",
+   "name": "垂直于平行线之一则垂直另一",
+   "statement": "一直线垂直于两平行线中的一条，则它也垂直于另一条。",
+   "note": "",
+   "source": "严 p26 例 1",
+   "books": [
+    "严"
+   ],
+   "conclusion": "垂直",
+   "status": "extracted"
+  },
+  {
+   "id": "T165",
+   "layer": "欧氏",
+   "category": "3. 欧氏几何：三角形",
+   "subcategory": "3.5 三角形的其他度量性质",
+   "label": "例 2",
+   "name": "斯坦纳–雷米欧斯定理（Steiner–Lehmus）",
+   "statement": "三角形两内角的平分线如相等，则为等腰三角形。",
+   "note": "",
+   "source": "严 p27 例 2",
+   "books": [
+    "严"
+   ],
+   "conclusion": "等长",
+   "status": "extracted"
+  },
+  {
+   "id": "T166",
+   "layer": "欧氏",
+   "category": "3. 欧氏几何：三角形",
+   "subcategory": "3.5 三角形的其他度量性质",
+   "label": "例 1",
+   "name": "角平分线定理",
+   "statement": "三角形的内角平分线分对边所成两线段之比，等于其他两边之比：CD 平分 ∠C，则 AD : DB = CA : CB。",
+   "note": "",
+   "source": "严 p114 例 1；严 p121 例 1",
+   "books": [
+    "严"
+   ],
+   "conclusion": "比例",
+   "status": "extracted"
+  },
+  {
+   "id": "T167",
+   "layer": "欧氏",
+   "category": "3. 欧氏几何：三角形",
+   "subcategory": "3.5 三角形的其他度量性质",
+   "label": "§3.5",
+   "name": "阿波罗尼斯定理（中线定理）",
+   "statement": "AB² + AC² = 2(AM² + BM²)，M 为 BC 中点。",
+   "note": "日本习惯把中线定理称为阿波罗尼斯定理。",
+   "source": "矢野 §3.5 p42",
+   "books": [
+    "矢野"
+   ],
+   "conclusion": "等长",
+   "status": "toc_only"
+  },
+  {
+   "id": "T168",
+   "layer": "欧氏",
+   "category": "4. 欧氏几何：圆与四边形",
+   "subcategory": "4.1 圆周角、共圆与圆中的比例",
+   "label": "例 2",
+   "name": "密克定理（Miquel）",
+   "statement": "四条直线两两相交成四个三角形，这四个三角形的外接圆必交于一点。",
+   "note": "",
+   "source": "严 p18 例 2",
+   "books": [
+    "严"
+   ],
+   "conclusion": "共点",
+   "status": "extracted"
+  },
+  {
+   "id": "T169",
+   "layer": "欧氏",
+   "category": "4. 欧氏几何：圆与四边形",
+   "subcategory": "4.1 圆周角、共圆与圆中的比例",
+   "label": "例 3",
+   "name": "直角梯形半圆截腰之积",
+   "statement": "直角梯形以其斜腰为直径作半圆，与对腰相交，所成两线段之积等于两底之积：BM·MC = AB·CD。",
+   "note": "",
+   "source": "严 p19 例 3",
+   "books": [
+    "严"
+   ],
+   "conclusion": "比例",
+   "status": "extracted"
+  },
+  {
+   "id": "T170",
+   "layer": "欧氏",
+   "category": "4. 欧氏几何：圆与四边形",
+   "subcategory": "4.1 圆周角、共圆与圆中的比例",
+   "label": "例 4 / 例 1",
+   "name": "圆上点到弦距离为比例中项",
+   "statement": "圆周上任一点到圆内任一弦的距离，是该点到弦两端切线的距离的比例中项：MP² = ME·MG。",
+   "note": "同一命题在解析法、综合法两节各出现一次。",
+   "source": "严 p20 例 4；严 p23 例 1",
+   "books": [
+    "严"
+   ],
+   "conclusion": "比例",
+   "status": "extracted"
+  },
+  {
+   "id": "T171",
+   "layer": "欧氏",
+   "category": "4. 欧氏几何：圆与四边形",
+   "subcategory": "4.1 圆周角、共圆与圆中的比例",
+   "label": "例 3",
+   "name": "蝴蝶定理",
+   "statement": "过弦 BC 的中点 A 任作两弦 PQ、RS，连线 PS、RQ 截 BC 于 M、N，则 AM = AN。",
+   "note": "",
+   "source": "严 p25 例 3",
+   "books": [
+    "严"
+   ],
+   "conclusion": "等长",
+   "status": "extracted"
+  },
+  {
+   "id": "T172",
+   "layer": "欧氏",
+   "category": "4. 欧氏几何：圆与四边形",
+   "subcategory": "4.1 圆周角、共圆与圆中的比例",
+   "label": "例 1",
+   "name": "内接四边形垂足截等长",
+   "statement": "ABCD 为圆内接四边形，对角线 AC 是直径，CE、AF 是自 C、A 到对角线 BD 的垂线，求证 BE = FD。",
+   "note": "",
+   "source": "严 p100 例 1",
+   "books": [
+    "严"
+   ],
+   "conclusion": "等长",
+   "status": "extracted"
+  },
+  {
+   "id": "T173",
+   "layer": "欧氏",
+   "category": "4. 欧氏几何：圆与四边形",
+   "subcategory": "4.1 圆周角、共圆与圆中的比例",
+   "label": "§3.1",
+   "name": "泰利斯定理",
+   "statement": "半圆上的圆周角是直角。",
+   "note": "",
+   "source": "矢野 §3.1 p35",
+   "books": [
+    "矢野"
+   ],
+   "conclusion": "垂直",
+   "status": "toc_only"
+  },
+  {
+   "id": "T174",
+   "layer": "欧氏",
+   "category": "4. 欧氏几何：圆与四边形",
+   "subcategory": "4.1 圆周角、共圆与圆中的比例",
+   "label": "§3.2",
+   "name": "希波克拉底定理",
+   "statement": "以直角三角形三边为直径向外作半圆，两个“月牙形”面积之和等于三角形面积。",
+   "note": "",
+   "source": "矢野 §3.2 p37",
+   "books": [
+    "矢野"
+   ],
+   "conclusion": "面积",
+   "status": "toc_only"
+  },
+  {
+   "id": "T175",
+   "layer": "欧氏",
+   "category": "4. 欧氏几何：圆与四边形",
+   "subcategory": "4.2 根轴、根心与相似心",
+   "label": "例 3",
+   "name": "等幂轴（根轴）",
+   "statement": "到两给定圆切线长相等的点，其轨迹是垂直于连心线的一条直线，称为两圆的等幂轴。",
+   "note": "",
+   "source": "严 p48 例 3",
+   "books": [
+    "严"
+   ],
+   "conclusion": "轨迹",
+   "status": "extracted"
+  },
+  {
+   "id": "T176",
+   "layer": "欧氏",
+   "category": "4. 欧氏几何：圆与四边形",
+   "subcategory": "4.2 根轴、根心与相似心",
+   "label": "例 5",
+   "name": "等幂心（根心）",
+   "statement": "三圆两两的等幂轴交于一点，称为三圆的等幂心。",
+   "note": "",
+   "source": "严 p84 例 5",
+   "books": [
+    "严"
+   ],
+   "conclusion": "共点",
+   "status": "extracted"
+  },
+  {
+   "id": "T177",
+   "layer": "欧氏",
+   "category": "4. 欧氏几何：圆与四边形",
+   "subcategory": "4.2 根轴、根心与相似心",
+   "label": "§55",
+   "name": "两圆的相似心",
+   "statement": "两圆各对平行半径端点的连线必经过一定点（相似心），且 OC : O'C = R : r。",
+   "note": "",
+   "source": "严 p94 §55",
+   "books": [
+    "严"
+   ],
+   "conclusion": "共点",
+   "status": "extracted"
+  },
+  {
+   "id": "T178",
+   "layer": "欧氏",
+   "category": "4. 欧氏几何：圆与四边形",
+   "subcategory": "4.2 根轴、根心与相似心",
+   "label": "例 1",
+   "name": "达朗贝尔定理（今称蒙日定理）",
+   "statement": "三圆两两共有六个相似心；三个外相似心共线，一个外相似心与两个内相似心也共线。",
+   "note": "",
+   "source": "严 p119 例 1",
+   "books": [
+    "严"
+   ],
+   "conclusion": "共线",
+   "status": "extracted"
+  },
+  {
+   "id": "T179",
+   "layer": "欧氏",
+   "category": "4. 欧氏几何：圆与四边形",
+   "subcategory": "4.3 四边形",
+   "label": "例 1",
+   "name": "等腰梯形的角与对角线",
+   "statement": "等腰梯形两底角相等、对角互补、对角线相等。",
+   "note": "",
+   "source": "严 p128 例 1",
+   "books": [
+    "严"
+   ],
+   "conclusion": "等角",
+   "status": "extracted"
+  },
+  {
+   "id": "T180",
+   "layer": "欧氏",
+   "category": "4. 欧氏几何：圆与四边形",
+   "subcategory": "4.3 四边形",
+   "label": "例 2",
+   "name": "底角或对角线等的梯形为等腰",
+   "statement": "梯形的两底角或对角线若相等，则两腰相等。",
+   "note": "",
+   "source": "严 p129 例 2",
+   "books": [
+    "严"
+   ],
+   "conclusion": "等长",
+   "status": "extracted"
+  },
+  {
+   "id": "T181",
+   "layer": "欧氏",
+   "category": "4. 欧氏几何：圆与四边形",
+   "subcategory": "4.3 四边形",
+   "label": "§3.4",
+   "name": "婆罗摩笈多定理",
+   "statement": "圆内接四边形的对角线互相垂直时，过对角线交点作一边的垂线，必平分对边。",
+   "note": "",
+   "source": "矢野 §3.4 p41",
+   "books": [
+    "矢野"
+   ],
+   "conclusion": "等长",
+   "status": "toc_only"
+  },
+  {
+   "id": "T182",
+   "layer": "欧氏",
+   "category": "4. 欧氏几何：圆与四边形",
+   "subcategory": "4.3 四边形",
+   "label": "§3.6",
+   "name": "托勒密定理",
+   "statement": "圆内接四边形两对角线之积等于两组对边乘积之和。",
+   "note": "",
+   "source": "矢野 §3.6 p44",
+   "books": [
+    "矢野"
+   ],
+   "conclusion": "等长",
+   "status": "toc_only"
+  },
+  {
+   "id": "T183",
+   "layer": "欧氏",
+   "category": "4. 欧氏几何：圆与四边形",
+   "subcategory": "4.4 圆锥曲线的度量性质（轴、焦点、准线、虚圆点）",
+   "label": "定理 16",
+   "name": "两对以上轴的圆锥曲线是圆",
+   "statement": "圆锥曲线有两对或两对以上的轴，则此曲线为圆。",
+   "note": "",
+   "source": "吉川 p85 定理 16",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "分类",
+   "status": "extracted"
+  },
+  {
+   "id": "T184",
+   "layer": "欧氏",
+   "category": "4. 欧氏几何：圆与四边形",
+   "subcategory": "4.4 圆锥曲线的度量性质（轴、焦点、准线、虚圆点）",
+   "label": "定理 18",
+   "name": "圆锥曲线关于轴对称",
+   "statement": "圆锥曲线关于轴为对称。",
+   "note": "",
+   "source": "吉川 p86 定理 18",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T185",
+   "layer": "欧氏",
+   "category": "4. 欧氏几何：圆与四边形",
+   "subcategory": "4.4 圆锥曲线的度量性质（轴、焦点、准线、虚圆点）",
+   "label": "问题 7",
+   "name": "双曲线轴平分渐近线夹角",
+   "statement": "双曲线之两轴，平分两渐近线所夹之角。",
+   "note": "",
+   "source": "吉川 p88 问题 7",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "等角",
+   "status": "extracted"
+  },
+  {
+   "id": "T186",
+   "layer": "欧氏",
+   "category": "4. 欧氏几何：圆与四边形",
+   "subcategory": "4.4 圆锥曲线的度量性质（轴、焦点、准线、虚圆点）",
+   "label": "定理 19",
+   "name": "焦点在曲线内部",
+   "statement": "圆锥曲线之焦点在曲线内部。",
+   "note": "",
+   "source": "吉川 p88 定理 19",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T187",
+   "layer": "欧氏",
+   "category": "4. 欧氏几何：圆与四边形",
+   "subcategory": "4.4 圆锥曲线的度量性质（轴、焦点、准线、虚圆点）",
+   "label": "定理 20",
+   "name": "焦点在轴上",
+   "statement": "圆锥曲线之焦点在曲线之轴上。",
+   "note": "",
+   "source": "吉川 p89 定理 20",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T188",
+   "layer": "欧氏",
+   "category": "4. 欧氏几何：圆与四边形",
+   "subcategory": "4.4 圆锥曲线的度量性质（轴、焦点、准线、虚圆点）",
+   "label": "定理 21",
+   "name": "两焦点连线是轴",
+   "statement": "二焦点之连线为其曲线之轴。",
+   "note": "",
+   "source": "吉川 p89 定理 21",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T189",
+   "layer": "欧氏",
+   "category": "4. 欧氏几何：圆与四边形",
+   "subcategory": "4.4 圆锥曲线的度量性质（轴、焦点、准线、虚圆点）",
+   "label": "定理 22",
+   "name": "只有一轴含焦点",
+   "statement": "圆锥曲线之两轴中，只有一轴含焦点。",
+   "note": "",
+   "source": "吉川 p89 定理 22",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T190",
+   "layer": "欧氏",
+   "category": "4. 欧氏几何：圆与四边形",
+   "subcategory": "4.4 圆锥曲线的度量性质（轴、焦点、准线、虚圆点）",
+   "label": "问题 9",
+   "name": "直角尺包络抛物线",
+   "statement": "固定一线 a 及一点 F，直角顶 S 在 a 上移动、一条直角边常过 F，则另一直角边的包络为以 F 为焦点的抛物线。",
+   "note": "",
+   "source": "吉川 p91 问题 9",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "轨迹",
+   "status": "extracted"
+  },
+  {
+   "id": "T191",
+   "layer": "欧氏",
+   "category": "4. 欧氏几何：圆与四边形",
+   "subcategory": "4.4 圆锥曲线的度量性质（轴、焦点、准线、虚圆点）",
+   "label": "定理 23",
+   "name": "焦点准线距离比为定值",
+   "statement": "圆锥曲线上各点到一焦点与到其相应准线的距离之比为定值。",
+   "note": "",
+   "source": "吉川 p92 定理 23",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "比例",
+   "status": "extracted"
+  },
+  {
+   "id": "T192",
+   "layer": "欧氏",
+   "category": "4. 欧氏几何：圆与四边形",
+   "subcategory": "4.4 圆锥曲线的度量性质（轴、焦点、准线、虚圆点）",
+   "label": "定理 1",
+   "name": "过虚圆点的圆锥曲线是圆",
+   "statement": "圆锥曲线为圆的充要条件是它经过平面上的虚圆点。",
+   "note": "",
+   "source": "吉川 p125 定理 1",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "分类",
+   "status": "extracted"
+  },
+  {
+   "id": "T193",
+   "layer": "欧氏",
+   "category": "4. 欧氏几何：圆与四边形",
+   "subcategory": "4.4 圆锥曲线的度量性质（轴、焦点、准线、虚圆点）",
+   "label": "定理 2",
+   "name": "虚圆点切线交于焦点",
+   "statement": "由虚圆点向圆锥曲线所引的切线，必相交于焦点。",
+   "note": "",
+   "source": "吉川 p125 定理 2",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "共点",
+   "status": "extracted"
+  },
+  {
+   "id": "T194",
+   "layer": "欧氏",
+   "category": "5. 轨迹与包络",
+   "subcategory": "5.1 基本轨迹",
+   "label": "例 1",
+   "name": "与两定直线等距的轨迹",
+   "statement": "与两定直线距离相等的点，其轨迹是两线所成角的两条平分线，且两条平分线互相垂直。",
+   "note": "",
+   "source": "严 p13 例 1；严 p43 例 1；严 p57 §46 5°",
+   "books": [
+    "严"
+   ],
+   "conclusion": "轨迹",
+   "status": "extracted"
+  },
+  {
+   "id": "T195",
+   "layer": "欧氏",
+   "category": "5. 轨迹与包络",
+   "subcategory": "5.1 基本轨迹",
+   "label": "§46 1°",
+   "name": "到定点定距的轨迹是圆",
+   "statement": "与定点距离为定值的点，其轨迹是以定点为心的圆。",
+   "note": "",
+   "source": "严 p57 §46 1°",
+   "books": [
+    "严"
+   ],
+   "conclusion": "轨迹",
+   "status": "extracted"
+  },
+  {
+   "id": "T196",
+   "layer": "欧氏",
+   "category": "5. 轨迹与包络",
+   "subcategory": "5.1 基本轨迹",
+   "label": "§46 2°",
+   "name": "到定直线定距的轨迹",
+   "statement": "与定直线距离为定值的点，其轨迹是平行于定直线的直线。",
+   "note": "",
+   "source": "严 p57 §46 2°",
+   "books": [
+    "严"
+   ],
+   "conclusion": "轨迹",
+   "status": "extracted"
+  },
+  {
+   "id": "T197",
+   "layer": "欧氏",
+   "category": "5. 轨迹与包络",
+   "subcategory": "5.1 基本轨迹",
+   "label": "§46 3°",
+   "name": "到定圆定距的轨迹",
+   "statement": "与定圆距离为定值的点，其轨迹是定圆的同心圆。",
+   "note": "",
+   "source": "严 p57 §46 3°",
+   "books": [
+    "严"
+   ],
+   "conclusion": "轨迹",
+   "status": "extracted"
+  },
+  {
+   "id": "T198",
+   "layer": "欧氏",
+   "category": "5. 轨迹与包络",
+   "subcategory": "5.1 基本轨迹",
+   "label": "§46 4°",
+   "name": "到两定点等距的轨迹",
+   "statement": "与两定点距离相等的点，其轨迹是两点连线的垂直平分线。",
+   "note": "",
+   "source": "严 p57 §46 4°",
+   "books": [
+    "严"
+   ],
+   "conclusion": "轨迹",
+   "status": "extracted"
+  },
+  {
+   "id": "T199",
+   "layer": "欧氏",
+   "category": "5. 轨迹与包络",
+   "subcategory": "5.1 基本轨迹",
+   "label": "§47 1°",
+   "name": "定视角的轨迹",
+   "statement": "看两定点 A、B 的视角为定值的点，其轨迹是关于 AB 对称的两段圆弧。",
+   "note": "",
+   "source": "严 p60 §47 1°",
+   "books": [
+    "严"
+   ],
+   "conclusion": "轨迹",
+   "status": "extracted"
+  },
+  {
+   "id": "T200",
+   "layer": "欧氏",
+   "category": "5. 轨迹与包络",
+   "subcategory": "5.1 基本轨迹",
+   "label": "§47 2°",
+   "name": "与定直线成定角的轨迹",
+   "statement": "与定点的连线交定直线成定角的点，其轨迹是过该定点的直线。",
+   "note": "",
+   "source": "严 p61 §47 2°",
+   "books": [
+    "严"
+   ],
+   "conclusion": "轨迹",
+   "status": "extracted"
+  },
+  {
+   "id": "T201",
+   "layer": "欧氏",
+   "category": "5. 轨迹与包络",
+   "subcategory": "5.2 轨迹例题",
+   "label": "例 1 / 例 2",
+   "name": "等腰直角三角形顶点轨迹",
+   "statement": "两定直线交于 A 成直角，等腰直角三角形 PBC 的斜边两端 B、C 在两定直线上移动，顶点 P 的轨迹是 ∠BAC 平分线上的一段有限线段。",
+   "note": "",
+   "source": "严 p14 例 2；严 p45 例 1",
+   "books": [
+    "严"
+   ],
+   "conclusion": "轨迹",
+   "status": "extracted"
+  },
+  {
+   "id": "T202",
+   "layer": "欧氏",
+   "category": "5. 轨迹与包络",
+   "subcategory": "5.2 轨迹例题",
+   "label": "例 2",
+   "name": "过定点弦中点的轨迹",
+   "statement": "过圆上一定点 A 作弦，弦中点的轨迹是以 AO 为直径的圆（O 为圆心）。",
+   "note": "",
+   "source": "严 p43 例 2",
+   "books": [
+    "严"
+   ],
+   "conclusion": "轨迹",
+   "status": "extracted"
+  },
+  {
+   "id": "T203",
+   "layer": "欧氏",
+   "category": "5. 轨迹与包络",
+   "subcategory": "5.2 轨迹例题",
+   "label": "例 2",
+   "name": "等边三角形顶点的圆轨迹",
+   "statement": "从圆外一点 A 到圆周任作直线 AB，以 AB 为一边作等边三角形 ABC，顶点 C 的轨迹是与已知圆同样大、关于 AO 对称的两个圆。",
+   "note": "",
+   "source": "严 p46 例 2",
+   "books": [
+    "严"
+   ],
+   "conclusion": "轨迹",
+   "status": "extracted"
+  },
+  {
+   "id": "T204",
+   "layer": "欧氏",
+   "category": "5. 轨迹与包络",
+   "subcategory": "5.2 轨迹例题",
+   "label": "例 4",
+   "name": "阿波罗尼斯圆",
+   "statement": "到两定点距离之比为定值的点，其轨迹是以 AB 上内外分点 E、F 为直径的圆。",
+   "note": "",
+   "source": "严 p49 例 4",
+   "books": [
+    "严"
+   ],
+   "conclusion": "轨迹",
+   "status": "extracted"
+  },
+  {
+   "id": "T205",
+   "layer": "欧氏",
+   "category": "5. 轨迹与包络",
+   "subcategory": "5.2 轨迹例题",
+   "label": "例 1",
+   "name": "直角顶点的轨迹",
+   "statement": "直角三角形斜边两端沿两条互相垂直的定直线移动，直角顶点的轨迹是过两线交点的一段有限线段。",
+   "note": "",
+   "source": "严 p51 例 1",
+   "books": [
+    "严"
+   ],
+   "conclusion": "轨迹",
+   "status": "extracted"
+  },
+  {
+   "id": "T206",
+   "layer": "欧氏",
+   "category": "5. 轨迹与包络",
+   "subcategory": "5.2 轨迹例题",
+   "label": "例 2",
+   "name": "割线弦中点的轨迹",
+   "statement": "自圆外一定点 A 任作割线，弦中点的轨迹是以 OA 为直径、夹在两切点之间的圆弧。",
+   "note": "",
+   "source": "严 p52 例 2",
+   "books": [
+    "严"
+   ],
+   "conclusion": "轨迹",
+   "status": "extracted"
+  },
+  {
+   "id": "T207",
+   "layer": "欧氏",
+   "category": "5. 轨迹与包络",
+   "subcategory": "5.2 轨迹例题",
+   "label": "例 3",
+   "name": "切线长等于定距的轨迹",
+   "statement": "D 为圆内定点，圆外一点 M 到圆的切线长等于 MD，M 的轨迹是垂直于 OD 的一条直线。",
+   "note": "",
+   "source": "严 p53 例 3",
+   "books": [
+    "严"
+   ],
+   "conclusion": "轨迹",
+   "status": "extracted"
+  },
+  {
+   "id": "T208",
+   "layer": "欧氏",
+   "category": "5. 轨迹与包络",
+   "subcategory": "5.2 轨迹例题",
+   "label": "例 4",
+   "name": "比例中项点的轨迹",
+   "statement": "直角三角形 BAC 斜边上任一点 D 作垂线交 BA、CA 于 E、F，在垂线上取 M 使 DM² = DE·DF，M 的轨迹是以 BC 为直径的圆。",
+   "note": "",
+   "source": "严 p54 例 4",
+   "books": [
+    "严"
+   ],
+   "conclusion": "轨迹",
+   "status": "extracted"
+  },
+  {
+   "id": "T209",
+   "layer": "欧氏",
+   "category": "5. 轨迹与包络",
+   "subcategory": "5.2 轨迹例题",
+   "label": "例 5",
+   "name": "等长截取线段中点轨迹",
+   "statement": "在两定直线 OX、OY 上自 A、B 起取 AC = BD、CE = DF……，AB、CD、EF…… 的中点轨迹是平行于 ∠XOY 平分线的一条直线。",
+   "note": "",
+   "source": "严 p55 例 5",
+   "books": [
+    "严"
+   ],
+   "conclusion": "轨迹",
+   "status": "extracted"
+  },
+  {
+   "id": "T210",
+   "layer": "欧氏",
+   "category": "5. 轨迹与包络",
+   "subcategory": "5.2 轨迹例题",
+   "label": "例 6",
+   "name": "旋转圆定向切线切点轨迹",
+   "statement": "一圆绕其上一定点旋转，各位置上定向切线的切点轨迹是与动圆同样大的圆。",
+   "note": "",
+   "source": "严 p56 例 6",
+   "books": [
+    "严"
+   ],
+   "conclusion": "轨迹",
+   "status": "extracted"
+  },
+  {
+   "id": "T211",
+   "layer": "欧氏",
+   "category": "5. 轨迹与包络",
+   "subcategory": "5.2 轨迹例题",
+   "label": "§46 例 1",
+   "name": "同心圆定角切线交点轨迹",
+   "statement": "在两同心圆上各作切线，两切线交于 M 且夹角一定，M 的轨迹是同心的圆。",
+   "note": "",
+   "source": "严 p57 §46 例 1",
+   "books": [
+    "严"
+   ],
+   "conclusion": "轨迹",
+   "status": "extracted"
+  },
+  {
+   "id": "T212",
+   "layer": "欧氏",
+   "category": "5. 轨迹与包络",
+   "subcategory": "5.2 轨迹例题",
+   "label": "§46 例 2",
+   "name": "加权平方和为定值的轨迹",
+   "statement": "满足 p·MA² + q·MB² = k² 的点 M，其轨迹是圆心在 AB 上、分 AB 为 q : p 的圆；当 k² = a²pq/(p+q) 时轨迹退化为一点。",
+   "note": "",
+   "source": "严 p58 §46 例 2",
+   "books": [
+    "严"
+   ],
+   "conclusion": "轨迹",
+   "status": "extracted"
+  },
+  {
+   "id": "T213",
+   "layer": "欧氏",
+   "category": "5. 轨迹与包络",
+   "subcategory": "5.2 轨迹例题",
+   "label": "§46 例 3",
+   "name": "过定点弦两切圆交点轨迹",
+   "statement": "A 为圆 O 内定点，过 A 作弦 BAC，再过 A、B 和 A、C 各作与圆 O 相切的圆，两圆另一交点的轨迹是以 OA 中点为心的圆。",
+   "note": "",
+   "source": "严 p59 §46 例 3",
+   "books": [
+    "严"
+   ],
+   "conclusion": "轨迹",
+   "status": "extracted"
+  },
+  {
+   "id": "T214",
+   "layer": "欧氏",
+   "category": "5. 轨迹与包络",
+   "subcategory": "5.2 轨迹例题",
+   "label": "§46 例 4",
+   "name": "Blanchet 轨迹",
+   "statement": "从定直径 AB 延长线上一点 C 作切线 CT 与 ∠ACT 的平分线，自圆心作平分线的垂线，垂足轨迹是与 AB 相距 r/2 的两段有限线段。",
+   "note": "",
+   "source": "严 p59 §46 例 4",
+   "books": [
+    "严"
+   ],
+   "conclusion": "轨迹",
+   "status": "extracted"
+  },
+  {
+   "id": "T215",
+   "layer": "欧氏",
+   "category": "5. 轨迹与包络",
+   "subcategory": "5.2 轨迹例题",
+   "label": "§47 例 1",
+   "name": "定弦三角形内心轨迹",
+   "statement": "AB 为定弦，M 在弧上变动，三角形 ABM 内心的轨迹是以 AB 为弦、容角为 90° + ∠M/2 的圆弧。",
+   "note": "",
+   "source": "严 p61 §47 例 1",
+   "books": [
+    "严"
+   ],
+   "conclusion": "轨迹",
+   "status": "extracted"
+  },
+  {
+   "id": "T216",
+   "layer": "欧氏",
+   "category": "5. 轨迹与包络",
+   "subcategory": "5.2 轨迹例题",
+   "label": "§47 例 1 注",
+   "name": "定弦三角形旁心轨迹",
+   "statement": "同上，旁心的轨迹是内心轨迹的共轭弧，两弧合成的圆以 AB 弧的中点为心。",
+   "note": "",
+   "source": "严 p62 §47 例 1 注",
+   "books": [
+    "严"
+   ],
+   "conclusion": "轨迹",
+   "status": "extracted"
+  },
+  {
+   "id": "T217",
+   "layer": "欧氏",
+   "category": "5. 轨迹与包络",
+   "subcategory": "5.2 轨迹例题",
+   "label": "§47 例 2",
+   "name": "定弦三角形垂心轨迹",
+   "statement": "同上，垂心的轨迹是与给定圆同样大、关于 AB 对称的圆。",
+   "note": "",
+   "source": "严 p62 §47 例 2",
+   "books": [
+    "严"
+   ],
+   "conclusion": "轨迹",
+   "status": "extracted"
+  },
+  {
+   "id": "T218",
+   "layer": "欧氏",
+   "category": "5. 轨迹与包络",
+   "subcategory": "5.2 轨迹例题",
+   "label": "§47 例 3",
+   "name": "两切圆切点的轨迹",
+   "statement": "B、C 分别是圆 I、J 上的定点，过 B、C 各作圆与 I、J 相切且两圆互切于 M，M 的轨迹是以 BC 为弦的一段圆弧。",
+   "note": "",
+   "source": "严 p64 §47 例 3",
+   "books": [
+    "严"
+   ],
+   "conclusion": "轨迹",
+   "status": "extracted"
+  },
+  {
+   "id": "T219",
+   "layer": "欧氏",
+   "category": "5. 轨迹与包络",
+   "subcategory": "5.2 轨迹例题",
+   "label": "§47 例 4",
+   "name": "两边和为定值时的轨迹",
+   "statement": "在两条互相垂直的直线上取 A、B 使 OA + OB = l，自 O 作 AB 的平行线交外接圆于 M，M 的轨迹由四个半圆组成。",
+   "note": "",
+   "source": "严 p64 §47 例 4",
+   "books": [
+    "严"
+   ],
+   "conclusion": "轨迹",
+   "status": "extracted"
+  },
+  {
+   "id": "T220",
+   "layer": "欧氏",
+   "category": "5. 轨迹与包络",
+   "subcategory": "5.2 轨迹例题",
+   "label": "§47 例 5",
+   "name": "定角定比所作点的轨迹",
+   "statement": "自定点 A 作直线交定直线于 B，作 AC 与 AB 成定角且 AB : AC 为定比，C 的轨迹是一条直线。",
+   "note": "",
+   "source": "严 p65 §47 例 5",
+   "books": [
+    "严"
+   ],
+   "conclusion": "轨迹",
+   "status": "extracted"
+  },
+  {
+   "id": "T221",
+   "layer": "欧氏",
+   "category": "5. 轨迹与包络",
+   "subcategory": "5.2 轨迹例题",
+   "label": "§47 例 6",
+   "name": "边平行定向的三角形顶点轨迹",
+   "statement": "三角形三边分别平行于三条定直线，两个顶点各在两条给定直线上移动，第三顶点的轨迹是过这两条直线交点的一条直线。",
+   "note": "",
+   "source": "严 p66 §47 例 6",
+   "books": [
+    "严"
+   ],
+   "conclusion": "轨迹",
+   "status": "extracted"
+  },
+  {
+   "id": "T222",
+   "layer": "欧氏",
+   "category": "5. 轨迹与包络",
+   "subcategory": "5.2 轨迹例题",
+   "label": "§48 例",
+   "name": "合成轨迹",
+   "statement": "以圆心 A 为顶点作等腰三角形 ABC，自 B、C 作圆的切线，切线交点的轨迹是 BC 的垂直平分线与三角形 ABC 的外接圆。",
+   "note": "",
+   "source": "严 p67 §48 例",
+   "books": [
+    "严"
+   ],
+   "conclusion": "轨迹",
+   "status": "extracted"
+  },
+  {
+   "id": "T223",
+   "layer": "欧氏",
+   "category": "5. 轨迹与包络",
+   "subcategory": "5.2 轨迹例题",
+   "label": "例 3",
+   "name": "等边三角形顶点的直线轨迹",
+   "statement": "自定点 A 与定直线上一点 B 连线，以 AB 为边作等边三角形 ABC，C 的轨迹是定直线绕 A 旋转 ±60° 所得的两条直线。",
+   "note": "",
+   "source": "严 p144 例 3",
+   "books": [
+    "严"
+   ],
+   "conclusion": "轨迹",
+   "status": "extracted"
+  },
+  {
+   "id": "T224",
+   "layer": "欧氏",
+   "category": "5. 轨迹与包络",
+   "subcategory": "5.2 轨迹例题",
+   "label": "例 1",
+   "name": "相似三角形顶点的直线轨迹",
+   "statement": "在 AB 上作与已知三角形相似的三角形 ABC（B 在定直线上），C 的轨迹是定直线的位似图绕 A 旋转所得的直线。",
+   "note": "",
+   "source": "严 p177 例 1",
+   "books": [
+    "严"
+   ],
+   "conclusion": "轨迹",
+   "status": "extracted"
+  },
+  {
+   "id": "T225",
+   "layer": "欧氏",
+   "category": "5. 轨迹与包络",
+   "subcategory": "5.2 轨迹例题",
+   "label": "例 2",
+   "name": "相似三角形顶点的圆轨迹",
+   "statement": "同上，若 B 在定圆上，则 C 的轨迹是定圆的位似圆绕 A 旋转所得的圆。",
+   "note": "",
+   "source": "严 p178 例 2",
+   "books": [
+    "严"
+   ],
+   "conclusion": "轨迹",
+   "status": "extracted"
+  },
+  {
+   "id": "T226",
+   "layer": "欧氏",
+   "category": "5. 轨迹与包络",
+   "subcategory": "5.2 轨迹例题",
+   "label": "例 1",
+   "name": "定角定积顶点轨迹：直线情形",
+   "statement": "在 AB 上作三角形 ABC 使 ∠A = α、AB·AC = k²（B 在定直线上），C 的轨迹是定直线的反演图绕 A 旋转 α 所得的圆。",
+   "note": "",
+   "source": "严 p190 例 1",
+   "books": [
+    "严"
+   ],
+   "conclusion": "轨迹",
+   "status": "extracted"
+  },
+  {
+   "id": "T227",
+   "layer": "欧氏",
+   "category": "5. 轨迹与包络",
+   "subcategory": "5.2 轨迹例题",
+   "label": "例 2",
+   "name": "定角定积顶点轨迹：圆情形",
+   "statement": "同上，若 B 在定圆上，则 C 的轨迹是定圆的反演图绕 A 旋转 α 所得的圆。",
+   "note": "",
+   "source": "严 p191 例 2",
+   "books": [
+    "严"
+   ],
+   "conclusion": "轨迹",
+   "status": "extracted"
+  },
+  {
+   "id": "T228",
+   "layer": "欧氏",
+   "category": "5. 轨迹与包络",
+   "subcategory": "5.3 包络",
+   "label": "§54",
+   "name": "定圆等弦的包络",
+   "statement": "定圆内相等的各弦，切于一个同心圆。",
+   "note": "",
+   "source": "严 p92 §54",
+   "books": [
+    "严"
+   ],
+   "conclusion": "包络",
+   "status": "extracted"
+  },
+  {
+   "id": "T229",
+   "layer": "欧氏",
+   "category": "5. 轨迹与包络",
+   "subcategory": "5.3 包络",
+   "label": "§54",
+   "name": "到定点定距直线的包络",
+   "statement": "与定点 A 相距 a 的各直线，切于以 A 为心、a 为半径的圆。",
+   "note": "",
+   "source": "严 p92 §54",
+   "books": [
+    "严"
+   ],
+   "conclusion": "包络",
+   "status": "extracted"
+  },
+  {
+   "id": "T230",
+   "layer": "欧氏",
+   "category": "5. 轨迹与包络",
+   "subcategory": "5.3 包络",
+   "label": "§54",
+   "name": "到定圆定距直线的包络",
+   "statement": "与定圆相距 a 的各直线，切于一个同心圆。",
+   "note": "",
+   "source": "严 p92 §54",
+   "books": [
+    "严"
+   ],
+   "conclusion": "包络",
+   "status": "extracted"
+  },
+  {
+   "id": "T231",
+   "layer": "欧氏",
+   "category": "5. 轨迹与包络",
+   "subcategory": "5.3 包络",
+   "label": "§54",
+   "name": "到两定点距离和定的直线包络",
+   "statement": "到同侧两定点 A、B 距离之和为 l 的各直线，切于以 AB 中点为心、l/2 为半径的圆。",
+   "note": "",
+   "source": "严 p92 §54",
+   "books": [
+    "严"
+   ],
+   "conclusion": "包络",
+   "status": "extracted"
+  },
+  {
+   "id": "T232",
+   "layer": "欧氏",
+   "category": "5. 轨迹与包络",
+   "subcategory": "5.3 包络",
+   "label": "§54",
+   "name": "到两定点距离差定的直线包络",
+   "statement": "到异侧两定点 A、B 距离之差为 l 的各直线，切于以 AB 中点为心、l/2 为半径的圆。",
+   "note": "",
+   "source": "严 p92 §54",
+   "books": [
+    "严"
+   ],
+   "conclusion": "包络",
+   "status": "extracted"
+  },
+  {
+   "id": "T233",
+   "layer": "欧氏",
+   "category": "5. 轨迹与包络",
+   "subcategory": "5.3 包络",
+   "label": "§54",
+   "name": "与定圆成定角直线的包络",
+   "statement": "与定圆交成定角 α 的各直线，其包络是一个同心圆。",
+   "note": "",
+   "source": "严 p92 §54",
+   "books": [
+    "严"
+   ],
+   "conclusion": "包络",
+   "status": "extracted"
+  },
+  {
+   "id": "T234",
+   "layer": "欧氏",
+   "category": "5. 轨迹与包络",
+   "subcategory": "5.3 包络",
+   "label": "§54",
+   "name": "垂足连线的包络",
+   "statement": "三角形底边 BC 与顶角 A 一定，两条高的垂足连线 DE 的包络是以 BC 为直径的圆的同心圆。",
+   "note": "",
+   "source": "严 p93 §54",
+   "books": [
+    "严"
+   ],
+   "conclusion": "包络",
+   "status": "extracted"
+  },
+  {
+   "id": "T235",
+   "layer": "欧氏",
+   "category": "5. 轨迹与包络",
+   "subcategory": "5.3 包络",
+   "label": "§54",
+   "name": "平方倒数和定的截线包络",
+   "statement": "直线截直角 XOY 两边于 A、B，且 1/OA² + 1/OB² = 1/m²，则 AB 的包络是以 O 为心、m 为半径的圆。",
+   "note": "",
+   "source": "严 p93 §54",
+   "books": [
+    "严"
+   ],
+   "conclusion": "包络",
+   "status": "extracted"
+  },
+  {
+   "id": "T236",
+   "layer": "欧氏",
+   "category": "5. 轨迹与包络",
+   "subcategory": "5.3 包络",
+   "label": "§54",
+   "name": "定视角弦的包络",
+   "statement": "从圆上一定点看各弦的视角都是 α，则各弦切于一个同心圆。",
+   "note": "",
+   "source": "严 p93 §54",
+   "books": [
+    "严"
+   ],
+   "conclusion": "包络",
+   "status": "extracted"
+  },
+  {
+   "id": "T237",
+   "layer": "欧氏",
+   "category": "5. 轨迹与包络",
+   "subcategory": "5.3 包络",
+   "label": "§54",
+   "name": "顶角周长一定时底边包络",
+   "statement": "三角形顶角和周长一定，则底边的包络是一个定圆（旁切圆）。",
+   "note": "",
+   "source": "严 p93 §54",
+   "books": [
+    "严"
+   ],
+   "conclusion": "包络",
+   "status": "extracted"
+  },
+  {
+   "id": "T238",
+   "layer": "欧氏",
+   "category": "5. 轨迹与包络",
+   "subcategory": "5.4 动直线过定点或沿定方向",
+   "label": "§55",
+   "name": "内接平行四边形对角线过中心",
+   "statement": "内接于平行四边形的各平行四边形，其对角线都过原平行四边形的中心。",
+   "note": "",
+   "source": "严 p94 §55",
+   "books": [
+    "严"
+   ],
+   "conclusion": "共点",
+   "status": "extracted"
+  },
+  {
+   "id": "T239",
+   "layer": "欧氏",
+   "category": "5. 轨迹与包络",
+   "subcategory": "5.4 动直线过定点或沿定方向",
+   "label": "§55",
+   "name": "圆周角平分线过弧中点",
+   "statement": "同弧上各圆周角的平分线，都过该弧的中点。",
+   "note": "",
+   "source": "严 p94 §55",
+   "books": [
+    "严"
+   ],
+   "conclusion": "共点",
+   "status": "extracted"
+  },
+  {
+   "id": "T240",
+   "layer": "欧氏",
+   "category": "5. 轨迹与包络",
+   "subcategory": "5.4 动直线过定点或沿定方向",
+   "label": "§55",
+   "name": "到异侧两点等距直线过中点",
+   "statement": "与异侧两定点 A、B 距离相等的各直线，都过 AB 的中点。",
+   "note": "",
+   "source": "严 p94 §55",
+   "books": [
+    "严"
+   ],
+   "conclusion": "共点",
+   "status": "extracted"
+  },
+  {
+   "id": "T241",
+   "layer": "欧氏",
+   "category": "5. 轨迹与包络",
+   "subcategory": "5.4 动直线过定点或沿定方向",
+   "label": "§55",
+   "name": "到两点距离成比的直线过定点",
+   "statement": "与两定点 A、B 距离之比为 n : m 的各直线，都过分 AB 成此比的点。",
+   "note": "",
+   "source": "严 p94 §55",
+   "books": [
+    "严"
+   ],
+   "conclusion": "共点",
+   "status": "extracted"
+  },
+  {
+   "id": "T242",
+   "layer": "欧氏",
+   "category": "5. 轨迹与包络",
+   "subcategory": "5.4 动直线过定点或沿定方向",
+   "label": "§55",
+   "name": "直角视角的弦过圆心",
+   "statement": "从圆上一点看各弦的视角为直角，则各弦都过圆心。",
+   "note": "",
+   "source": "严 p94 §55",
+   "books": [
+    "严"
+   ],
+   "conclusion": "共点",
+   "status": "extracted"
+  },
+  {
+   "id": "T243",
+   "layer": "欧氏",
+   "category": "5. 轨迹与包络",
+   "subcategory": "5.4 动直线过定点或沿定方向",
+   "label": "§55",
+   "name": "倒数和定的截线过定点",
+   "statement": "截 ∠XOY 两边于 A、B 且满足 1/OA + 1/OB = 1/a 的直线，都过角平分线上的一定点。",
+   "note": "",
+   "source": "严 p95 §55",
+   "books": [
+    "严"
+   ],
+   "conclusion": "共点",
+   "status": "extracted"
+  },
+  {
+   "id": "T244",
+   "layer": "欧氏",
+   "category": "5. 轨迹与包络",
+   "subcategory": "5.4 动直线过定点或沿定方向",
+   "label": "§55",
+   "name": "切点处垂直弦的连线过定点",
+   "statement": "从两圆的切点 A 作两圆互相垂直的弦 AB、AC，则 BC 必过一定点（两圆的相似心）。",
+   "note": "",
+   "source": "严 p95 §55",
+   "books": [
+    "严"
+   ],
+   "conclusion": "共点",
+   "status": "extracted"
+  },
+  {
+   "id": "T245",
+   "layer": "欧氏",
+   "category": "5. 轨迹与包络",
+   "subcategory": "5.4 动直线过定点或沿定方向",
+   "label": "§56",
+   "name": "截出相似三角形的直线定向",
+   "statement": "与定角两边相交、所成三角形与已知三角形相似的各直线，平行于一定方向。",
+   "note": "",
+   "source": "严 p96 §56",
+   "books": [
+    "严"
+   ],
+   "conclusion": "平行",
+   "status": "extracted"
+  },
+  {
+   "id": "T246",
+   "layer": "欧氏",
+   "category": "5. 轨迹与包络",
+   "subcategory": "5.4 动直线过定点或沿定方向",
+   "label": "§56",
+   "name": "边平行定线的角平分线定向",
+   "statement": "两边各与两定直线平行的各角，其平分线平行于一定方向。",
+   "note": "",
+   "source": "严 p96 §56",
+   "books": [
+    "严"
+   ],
+   "conclusion": "平行",
+   "status": "extracted"
+  },
+  {
+   "id": "T247",
+   "layer": "欧氏",
+   "category": "5. 轨迹与包络",
+   "subcategory": "5.4 动直线过定点或沿定方向",
+   "label": "§56",
+   "name": "等比分两边的直线平行底边",
+   "statement": "把三角形两边分成等比的各直线，都与底边平行。",
+   "note": "",
+   "source": "严 p96 §56",
+   "books": [
+    "严"
+   ],
+   "conclusion": "平行",
+   "status": "extracted"
+  },
+  {
+   "id": "T248",
+   "layer": "欧氏",
+   "category": "5. 轨迹与包络",
+   "subcategory": "5.4 动直线过定点或沿定方向",
+   "label": "§56",
+   "name": "与定直线成定角的直线定向",
+   "statement": "与定直线交成定角的各直线，平行于一定方向。",
+   "note": "",
+   "source": "严 p96 §56",
+   "books": [
+    "严"
+   ],
+   "conclusion": "平行",
+   "status": "extracted"
+  },
+  {
+   "id": "T249",
+   "layer": "欧氏",
+   "category": "5. 轨迹与包络",
+   "subcategory": "5.4 动直线过定点或沿定方向",
+   "label": "§56",
+   "name": "到同侧两点等距直线定向",
+   "statement": "与同侧两定点距离相等的各直线，平行于一定方向。",
+   "note": "",
+   "source": "严 p96 §56",
+   "books": [
+    "严"
+   ],
+   "conclusion": "平行",
+   "status": "extracted"
+  },
+  {
+   "id": "T250",
+   "layer": "欧氏",
+   "category": "5. 轨迹与包络",
+   "subcategory": "5.4 动直线过定点或沿定方向",
+   "label": "§56",
+   "name": "到异侧两点距离和定的直线定向",
+   "statement": "与异侧两定点距离之和为定值的各直线，平行于一定方向。",
+   "note": "",
+   "source": "严 p96 §56",
+   "books": [
+    "严"
+   ],
+   "conclusion": "平行",
+   "status": "extracted"
+  },
+  {
+   "id": "T251",
+   "layer": "欧氏",
+   "category": "5. 轨迹与包络",
+   "subcategory": "5.4 动直线过定点或沿定方向",
+   "label": "§56",
+   "name": "到同侧两点距离差定的直线定向",
+   "statement": "与同侧两定点距离之差为定值的各直线，平行于一定方向。",
+   "note": "",
+   "source": "严 p96 §56",
+   "books": [
+    "严"
+   ],
+   "conclusion": "平行",
+   "status": "extracted"
+  },
+  {
+   "id": "T252",
+   "layer": "欧氏",
+   "category": "5. 轨迹与包络",
+   "subcategory": "5.4 动直线过定点或沿定方向",
+   "label": "§56",
+   "name": "平行线间定长线段定向",
+   "statement": "夹在两定平行线间、长为定值的各直线，平行于一定方向。",
+   "note": "",
+   "source": "严 p96 §56",
+   "books": [
+    "严"
+   ],
+   "conclusion": "平行",
+   "status": "extracted"
+  },
+  {
+   "id": "T253",
+   "layer": "欧氏",
+   "category": "5. 轨迹与包络",
+   "subcategory": "5.4 动直线过定点或沿定方向",
+   "label": "例 5",
+   "name": "移动平行四边形对角线过定点",
+   "statement": "平行四边形 ABCD 在平面上移动，若邻边 AB、AD 始终各过定点 M、N，则对角线 AC 也始终过一定点。",
+   "note": "",
+   "source": "严 p103 例 5",
+   "books": [
+    "严"
+   ],
+   "conclusion": "共点",
+   "status": "extracted"
+  },
+  {
+   "id": "T254",
+   "layer": "欧氏",
+   "category": "6. 几何变换",
+   "subcategory": "6.1 对称",
+   "label": "定理 1",
+   "name": "两点有唯一对称心",
+   "statement": "任何两点有且只有一个对称心。",
+   "note": "",
+   "source": "严 p40 定理 1",
+   "books": [
+    "严"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T255",
+   "layer": "欧氏",
+   "category": "6. 几何变换",
+   "subcategory": "6.1 对称",
+   "label": "定理 2",
+   "name": "点关于中心的对称点唯一",
+   "statement": "任意一点关于某对称心有且只有一个对称点。",
+   "note": "",
+   "source": "严 p40 定理 2",
+   "books": [
+    "严"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T256",
+   "layer": "欧氏",
+   "category": "6. 几何变换",
+   "subcategory": "6.1 对称",
+   "label": "定理 3",
+   "name": "两点有唯一对称轴",
+   "statement": "任意两点有且只有一条对称轴。",
+   "note": "",
+   "source": "严 p41 定理 3",
+   "books": [
+    "严"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T257",
+   "layer": "欧氏",
+   "category": "6. 几何变换",
+   "subcategory": "6.1 对称",
+   "label": "定理 4",
+   "name": "点关于直线的对称点唯一",
+   "statement": "任意一点关于某直线有且只有一个对称点。",
+   "note": "",
+   "source": "严 p41 定理 4",
+   "books": [
+    "严"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T258",
+   "layer": "欧氏",
+   "category": "6. 几何变换",
+   "subcategory": "6.1 对称",
+   "label": "定理 5",
+   "name": "两垂直轴对称则中心对称",
+   "statement": "图形若关于两条互相垂直的轴对称，则关于两轴的交点也对称。",
+   "note": "",
+   "source": "严 p42 定理 5",
+   "books": [
+    "严"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T259",
+   "layer": "欧氏",
+   "category": "6. 几何变换",
+   "subcategory": "6.1 对称",
+   "label": "§42",
+   "name": "轨迹问题上的对称定理",
+   "statement": "原图形若是轴对称或中心对称的，则由它按任何条件得到的轨迹也有同样的对称轴或对称心；逆定理不一定成立。",
+   "note": "",
+   "source": "严 p42 §42",
+   "books": [
+    "严"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T260",
+   "layer": "欧氏",
+   "category": "6. 几何变换",
+   "subcategory": "6.1 对称",
+   "label": "定理（§42）",
+   "name": "不对称图形的轨迹可对称",
+   "statement": "原图形不对称时，其轨迹仍可以是对称形。",
+   "note": "",
+   "source": "严 p44 §42",
+   "books": [
+    "严"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T261",
+   "layer": "欧氏",
+   "category": "6. 几何变换",
+   "subcategory": "6.1 对称",
+   "label": "推论",
+   "name": "不对称轨迹来自不对称图形",
+   "statement": "轨迹若不对称，则原图形也必不对称。",
+   "note": "",
+   "source": "严 p44 推论",
+   "books": [
+    "严"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T262",
+   "layer": "欧氏",
+   "category": "6. 几何变换",
+   "subcategory": "6.2 平移",
+   "label": "§67",
+   "name": "直线平移后仍平行",
+   "statement": "直线平移后仍是与原线平行（或重合）的直线，由线上一点及其对应点确定。",
+   "note": "",
+   "source": "严 p126 §67",
+   "books": [
+    "严"
+   ],
+   "conclusion": "平行",
+   "status": "extracted"
+  },
+  {
+   "id": "T263",
+   "layer": "欧氏",
+   "category": "6. 几何变换",
+   "subcategory": "6.2 平移",
+   "label": "§68",
+   "name": "圆平移后为等圆",
+   "statement": "圆平移后是与原圆相等的圆，由圆心及其对应点确定。",
+   "note": "",
+   "source": "严 p127 §68",
+   "books": [
+    "严"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T264",
+   "layer": "欧氏",
+   "category": "6. 几何变换",
+   "subcategory": "6.3 旋转（转移）",
+   "label": "§72",
+   "name": "旋转保持夹角",
+   "statement": "直线绕定点旋转 α 角后仍是直线，与原线的夹角等于 α；两直线的夹角在旋转下不变。",
+   "note": "",
+   "source": "严 p140 §72",
+   "books": [
+    "严"
+   ],
+   "conclusion": "等角",
+   "status": "extracted"
+  },
+  {
+   "id": "T265",
+   "layer": "欧氏",
+   "category": "6. 几何变换",
+   "subcategory": "6.3 旋转（转移）",
+   "label": "§73",
+   "name": "圆的旋转与等圆",
+   "statement": "圆旋转后是与原圆相等的圆；任意两个等圆都可看成绕圆心连线垂直平分线上任一点旋转而来。",
+   "note": "",
+   "source": "严 p141 §73",
+   "books": [
+    "严"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T266",
+   "layer": "欧氏",
+   "category": "6. 几何变换",
+   "subcategory": "6.3 旋转（转移）",
+   "label": "§74",
+   "name": "等长线段可经旋转重合",
+   "statement": "任意两条等长线段 AB 与 A′B′，都可以经一次旋转使它们重合（AB ∥ A′B′ 成平行四边形时用平移）。",
+   "note": "",
+   "source": "严 p141 §74",
+   "books": [
+    "严"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T267",
+   "layer": "欧氏",
+   "category": "6. 几何变换",
+   "subcategory": "6.4 位似",
+   "label": "§78",
+   "name": "直线的位似图",
+   "statement": "直线关于线外一点的位似图是它的平行线。",
+   "note": "",
+   "source": "严 p161 §78",
+   "books": [
+    "严"
+   ],
+   "conclusion": "平行",
+   "status": "extracted"
+  },
+  {
+   "id": "T268",
+   "layer": "欧氏",
+   "category": "6. 几何变换",
+   "subcategory": "6.4 位似",
+   "label": "§79",
+   "name": "圆的位似图",
+   "statement": "圆的位似图是圆，圆心为原圆心的对应点，半径之比等于相似率。",
+   "note": "",
+   "source": "严 p162 §79",
+   "books": [
+    "严"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T269",
+   "layer": "欧氏",
+   "category": "6. 几何变换",
+   "subcategory": "6.4 位似",
+   "label": "§79",
+   "name": "两圆互为位似图",
+   "statement": "任意两圆都可看成互为正位似和反位似；外、内相似心都在连心线上，且分连心线之比等于半径之比。",
+   "note": "",
+   "source": "严 p162 §79",
+   "books": [
+    "严"
+   ],
+   "conclusion": "比例",
+   "status": "extracted"
+  },
+  {
+   "id": "T270",
+   "layer": "欧氏",
+   "category": "6. 几何变换",
+   "subcategory": "6.4 位似",
+   "label": "§80 I",
+   "name": "位似图作为轨迹",
+   "statement": "在 S 与图形 F 上任一点 A 的连线上取 B，使 AB : SA 为定比，则 B 的轨迹是 F 关于 S 的位似图。",
+   "note": "",
+   "source": "严 p163 I",
+   "books": [
+    "严"
+   ],
+   "conclusion": "轨迹",
+   "status": "extracted"
+  },
+  {
+   "id": "T271",
+   "layer": "欧氏",
+   "category": "6. 几何变换",
+   "subcategory": "6.4 位似",
+   "label": "§82",
+   "name": "圆位似图的特例",
+   "statement": "以圆心为位似中心，圆的位似图是同心圆，原圆切线的位似图是同心圆的平行切线。",
+   "note": "",
+   "source": "严 p171 §82",
+   "books": [
+    "严"
+   ],
+   "conclusion": "相切",
+   "status": "extracted"
+  },
+  {
+   "id": "T272",
+   "layer": "欧氏",
+   "category": "6. 几何变换",
+   "subcategory": "6.4 位似",
+   "label": "定理",
+   "name": "边平行的相似多边形位似",
+   "statement": "两多边形相似且各边互相平行，则对应顶点连线交于一点，两多边形位似。",
+   "note": "",
+   "source": "严 p173 定理",
+   "books": [
+    "严"
+   ],
+   "conclusion": "共点",
+   "status": "extracted"
+  },
+  {
+   "id": "T273",
+   "layer": "欧氏",
+   "category": "6. 几何变换",
+   "subcategory": "6.4 位似",
+   "label": "逆定理",
+   "name": "边平行且顶点连线共点则位似",
+   "statement": "两多边形各边互相平行且对应顶点连线交于一点，则两多边形相似且位似。",
+   "note": "",
+   "source": "严 p173 逆定理",
+   "books": [
+    "严"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T274",
+   "layer": "欧氏",
+   "category": "6. 几何变换",
+   "subcategory": "6.4 位似",
+   "label": "§83",
+   "name": "直线形的位似图",
+   "statement": "两多边形相似且对应顶点连线交于一点，则对应边互相平行，两多边形位似。",
+   "note": "",
+   "source": "严 p174 §83",
+   "books": [
+    "严"
+   ],
+   "conclusion": "平行",
+   "status": "extracted"
+  },
+  {
+   "id": "T275",
+   "layer": "欧氏",
+   "category": "6. 几何变换",
+   "subcategory": "6.5 反演",
+   "label": "§87",
+   "name": "直线的反演图",
+   "statement": "以线外一点为反演中心，直线的反演图是过该中心的圆。",
+   "note": "",
+   "source": "严 p183 §87",
+   "books": [
+    "严"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T276",
+   "layer": "欧氏",
+   "category": "6. 几何变换",
+   "subcategory": "6.5 反演",
+   "label": "§87 注意",
+   "name": "过反演中心的直线不变",
+   "statement": "以直线上一点为反演中心，直线的反演图就是它自己。",
+   "note": "",
+   "source": "严 p185 注意",
+   "books": [
+    "严"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T277",
+   "layer": "欧氏",
+   "category": "6. 几何变换",
+   "subcategory": "6.5 反演",
+   "label": "§88 I",
+   "name": "过反演中心的圆变为直线",
+   "statement": "以圆上一点为反演中心，圆的反演图是一条直线，垂直于过该点的直径。",
+   "note": "",
+   "source": "严 p185 I",
+   "books": [
+    "严"
+   ],
+   "conclusion": "垂直",
+   "status": "extracted"
+  },
+  {
+   "id": "T278",
+   "layer": "欧氏",
+   "category": "6. 几何变换",
+   "subcategory": "6.5 反演",
+   "label": "§88 II",
+   "name": "不过反演中心的圆变为圆",
+   "statement": "以不在圆上的点为反演中心，圆的反演图是圆（是原圆关于该点的位似图）；一般来说，圆心的反演点不是反演图的圆心。",
+   "note": "",
+   "source": "严 p185 II",
+   "books": [
+    "严"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T279",
+   "layer": "欧氏",
+   "category": "6. 几何变换",
+   "subcategory": "6.5 反演",
+   "label": "§90 定理",
+   "name": "反演保角",
+   "statement": "互为反演图的两曲线，在对应点的两切线与对应点连线构成等腰三角形；因此反演保持两曲线的交角，相切的曲线反演后仍相切。",
+   "note": "",
+   "source": "严 p188 定理",
+   "books": [
+    "严"
+   ],
+   "conclusion": "等角",
+   "status": "extracted"
+  },
+  {
+   "id": "T280",
+   "layer": "射影",
+   "category": "7. 空间射影几何",
+   "subcategory": "7.1 二次锥面与圆锥曲线",
+   "label": "定理 10",
+   "name": "二次线把被平面截得二次点列",
+   "statement": "二次线把被不过其心的任一平面截断，得一二次点列。　【对偶】二次面把被任一平面截断，得一二次线束。",
+   "note": "",
+   "source": "吉川 p64 定理 10",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T281",
+   "layer": "射影",
+   "category": "7. 空间射影几何",
+   "subcategory": "7.1 二次锥面与圆锥曲线",
+   "label": "定理 11",
+   "name": "二次点列射影得二次线把",
+   "statement": "二次点列由其平面外一点射影，得二次线把。　【对偶】二次线束由其平面外一点射影，得二次面把。",
+   "note": "",
+   "source": "吉川 p65 定理 11",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T282",
+   "layer": "射影",
+   "category": "7. 空间射影几何",
+   "subcategory": "7.1 二次锥面与圆锥曲线",
+   "label": "定理 12",
+   "name": "生成线把的两面束轴在锥面上",
+   "statement": "（产生二次线把的）两面束之轴，亦为二次线把之元素。　【对偶】（产生二次面把的）两线束之台，亦为二次面把之元素。",
+   "note": "",
+   "source": "吉川 p65 定理 12",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T283",
+   "layer": "射影",
+   "category": "7. 空间射影几何",
+   "subcategory": "7.1 二次锥面与圆锥曲线",
+   "label": "定理 13",
+   "name": "二次线把同面直线至多两条",
+   "statement": "二次线把在同一平面上的直线不多于二条。　【对偶】二次面把过同一直线的平面不多于二个。",
+   "note": "",
+   "source": "吉川 p65 定理 13",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T284",
+   "layer": "射影",
+   "category": "7. 空间射影几何",
+   "subcategory": "7.1 二次锥面与圆锥曲线",
+   "label": "定理 14",
+   "name": "ss′ 对应面中含母线者唯一",
+   "statement": "ss' 之对应面含二次线把之线者只有一个。　【对偶】σσ' 之对应线含于二次面把之面者只有一个。",
+   "note": "",
+   "source": "吉川 p65 定理 14",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T285",
+   "layer": "射影",
+   "category": "7. 空间射影几何",
+   "subcategory": "7.1 二次锥面与圆锥曲线",
+   "label": "定理 15",
+   "name": "二次线把由两直线射影成面束",
+   "statement": "二次线把的全体直线，由其中任意二直线射影，得二个射影的一次面束。　【对偶】二次面把的全体平面，由其中任意二平面截断，得二个射影的一次线束。",
+   "note": "",
+   "source": "吉川 p66 定理 15",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "射影对应",
+   "status": "extracted"
+  },
+  {
+   "id": "T286",
+   "layer": "射影",
+   "category": "7. 空间射影几何",
+   "subcategory": "7.1 二次锥面与圆锥曲线",
+   "label": "定理 16",
+   "name": "二次线把的切面成二次面把",
+   "statement": "二次线把的全体切面成二次面把。　【对偶】二次面把的全体切线成二次线把。",
+   "note": "",
+   "source": "吉川 p66 定理 16",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T287",
+   "layer": "射影",
+   "category": "7. 空间射影几何",
+   "subcategory": "7.1 二次锥面与圆锥曲线",
+   "label": "定理 17",
+   "name": "锥面上的 Pascal 定理",
+   "statement": "二次线把中六直线所成的六角锥，其三对对面的交线在同一平面上（Pascal 定理的锥面形式）。　【对偶】二次面把中六平面所成的六面锥，其三对对棱的结面过同一直线。",
+   "note": "",
+   "source": "吉川 p66 定理 17",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "共面",
+   "status": "extracted"
+  },
+  {
+   "id": "T288",
+   "layer": "射影",
+   "category": "7. 空间射影几何",
+   "subcategory": "7.1 二次锥面与圆锥曲线",
+   "label": "命题 I",
+   "name": "圆是二次曲线",
+   "statement": "圆是二次曲线。",
+   "note": "",
+   "source": "吉川 p66 命题 I",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "分类",
+   "status": "extracted"
+  },
+  {
+   "id": "T289",
+   "layer": "射影",
+   "category": "7. 空间射影几何",
+   "subcategory": "7.1 二次锥面与圆锥曲线",
+   "label": "命题 II",
+   "name": "圆锥是二次锥面",
+   "statement": "圆锥是二次锥面。",
+   "note": "",
+   "source": "吉川 p67 命题 II",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "分类",
+   "status": "extracted"
+  },
+  {
+   "id": "T290",
+   "layer": "射影",
+   "category": "7. 空间射影几何",
+   "subcategory": "7.1 二次锥面与圆锥曲线",
+   "label": "命题 III",
+   "name": "圆锥曲线都是二次曲线",
+   "statement": "凡圆锥曲线都是二次曲线。",
+   "note": "",
+   "source": "吉川 p67 命题 III",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "分类",
+   "status": "extracted"
+  },
+  {
+   "id": "T291",
+   "layer": "射影",
+   "category": "7. 空间射影几何",
+   "subcategory": "7.1 二次锥面与圆锥曲线",
+   "label": "命题 IV",
+   "name": "二次曲线都是圆锥曲线",
+   "statement": "凡二次曲线都是圆锥曲线。",
+   "note": "",
+   "source": "吉川 p67 命题 IV",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "分类",
+   "status": "extracted"
+  },
+  {
+   "id": "T292",
+   "layer": "射影",
+   "category": "7. 空间射影几何",
+   "subcategory": "7.2 直纹二次曲面",
+   "label": "问题 1",
+   "name": "与三条异面直线都相交的直线",
+   "statement": "空间中有不相交的三直线 a、b、c，动线 u 始终与三线都相交，则动线画出一个二次线聚（直纹二次曲面）。",
+   "note": "",
+   "source": "吉川 p97 问题 1",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "轨迹",
+   "status": "extracted"
+  },
+  {
+   "id": "T293",
+   "layer": "射影",
+   "category": "7. 空间射影几何",
+   "subcategory": "7.2 直纹二次曲面",
+   "label": "定理 1",
+   "name": "二次线聚的射影与截断",
+   "statement": "二次线聚由任意一点射影，得二次面把。　【对偶】二次线聚被任意一平面截断，得二次点列。",
+   "note": "",
+   "source": "吉川 p97 定理 1",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T294",
+   "layer": "射影",
+   "category": "7. 空间射影几何",
+   "subcategory": "7.2 直纹二次曲面",
+   "label": "定理 2",
+   "name": "二次线聚的直线两两异面",
+   "statement": "二次线聚中没有两条直线在同一平面上。　【对偶】二次线聚中没有两条直线过同一点。",
+   "note": "",
+   "source": "吉川 p98 定理 2",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T295",
+   "layer": "射影",
+   "category": "7. 空间射影几何",
+   "subcategory": "7.2 直纹二次曲面",
+   "label": "定理 3",
+   "name": "交三线者交全部直线",
+   "statement": "与二次线聚中任意三线都相交的直线，也与此线聚的所有直线相交。",
+   "note": "",
+   "source": "吉川 p98 定理 3",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T296",
+   "layer": "射影",
+   "category": "7. 空间射影几何",
+   "subcategory": "7.2 直纹二次曲面",
+   "label": "定理 4",
+   "name": "两准线截二次线聚得射影点列",
+   "statement": "二次线聚被其任意两条准线 u、v 截断，得两个射影的点列。　【对偶】二次线聚由其任意两条准线射影，得两个射影的面束。",
+   "note": "",
+   "source": "吉川 p100 定理 4",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "射影对应",
+   "status": "extracted"
+  },
+  {
+   "id": "T297",
+   "layer": "射影",
+   "category": "7. 空间射影几何",
+   "subcategory": "7.2 直纹二次曲面",
+   "label": "定理 5",
+   "name": "过一族直线的平面含另一族一线",
+   "statement": "含二次线织面一族中一线 a 的任意平面，必含另一族中的一线 u，此外不含曲面上其他点。",
+   "note": "",
+   "source": "吉川 p100 定理 5",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T298",
+   "layer": "射影",
+   "category": "7. 空间射影几何",
+   "subcategory": "7.2 直纹二次曲面",
+   "label": "定理 6",
+   "name": "过直线的切平面至多两个",
+   "statement": "过空间任一直线，二次线织面的切平面不多于二个。",
+   "note": "",
+   "source": "吉川 p100 定理 6",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T299",
+   "layer": "射影",
+   "category": "7. 空间射影几何",
+   "subcategory": "7.2 直纹二次曲面",
+   "label": "问题 2",
+   "name": "截线各点的切平面成二次面把",
+   "statement": "二次线织面被平面截断得二次点列，过其各点的切平面成一二次面把。　【对偶】二次线织面由一点射影得二次面把，其各面上的切点成一二次点列。",
+   "note": "",
+   "source": "吉川 p101 问题 2",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T300",
+   "layer": "射影",
+   "category": "7. 空间射影几何",
+   "subcategory": "7.2 直纹二次曲面",
+   "label": "问题 3",
+   "name": "二次曲线与两线定唯一曲面",
+   "statement": "过二次曲线上两点各有一定线 u、v，若三者不共面，则过该曲线及 u、v 可定唯一的二次线织面。",
+   "note": "",
+   "source": "吉川 p101 问题 3",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T301",
+   "layer": "射影",
+   "category": "7. 空间射影几何",
+   "subcategory": "7.3 空间三次曲线等高次图形",
+   "label": "定理 12",
+   "name": "空间三次曲线的生成",
+   "statement": "空间中一次面束与二次线把互相射影，对应平面与直线的交点成一点图形，其中没有三个以上的点在同一平面上（三次空间点列，即空间三次曲线）。　【对偶】一次点列与二次线束互相射影，对应点与直线的结面成三次平面束。",
+   "note": "",
+   "source": "吉川 p113 定理 12",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T302",
+   "layer": "射影",
+   "category": "7. 空间射影几何",
+   "subcategory": "7.3 空间三次曲线等高次图形",
+   "label": "定理 13",
+   "name": "面束与二次线聚产生三次曲线",
+   "statement": "空间中一次面束与二次线聚互相射影时，其产物为三次空间点列。　【对偶】一次点列与二次线聚互相射影时，其产物为三次平面束。",
+   "note": "",
+   "source": "吉川 p114 定理 13",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "分类",
+   "status": "extracted"
+  },
+  {
+   "id": "T303",
+   "layer": "射影",
+   "category": "7. 空间射影几何",
+   "subcategory": "7.3 空间三次曲线等高次图形",
+   "label": "定理 14",
+   "name": "三个射影面束生成三次曲线",
+   "statement": "空间中三个一次面束互相射影时，对应三平面的交点成三次空间点列。　【对偶】三个一次点列互相射影时，对应三点的结面成三次平面束。",
+   "note": "",
+   "source": "吉川 p114 定理 14",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "轨迹",
+   "status": "extracted"
+  },
+  {
+   "id": "T304",
+   "layer": "射影",
+   "category": "7. 空间射影几何",
+   "subcategory": "7.3 空间三次曲线等高次图形",
+   "label": "问题 1",
+   "name": "点列与二次点列一对重合的产物",
+   "statement": "空间中一次点列与二次点列互相射影，若有一对对应点重合，则其产物为一个二次线聚（另加一个一次线束）。",
+   "note": "",
+   "source": "吉川 p115 问题 1",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "分类",
+   "status": "extracted"
+  },
+  {
+   "id": "T305",
+   "layer": "射影",
+   "category": "7. 空间射影几何",
+   "subcategory": "7.3 空间三次曲线等高次图形",
+   "label": "问题 2",
+   "name": "面束与二次面把一对重合的产物",
+   "statement": "空间中一次面束与二次面把互相射影，若有一对对应面重合，则其产物为一个二次线聚（另加一个一次线束）。",
+   "note": "",
+   "source": "吉川 p115 问题 2",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "分类",
+   "status": "extracted"
+  },
+  {
+   "id": "T306",
+   "layer": "射影",
+   "category": "7. 空间射影几何",
+   "subcategory": "7.3 空间三次曲线等高次图形",
+   "label": "定理 15",
+   "name": "二次点列与面把的配景条件",
+   "statement": "射影的二次点列与二次面把，若把的五个平面各过其对应点，则两者在配景位置。",
+   "note": "",
+   "source": "吉川 p117 定理 15",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "射影对应",
+   "status": "extracted"
+  },
+  {
+   "id": "T307",
+   "layer": "射影",
+   "category": "7. 空间射影几何",
+   "subcategory": "7.3 空间三次曲线等高次图形",
+   "label": "定理 16",
+   "name": "三对重合则配景",
+   "statement": "互相射影的二次点列与二次线把、二次点列与二次线聚，若有三对以上对应元素重合，则两者在配景位置。　【对偶】二次面把与二次线束、二次面把与二次线聚亦然。",
+   "note": "",
+   "source": "吉川 p118 定理 16",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "射影对应",
+   "status": "extracted"
+  },
+  {
+   "id": "T308",
+   "layer": "射影",
+   "category": "7. 空间射影几何",
+   "subcategory": "7.4 二次曲面",
+   "label": "定理 19",
+   "name": "两把的心在曲面上",
+   "statement": "（由两个射影的把产生二次曲面时）两把的心 S、S' 是曲面上的点。",
+   "note": "",
+   "source": "吉川 p144 定理 19",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T309",
+   "layer": "射影",
+   "category": "7. 空间射影几何",
+   "subcategory": "7.4 二次曲面",
+   "label": "定理 20",
+   "name": "平面截二次曲面得二次曲线",
+   "statement": "两把的各平面截二次曲面得二次曲线。",
+   "note": "",
+   "source": "吉川 p144 定理 20",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T310",
+   "layer": "射影",
+   "category": "7. 空间射影几何",
+   "subcategory": "7.4 二次曲面",
+   "label": "定理 21",
+   "name": "直线与二次曲面至多两交点",
+   "statement": "任意直线与二次曲面的交点不超过两个，故称“二次”曲面。",
+   "note": "",
+   "source": "吉川 p144 定理 21",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T311",
+   "layer": "射影",
+   "category": "7. 空间射影几何",
+   "subcategory": "7.4 二次曲面",
+   "label": "定理 22",
+   "name": "对应直线是曲面切线",
+   "statement": "把 S 中与平面 SS' 对应的直线，是曲面在 S 点的切线。",
+   "note": "",
+   "source": "吉川 p145 定理 22",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T312",
+   "layer": "射影",
+   "category": "7. 空间射影几何",
+   "subcategory": "7.4 二次曲面",
+   "label": "定理 23",
+   "name": "对应平面是曲面切面",
+   "statement": "把 S 中与直线 SS' 对应的平面，是曲面在 S 点的切面。",
+   "note": "",
+   "source": "吉川 p145 定理 23",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T313",
+   "layer": "射影",
+   "category": "7. 空间射影几何",
+   "subcategory": "7.4 二次曲面",
+   "label": "定理 24",
+   "name": "换一个把心生成同一曲面",
+   "statement": "在曲面上另取一点 S'' 为把心，与原来两把分别产生的曲面都与原曲面一致。",
+   "note": "",
+   "source": "吉川 p145 定理 24",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "其他",
+   "status": "extracted"
+  },
+  {
+   "id": "T314",
+   "layer": "射影",
+   "category": "7. 空间射影几何",
+   "subcategory": "7.5 空间射影变换",
+   "label": "定理 25",
+   "name": "直射与对射的复合",
+   "statement": "三个空间系中，甲、乙都与丙直射（或都对射），则甲乙直射；丙与甲直射、与乙对射，则甲乙对射。",
+   "note": "",
+   "source": "吉川 p151 定理 25",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "射影对应",
+   "status": "extracted"
+  },
+  {
+   "id": "T315",
+   "layer": "射影",
+   "category": "7. 空间射影几何",
+   "subcategory": "7.5 空间射影变换",
+   "label": "定理 26",
+   "name": "直射把共线点变共线点",
+   "statement": "两空间系直射时，一线上的各点对应于对应线上的点。　【对偶】过一线的各平面对应于过对应线的平面。",
+   "note": "",
+   "source": "吉川 p151 定理 26",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "射影对应",
+   "status": "extracted"
+  },
+  {
+   "id": "T316",
+   "layer": "射影",
+   "category": "7. 空间射影几何",
+   "subcategory": "7.5 空间射影变换",
+   "label": "定理 27",
+   "name": "保持共线的对应是直射",
+   "statement": "两空间系之间若一线上各点都对应于一线上的点，则这个对应是直射。　【对偶】若过一线的各平面都对应于过一线的平面，则为直射。",
+   "note": "",
+   "source": "吉川 p152 定理 27",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "射影对应",
+   "status": "extracted"
+  },
+  {
+   "id": "T317",
+   "layer": "射影",
+   "category": "7. 空间射影几何",
+   "subcategory": "7.5 空间射影变换",
+   "label": "定理 28",
+   "name": "直射下对应子图形互相射影",
+   "statement": "两空间系直射时，对应平面互相直射，对应点列、对应线束都互相射影。　【对偶】对应把互相直射，对应面束、线束都互相射影。",
+   "note": "",
+   "source": "吉川 p152 定理 28",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "射影对应",
+   "status": "extracted"
+  },
+  {
+   "id": "T318",
+   "layer": "射影",
+   "category": "7. 空间射影几何",
+   "subcategory": "7.5 空间射影变换",
+   "label": "定理 29",
+   "name": "直射下各级图形射影",
+   "statement": "两空间系直射时，对应的二级图形与一级图形都各自互相射影。",
+   "note": "",
+   "source": "吉川 p152 定理 29",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "射影对应",
+   "status": "extracted"
+  },
+  {
+   "id": "T319",
+   "layer": "射影",
+   "category": "7. 空间射影几何",
+   "subcategory": "7.5 空间射影变换",
+   "label": "定理 30",
+   "name": "对射下各级图形射影",
+   "statement": "两空间系对射时，也有定理 29 的性质。",
+   "note": "",
+   "source": "吉川 p152 定理 30",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "射影对应",
+   "status": "extracted"
+  },
+  {
+   "id": "T320",
+   "layer": "射影",
+   "category": "7. 空间射影几何",
+   "subcategory": "7.5 空间射影变换",
+   "label": "定理 31",
+   "name": "两对把确定空间直射",
+   "statement": "两空间系各取两把，对应把互相射影、公共平面互相对应，则两系之间确定一个直射。　【对偶】各取两个平面场亦然。",
+   "note": "",
+   "source": "吉川 p153 定理 31",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "射影对应",
+   "status": "extracted"
+  },
+  {
+   "id": "T321",
+   "layer": "射影",
+   "category": "7. 空间射影几何",
+   "subcategory": "7.5 空间射影变换",
+   "label": "定理 32",
+   "name": "五对点确定唯一直射",
+   "statement": "两空间系有五对对应点（每四点不共面），则两系之间确定唯一的直射。　【对偶】五对对应平面（每四面不共点）亦然。",
+   "note": "",
+   "source": "吉川 p154 定理 32",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "射影对应",
+   "status": "extracted"
+  },
+  {
+   "id": "T322",
+   "layer": "射影",
+   "category": "7. 空间射影几何",
+   "subcategory": "7.5 空间射影变换",
+   "label": "定理 33",
+   "name": "把与平面场确定对射",
+   "statement": "一系的两把与另一系的两个平面场射影对应，且公共元素互相对应，则两系之间确定一个对射。",
+   "note": "",
+   "source": "吉川 p154 定理 33",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "射影对应",
+   "status": "extracted"
+  },
+  {
+   "id": "T323",
+   "layer": "射影",
+   "category": "7. 空间射影几何",
+   "subcategory": "7.5 空间射影变换",
+   "label": "定理 34",
+   "name": "五点对五面确定唯一对射",
+   "statement": "一系的任意五点与另一系的任意五平面互相对应，则两系之间确定唯一的对射。",
+   "note": "",
+   "source": "吉川 p154 定理 34",
+   "books": [
+    "吉川"
+   ],
+   "conclusion": "射影对应",
+   "status": "extracted"
+  },
+  {
+   "id": "T324",
+   "layer": "欧氏",
+   "category": "8. 不等式与极值",
+   "subcategory": "8.1 不等式与极值",
+   "label": "例 1",
+   "name": "大边对大角",
+   "statement": "三角形中大边所对的角也大：AB > AC，则 ∠ACB > ∠ABC。",
+   "note": "",
+   "source": "严 p9 例 1",
+   "books": [
+    "严"
+   ],
+   "conclusion": "不等式",
+   "status": "extracted"
+  },
+  {
+   "id": "T325",
+   "layer": "欧氏",
+   "category": "8. 不等式与极值",
+   "subcategory": "8.1 不等式与极值",
+   "label": "例 3 讨论",
+   "name": "弧中点处弦端连线积最大",
+   "statement": "弦 BC 的两端与弧上各点连线的乘积，以弧的中点处为极大。",
+   "note": "",
+   "source": "严 p83 例 3 讨论",
+   "books": [
+    "严"
+   ],
+   "conclusion": "不等式",
+   "status": "extracted"
+  },
+  {
+   "id": "T326",
+   "layer": "欧氏",
+   "category": "8. 不等式与极值",
+   "subcategory": "8.1 不等式与极值",
+   "label": "例 2",
+   "name": "外凸多边形周长较大",
+   "statement": "凸多边形的周长，大于它内部所含任何凸多边形的周长。",
+   "note": "",
+   "source": "严 p113 例 2",
+   "books": [
+    "严"
+   ],
+   "conclusion": "不等式",
+   "status": "extracted"
+  },
+  {
+   "id": "T327",
+   "layer": "欧氏",
+   "category": "8. 不等式与极值",
+   "subcategory": "8.1 不等式与极值",
+   "label": "例 6",
+   "name": "牛顿（极短截线）",
+   "statement": "过定角内一定点 E 作截线 BED；自 B、E、D 分别作 AB、BD、AD 的垂线，若三垂线交于一点，则 BED 为最短的截线。",
+   "note": "与矢野书中的“牛顿线”不是同一定理。",
+   "source": "严 p118 例 6",
+   "books": [
+    "严"
+   ],
+   "conclusion": "不等式",
+   "status": "extracted"
+  }
+ ]
+}

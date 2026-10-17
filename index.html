@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Geometry Atlas · 几何图谱</title>
+<meta name="description" content="三本经典几何书中的定理，按射影、仿射、欧氏三个层次排成一张可以点开的地图。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;700&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<style>
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{margin:0}
+
+/* Layout: a circular "theorem plate" (layers → classes → subclasses → theorems) beside a reading panel; stacks on phones */
+:root{
+  --paper:#f6f7f9; --panel:#ffffff; --ink:#1b2333; --muted:#5d6678; --rule:#dde1e8;
+  --proj:#2f5aa8; --aff:#b07a1e; --euc:#2f8a73; --hi:#d9e3f5;
+  --serif:"Noto Serif SC","Songti SC","SimSun",serif;
+  --sans:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#12161e; --panel:#1a2029; --ink:#e6e9ef; --muted:#9aa3b4; --rule:#2c3440;
+  --proj:#7aa2ea; --aff:#e0b061; --euc:#5fc4a8; --hi:#24324a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#12161e; --panel:#1a2029; --ink:#e6e9ef; --muted:#9aa3b4; --rule:#2c3440;
+  --proj:#7aa2ea; --aff:#e0b061; --euc:#5fc4a8; --hi:#24324a; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px 40px}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+header h1{font-family:var(--serif);font-weight:700;font-size:clamp(24px,3.4vw,34px);margin:0;text-wrap:balance;letter-spacing:.02em}
+header p{margin:6px 0 0;color:var(--muted);max-width:68ch}
+.controls{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center}
+.group{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.group .lab{font-size:12px;color:var(--muted);letter-spacing:.08em;margin-right:2px}
+button.chip{font:inherit;font-size:13px;border:1px solid var(--rule);background:var(--panel);color:var(--ink);
+  padding:4px 12px;border-radius:999px;cursor:pointer}
+button.chip[aria-pressed="true"]{border-color:var(--ink);background:var(--ink);color:var(--paper)}
+button.chip:focus-visible,input:focus-visible,.item:focus-visible{outline:2px solid var(--proj);outline-offset:2px}
+input#q{font:inherit;font-size:14px;padding:6px 12px;border:1px solid var(--rule);border-radius:8px;background:var(--panel);color:var(--ink);width:min(260px,100%)}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:12px;height:12px;border-radius:3px;display:inline-block}
+.main{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:24px;align-items:start}
+@media (max-width:860px){.main{grid-template-columns:minmax(0,1fr)}}
+.plate{position:relative}
+.plate svg{width:100%;height:auto;display:block}
+.plate .hint{font-size:12px;color:var(--muted);text-align:center;margin-top:4px}
+.panel{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:18px 20px;min-width:0;max-height:820px;display:flex;flex-direction:column}
+.crumb{font-size:12px;color:var(--muted);letter-spacing:.04em}
+.crumb button{font:inherit;border:0;background:none;color:var(--proj);cursor:pointer;padding:0}
+.panel h2{font-family:var(--serif);font-size:22px;margin:4px 0 2px;text-wrap:balance}
+.count{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.detail{border-top:1px solid var(--rule);margin-top:12px;padding-top:12px}
+.detail h3{font-family:var(--serif);font-size:18px;margin:0 0 6px}
+.detail .stmt{margin:0 0 10px}
+.detail .note{margin:-4px 0 10px;font-size:13px;color:var(--muted)}
+.detail h3 small,.item b small{font-family:var(--sans);font-size:12px;font-weight:400;color:var(--muted);margin-left:8px}
+.tag.warn{border-color:var(--aff);color:var(--aff)}
+.meta{display:flex;flex-wrap:wrap;gap:6px;font-size:12px}
+.tag{border:1px solid var(--rule);border-radius:4px;padding:1px 8px;color:var(--muted)}
+.list{margin-top:12px;overflow:auto;border-top:1px solid var(--rule);flex:1;min-height:120px}
+.item{display:block;width:100%;text-align:left;font:inherit;background:none;border:0;border-bottom:1px solid var(--rule);
+  padding:8px 4px;color:var(--ink);cursor:pointer}
+.item:hover,.item.on{background:var(--hi)}
+.item b{font-weight:500}
+.item>small{display:block;color:var(--muted);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.item.dim{opacity:.35}
+svg text{pointer-events:none;font-family:var(--sans)}
+path.arc{cursor:pointer;stroke:var(--paper);stroke-width:.6}
+path.arc:hover{filter:brightness(1.12)}
+
+.about{border-top:1px solid var(--rule);padding-top:16px;max-width:72ch;color:var(--muted);font-size:14px}
+.about h2{font-family:var(--serif);color:var(--ink);font-size:20px;margin:0 0 8px}
+.about p{margin:0 0 10px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Geometry Atlas <span style="font-weight:500;color:var(--muted)">几何图谱</span></h1>
+    <p>三本书里的 <span id="total">数百</span> 条定理，从里到外是：几何层次 → 大类 → 小类 → 每一条定理。点任何一圈放大进去，点中心退回上一层；点最外圈的一小格，右边显示这条定理的内容和出处。</p>
+  </header>
+
+  <div class="controls">
+    <div class="group" role="group" aria-label="按书筛选">
+      <span class="lab">按书</span>
+      <button class="chip" id="b-all" aria-pressed="true" data-book="">全部</button>
+      <button class="chip" id="b-y" aria-pressed="false" data-book="吉川">吉川《近世综合几何学》</button>
+      <button class="chip" id="b-z" aria-pressed="false" data-book="严">严济慈《几何证题法》</button>
+      <button class="chip" id="b-s" aria-pressed="false" data-book="矢野">矢野《几何有名定理》</button>
+    </div>
+    <input id="q" type="search" placeholder="搜定理名或内容，如 Pascal、九点圆" aria-label="搜索定理">
+  </div>
+  <div class="legend" aria-hidden="true">
+    <span><i style="background:var(--proj)"></i>射影层：只用点线关联与交比</span>
+    <span><i style="background:var(--aff)"></i>仿射层：加上平行与比</span>
+    <span><i style="background:var(--euc)"></i>欧氏层：加上距离与角度</span>
+  </div>
+
+  <div class="main">
+    <div class="plate">
+      <svg id="sun" viewBox="-400 -400 800 800" role="img" aria-label="定理分层环形图"></svg>
+      <div class="hint">颜色深浅：越往外越浅；被筛掉的定理变淡</div>
+    </div>
+    <aside class="panel" aria-live="polite">
+      <div class="crumb" id="crumb"></div>
+      <h2 id="ptitle">全部定理</h2>
+      <div class="count" id="pcount"></div>
+      <div class="detail" id="detail" hidden></div>
+      <div class="list" id="list"></div>
+    </aside>
+  </div>
+  <section class="about" id="about">
+    <h2>关于</h2>
+    <p>这张图收录三本经典几何书中的定理：吉川实夫著、王邦珍译《近世综合几何学》（商务印书馆，1925），严济慈《几何证题法》（1928 年初版，依据 1982 年高等教育出版社白话本），矢野健太郎《几何有名定理》。</p>
+    <p>收录书中编号的定理、系、命题，以及结论本身是一条几何命题的例题；不收作图题和习题。同一定理出现在几本书里时合并为一条，出处列出全部来源。每条定理放在它最少需要的那一层几何里：只用点线关联和交比的属射影层，用到平行和比的属仿射层，用到距离和角度的属欧氏层。</p>
+    <p>每条数据的来历分三档，目前<strong>没有任何条目经过人工对照原书核对</strong>：</p>
+    <p><b>原书摘录</b>（<span data-n="extracted">—</span> 条）：吉川、严两书的条目，以及与它们合并的矢野条目。内容由 AI 从扫描页正文摘录，未经人工校对，公式和字母可能有错。<br>
+    <b>目录补写</b>（<span data-n="toc_only">—</span> 条，详情里标「目录补写」）：矢野一书只看过目录，这些条目的内容是按定理名补写的标准表述，不是书中原文。<br>
+    <b>仅有标题</b>（<span data-n="placeholder">—</span> 条，详情里标「仅有标题」）：只知道目录里的标题，还没有内容。</p>
+    <p>版本 0.1，2026 年 10 月。</p>
+  </section>
+</div>
+
+<script src="vendor/d3.min.js"></script>
+<script>
+fetch("data/theorems.json").then(r=>{if(!r.ok)throw new Error(r.status);return r.json()}).then(DATA=>{
+const ROWS=DATA.theorems;
+document.getElementById("total").textContent=ROWS.length;
+document.querySelectorAll("[data-n]").forEach(el=>el.textContent=ROWS.filter(t=>t.status===el.dataset.n).length);
+const STATUS_TAG={toc_only:"目录补写",placeholder:"仅有标题"};
+
+
+const LAYERS=["射影","仿射","欧氏"];
+const LAYER_NAME={"射影":"射影层","仿射":"仿射层","欧氏":"欧氏层"};
+const LAYER_VAR={"射影":"--proj","仿射":"--aff","欧氏":"--euc"};
+let book="", query="", selected=null;
+
+// build hierarchy
+const rootData={name:"全部定理",children:[]};
+const find=(arr,name)=>{let n=arr.find(x=>x.name===name);if(!n){n={name,children:[]};arr.push(n)}return n};
+ROWS.forEach((r,i)=>{
+  const L=find(rootData.children,LAYER_NAME[r.layer]); L.layer=r.layer;
+  const C=find(L.children,r.category);
+  const S=find(C.children,r.subcategory);
+  S.children.push({name:r.name,idx:i,layer:r.layer});
+});
+rootData.children.sort((a,b)=>LAYERS.indexOf(a.layer)-LAYERS.indexOf(b.layer));
+const root=d3.hierarchy(rootData).sum(d=>d.idx!==undefined?1:0);
+d3.partition().size([2*Math.PI,root.height+1])(root);
+root.each(d=>{d.current=d; let a=d; while(a.depth>1)a=a.parent; d.layer=a.data.layer});
+
+const R=380/5; // ring thickness when showing 4 rings incl. centre
+const arc=d3.arc().startAngle(d=>d.x0).endAngle(d=>d.x1)
+  .padAngle(d=>Math.min((d.x1-d.x0)/2,0.004)).padRadius(R*1.5)
+  .innerRadius(d=>d.y0*R).outerRadius(d=>Math.max(d.y0*R,d.y1*R-1));
+const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const svg=d3.select("#sun");
+const g=svg.append("g");
+const matches=d=>{
+  if(d.data.idx===undefined)return true;
+  const r=ROWS[d.data.idx];
+  if(book&&!r.books.includes(book))return false;
+  if(query&&![r.name,r.label,r.statement,r.source].join(" ").toLowerCase().includes(query))return false;
+  return true;
+};
+const leafShare=d=>{const ls=d.leaves();return ls.filter(matches).length/ls.length};
+function fill(d){
+  const base=d3.color(css(LAYER_VAR[d.layer]||"--proj"));
+  const t=[0,0,.22,.42,.6][d.depth]||.6;
+  return d3.interpolateRgb(base,css("--paper"))(t*0.9);
+}
+function opacity(d){ if(!visible(d.current))return 0; const s=leafShare(d); return s===0?0.12:(0.3+0.7*s); }
+const visible=d=>d.y1<=5.01&&d.y0>=1&&d.x1>d.x0;
+const labelVisible=d=>d.y1<=5.01&&d.y0>=1&&(d.y1-d.y0)*(d.x1-d.x0)>0.07&&d.depth<4;
+
+const path=g.selectAll("path").data(root.descendants().slice(1)).join("path")
+  .attr("class","arc").attr("d",d=>arc(d.current))
+  .on("click",(e,d)=>{ if(d.children)zoom(d); else pick(d); });
+path.append("title").text(d=>d.ancestors().map(a=>a.data.name).reverse().slice(1).join(" › ")+(d.children?`（${d.value} 条）`:""));
+
+const label=g.append("g").attr("text-anchor","middle").selectAll("text")
+  .data(root.descendants().slice(1)).join("text")
+  .attr("dy","0.35em").attr("font-size",d=>d.depth===1?14:12).attr("font-weight",d=>d.depth===1?700:500)
+  .text(d=>shortName(d));
+function shortName(d){let n=d.data.name.replace(/^\d(\.\d)?\.?\s*/,"").replace(/（.*?）/g,""); if(d.depth===1)n=n; return n.length>9?n.slice(0,8)+"…":n}
+
+const centre=g.append("circle").attr("r",R).attr("fill","var(--panel)").attr("stroke","var(--rule)").style("cursor","pointer")
+  .on("click",()=>zoom(focus.parent||root));
+const cText=g.append("text").attr("text-anchor","middle").attr("font-family","var(--serif)");
+const cNum=cText.append("tspan").attr("x",0).attr("dy","-0.1em").attr("font-size",30).attr("font-weight",700);
+const cSub=cText.append("tspan").attr("x",0).attr("dy","1.6em").attr("font-size",12);
+
+let focus=root;
+function paint(){
+  path.attr("fill",d=>fill(d)).attr("fill-opacity",opacity).attr("pointer-events",d=>visible(d.current)?"auto":"none")
+    .attr("stroke",d=>selected&&d===selected?css("--ink"):css("--paper"))
+    .attr("stroke-width",d=>selected&&d===selected?2:.6);
+  label.attr("fill",css("--ink")).attr("fill-opacity",d=>+labelVisible(d.current)).attr("transform",d=>labelTransform(d.current));
+  const n=focus.leaves().filter(matches).length;
+  cNum.text(n).attr("fill",css("--ink"));
+  cSub.text(focus===root?"条定理":"条 · 点此返回").attr("fill",css("--muted"));
+}
+function labelTransform(d){const x=(d.x0+d.x1)/2*180/Math.PI;const y=(d.y0+d.y1)/2*R;return `rotate(${x-90}) translate(${y},0) rotate(${x<180?0:180})`}
+
+function zoom(p){
+  focus=p; selected=null;
+  root.each(d=>d.target={
+    x0:Math.max(0,Math.min(1,(d.x0-p.x0)/(p.x1-p.x0)))*2*Math.PI,
+    x1:Math.max(0,Math.min(1,(d.x1-p.x0)/(p.x1-p.x0)))*2*Math.PI,
+    y0:Math.max(0,d.y0-p.depth), y1:Math.max(0,d.y1-p.depth)});
+  const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const t=svg.transition().duration(reduce?0:650);
+  path.transition(t).tween("data",d=>{const i=d3.interpolate(d.current,d.target);return t=>d.current=i(t)})
+    .attrTween("d",d=>()=>arc(d.current)).on("end",paint);
+  label.transition(t).attrTween("transform",d=>()=>labelTransform(d.current));
+  setTimeout(paint,reduce?0:660); paint(); renderPanel();
+}
+function pick(d){ selected=d; paint(); renderPanel(); }
+
+function renderPanel(){
+  const crumb=document.getElementById("crumb"); crumb.innerHTML="";
+  focus.ancestors().reverse().forEach((a,i,arr)=>{
+    if(i)crumb.append(" › ");
+    if(i<arr.length-1){const b=document.createElement("button");b.textContent=a.data.name;b.onclick=()=>zoom(a);crumb.append(b)}
+    else crumb.append(a.data.name);
+  });
+  document.getElementById("ptitle").textContent=focus.data.name;
+  const leaves=focus.leaves(), m=leaves.filter(matches);
+  const bySub=focus.depth<3&&focus.children?focus.children.map(c=>`${c.data.name.replace(/（.*?）/g,"")} ${c.leaves().filter(matches).length}`).join(" · "):"";
+  document.getElementById("pcount").textContent=`${m.length} 条${m.length!==leaves.length?`（共 ${leaves.length} 条，其余被筛掉）`:""}${bySub?"　"+bySub:""}`;
+  const det=document.getElementById("detail");
+  if(selected){
+    const r=ROWS[selected.data.idx];
+    det.hidden=false;
+    det.innerHTML="";
+    const h=document.createElement("h3");h.textContent=r.name;
+    const lb=document.createElement("small");lb.textContent=r.label;h.append(lb);
+    const p=document.createElement("p");p.className="stmt";p.textContent=r.statement||"（暂无内容）";
+    det.append(h,p);
+    if(r.note){const n=document.createElement("p");n.className="note";n.textContent=r.note;det.append(n)}
+    const meta=document.createElement("div");meta.className="meta";
+    if(STATUS_TAG[r.status]){const s=document.createElement("span");s.className="tag warn";s.textContent=STATUS_TAG[r.status];meta.append(s)}
+    [["出处",r.source],["小类",r.subcategory],["结论类型",r.conclusion]].forEach(([k,v])=>{const s=document.createElement("span");s.className="tag";s.textContent=`${k}：${v}`;meta.append(s)});
+    det.append(meta);
+  } else det.hidden=true;
+  const list=document.getElementById("list"); list.innerHTML="";
+  (book||query?m:leaves).forEach(d=>{
+    const r=ROWS[d.data.idx];
+    const b=document.createElement("button");b.className="item"+(matches(d)?"":" dim")+(d===selected?" on":"");
+    const t=document.createElement("b");t.textContent=r.name;
+    const lb=document.createElement("small");lb.textContent=r.label;t.append(lb);
+    const s=document.createElement("small");s.textContent=`${r.source}　${r.statement||STATUS_TAG[r.status]||""}`;
+    b.append(t,s); b.onclick=()=>{ if(d.parent!==focus&&!focus.descendants().includes(d))zoom(d.parent); pick(d); };
+    list.append(b);
+  });
+}
+
+document.querySelectorAll("button.chip").forEach(b=>b.onclick=()=>{
+  book=b.dataset.book;
+  document.querySelectorAll("button.chip").forEach(x=>x.setAttribute("aria-pressed",x===b));
+  paint(); renderPanel();
+});
+document.getElementById("q").addEventListener("input",e=>{query=e.target.value.trim().toLowerCase();paint();renderPanel()});
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change",paint);
+new MutationObserver(paint).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
+paint(); renderPanel();
+
+}).catch(err=>{document.getElementById("ptitle").textContent="数据没有加载出来";
+document.getElementById("pcount").textContent="请通过本地服务器或部署后的网址打开（直接双击 index.html 打不开数据）。";});
+</script>
+
+</body>
+</html>
