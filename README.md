@@ -12,6 +12,8 @@
 index.html            页面（纯静态，无需编译）
 data/theorems.json    全部定理数据；改内容只改这个文件
 data/relations.json   定理之间的推广、对偶、逆命题关系
+data/demos.json       专题页各标签 ↔ 目录定理编号的对应表
+explore/              专题页（可拖动的动态几何图），见下文「专题页」
 scripts/validate.py   数据检查脚本
 vendor/d3.min.js      D3 v7.8.5（画图库，ISC 许可证见 vendor/d3-LICENSE）
 vendor/dagre.min.js   dagre 0.8.5（推广图的分层布局，MIT 许可证见 vendor/dagre-LICENSE）
@@ -65,6 +67,34 @@ vendor/dagre.min.js   dagre 0.8.5（推广图的分层布局，MIT 许可证见 
 
 `external` 数组放目录外的著名定理（如余弦定理），id 从 X001 起编，只有 name 和 statement，不进 theorems.json，总数不超过 30 个。
 
+## 专题页
+
+`explore/` 下放独立的专题页，每页把一组相关定理做成可拖动的动态几何图。主页顶部的「专题：九点圆」进入。
+
+```
+explore/nine-point.html   专题页「九点圆和它的邻居」（配色与主页一致，支持深色模式）
+explore/nine-point.js     页面逻辑：六个标签页的绘制与交互
+explore/geometry.js       共用几何计算（外心、垂心、垂足、九点、二次曲线、隐函数描线），以后的专题页可复用
+```
+
+标签页与锚点（`explore/nine-point.html#<锚点>` 直接打开对应标签）：
+
+| 锚点 | 内容 | 交互 |
+|---|---|---|
+| `#euler` | 欧拉线：O、G、H 共线，N 是 OH 中点 | 拖动顶点；勾选显示中垂线 / 中线 / 高 |
+| `#homothety` | 外接圆位似：以 H（或 G）为中心缩放，k = 1/2（或 −1/2）时变成九点圆 | 拖动顶点；滑块调 k；拖动外接圆上的 P |
+| `#feuerbach` | Feuerbach 相切：NI = R/2 − r | 拖动顶点 |
+| `#simson` | 西摩松线平分 PH，中点在九点圆上 | 拖动顶点；拖动 P |
+| `#orthocentric` | 垂心组：四个三角形共用一个九点圆 | 拖动顶点；按钮切换三角形 |
+| `#hyperbola` | 过 A、B、C、H 的等轴双曲线，中心在九点圆上 | 拖动顶点；拖动 Q |
+
+`data/demos.json` 记录每个标签对应的目录定理编号（`theorem_ids`）。两边互相链接：
+
+- 专题页底部列出「目录中对应的定理」，链接到 `index.html#<定理编号>`（如 `#T136`），主页打开时自动选中该定理；
+- 主页定理详情里，如果该定理出现在某个标签的 `theorem_ids` 中，显示「看动态图」按钮，链接到对应的标签。
+
+目录里没有对应定理的标签保持空数组，`match` 字段保留查找用的关键词。专题页读不到这两个 JSON 时静默跳过，不影响页面。本地预览方法同上，打开 `http://localhost:8000/explore/nine-point.html`。
+
 ## 检查数据
 
 改完 `theorems.json` 后运行：
@@ -73,7 +103,7 @@ vendor/dagre.min.js   dagre 0.8.5（推广图的分层布局，MIT 许可证见 
 python3 scripts/validate.py
 ```
 
-只用 Python 标准库。theorems.json：检查 id 连续且唯一、count 等于条目数、必填字段非空、status / books / layer / conclusion 的取值、status 与来源书是否对得上、subcategory 编号与 category 是否一致。relations.json：检查边上的 id 都存在、type / operation / confidence 的取值、没有重复边和自环、generalizes 边不成环、目录外节点编号连续且不超过 30 个。全部通过时退出码为 0，否则列出每个问题并以 1 退出。
+只用 Python 标准库。theorems.json：检查 id 连续且唯一、count 等于条目数、必填字段非空、status / books / layer / conclusion 的取值、status 与来源书是否对得上、subcategory 编号与 category 是否一致。demos.json：检查 anchor 只能是 euler / homothety / feuerbach / simson / orthocentric / hyperbola 之一、不重复，theorem_ids 里的编号都存在。relations.json：检查边上的 id 都存在、type / operation / confidence 的取值、没有重复边和自环、generalizes 边不成环、目录外节点编号连续且不超过 30 个。全部通过时退出码为 0，否则列出每个问题并以 1 退出。
 
 ## 本地预览
 

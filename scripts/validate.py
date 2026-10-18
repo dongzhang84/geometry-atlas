@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""检查 data/theorems.json 和 data/relations.json 的结构和一致性。只用标准库。
+"""检查 data/theorems.json、data/relations.json 和 data/demos.json 的结构和一致性。只用标准库。
 
 用法：python3 scripts/validate.py [theorems.json 路径]
-relations.json 取同一目录下的文件，不存在则跳过。
+relations.json、demos.json 取同一目录下的文件，不存在则跳过。
 全部通过时退出码为 0，否则逐条列出问题并以 1 退出。
 """
 import json
@@ -24,6 +24,7 @@ EDGE_TYPES = {"generalizes", "dual", "converse"}
 OPERATIONS = {"退化", "加度量", "取特殊对象", "降维", "参数取特殊值"}
 CONFIDENCE = {"确定", "可能"}
 MAX_EXTERNAL = 30
+DEMO_ANCHORS = {"euler", "homothety", "feuerbach", "simson", "orthocentric", "hyperbola"}
 
 
 def check(data):
@@ -143,6 +144,28 @@ def check_relations(rel, theorem_ids):
     return errors
 
 
+def check_demos(demos, theorem_ids):
+    errors = []
+    known = set(theorem_ids)
+    seen = set()
+    for n, l in enumerate(demos.get("links", []), 1):
+        a = l.get("anchor")
+        where = f"demos #{n} {a}"
+        if a not in DEMO_ANCHORS:
+            errors.append(f"{where}: anchor 取值无效：{a!r}")
+        if a in seen:
+            errors.append(f"{where}: anchor 重复")
+        seen.add(a)
+        ids = l.get("theorem_ids")
+        if not isinstance(ids, list):
+            errors.append(f"{where}: theorem_ids 应为数组")
+            continue
+        for i in ids:
+            if i not in known:
+                errors.append(f"{where}: 定理编号不存在：{i}")
+    return errors
+
+
 def main():
     path = Path(sys.argv[1]) if len(sys.argv) > 1 else DEFAULT
     data = json.loads(path.read_text(encoding="utf-8"))
@@ -152,6 +175,11 @@ def main():
     if rel_path.exists():
         rel = json.loads(rel_path.read_text(encoding="utf-8"))
         errors += check_relations(rel, [t.get("id") for t in data.get("theorems", [])])
+    demos_path = path.with_name("demos.json")
+    demos = None
+    if demos_path.exists():
+        demos = json.loads(demos_path.read_text(encoding="utf-8"))
+        errors += check_demos(demos, [t.get("id") for t in data.get("theorems", [])])
     if errors:
         print(f"{path}: {len(errors)} 个问题")
         for e in errors:
@@ -169,6 +197,11 @@ def main():
             by[e["type"]] = by.get(e["type"], 0) + 1
         print(f"{rel_path}: 通过，{len(edges)} 条边（" + "，".join(f"{k} {v}" for k, v in sorted(by.items()))
               + f"），目录外节点 {len(rel.get('external', []))} 个")
+    if demos is not None:
+        links = demos.get("links", [])
+        filled = sum(1 for l in links if l.get("theorem_ids"))
+        print(f"{demos_path}: 通过，{len(links)} 个标签，其中 {filled} 个对应到定理，共 "
+              f"{sum(len(l.get('theorem_ids', [])) for l in links)} 个编号")
 
 
 if __name__ == "__main__":
