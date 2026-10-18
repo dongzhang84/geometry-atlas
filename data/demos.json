@@ -52,6 +52,27 @@
     "二次曲线"
    ],
    "theorem_ids": []
+  },
+  {
+   "anchor": "nagel",
+   "title": "Nagel 线",
+   "match": [
+    "Nagel",
+    "奈格尔",
+    "纳格尔",
+    "Spieker"
+   ],
+   "theorem_ids": []
+  },
+  {
+   "anchor": "soddy",
+   "title": "Soddy 线",
+   "match": [
+    "Soddy",
+    "Gergonne",
+    "热尔岗"
+   ],
+   "theorem_ids": []
   }
  ]
 }

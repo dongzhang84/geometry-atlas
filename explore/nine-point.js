@@ -1,9 +1,9 @@
 /* Geometry Atlas · 专题页「九点圆和其它相关定理」
  * 依赖 geometry.js（window.GA）。
- * 每个标签页有锚点：#orthocentric #euler #homothety #feuerbach #simson #conic */
+ * 每个标签页有锚点：#orthocentric #euler #homothety #feuerbach #simson #conic #nagel #soddy */
 (function () {
   const { sub, add, mul, mid, len, foot, ninePoints, orthocenter, triangleData,
-    evalConic, conicCenter, asymptoteSlopes, intersect, conicThrough, traceImplicit } = window.GA;
+    evalConic, conicCenter, asymptoteSlopes, intersect, conicThrough, traceImplicit, nagelData, soddyData } = window.GA;
 
   const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
   /* 画布按容器实际宽度绘制（单位：CSS 像素）。K 是相对原设计宽度 680 的缩放，
@@ -31,6 +31,7 @@
   const TABS = [
     ['orthocentric', '九点圆'], ['euler', '欧拉线'], ['homothety', '缩小外接圆'],
     ['feuerbach', 'Feuerbach 相切'], ['simson', '西摩松线'], ['conic', '九点二次曲线'],
+    ['nagel', 'Nagel 线'], ['soddy', 'Soddy 线'],
   ];
   const LEG = {
     euler: [[BL, '中垂线 → O'], [TE, '中线 → G'], [PK, '高 → H'], [CO, '欧拉线'], [PU, '九点圆']],
@@ -38,6 +39,8 @@
     feuerbach: [[TE, '角平分线、内切圆、旁切圆'], [CO, '直线 NI 与切点'], [PU, '九点圆']],
     simson: [[TE, '西摩松线'], [PK, '三条高 → 垂心 H'], [AM, '线段 PH'], [PU, '九点圆']],
     orthocentric: [[TE, '当前三角形'], [PK, '它的三条高'], [CO, '它的 9 个点'], [PU, '九点圆']],
+    nagel: [[AM, '内切圆、内心 I'], [PK, '顶点到旁切圆切点的连线 → Na'], [TE, '中线 → G'], [BL, 'Spieker 点 Sp'], [CO, 'Nagel 线']],
+    soddy: [[GR, '以顶点为圆心的三个圆'], [TE, '顶点到切点的连线 → Ge'], [PU, '内 Soddy 圆'], [PK, '外 Soddy 圆'], [BL, 'de Longchamps 点 L'], [CO, 'Soddy 线']],
     conic: [[TE, '6 条连线的中点'], [CO, '3 个对角点、渐近线'], [PU, '九点二次曲线'], ['rgba(29,158,117,.45)', '背景绿：P 在此处时是椭圆'], ['rgba(216,90,48,.4)', '背景橙：P 在此处时是双曲线']],
   };
 
@@ -58,12 +61,16 @@
     return m < 1e-9 || Math.abs((B.x - A.x) * (C.y - A.y) - (B.y - A.y) * (C.x - A.x)) < 1e-6 * m * m;
   }
   const near = (P, Q, g) => len(sub(P, Q)) < g.R * 1e-6;
+  /** 取景要框住的点：按标签不同。Nagel 线只看三角形，Soddy 线看三个顶点圆，其余标签看外接圆和垂心 */
+  function fitPoints() {
+    if (degenerate()) return state.V;
+    const g = geo(), box = (c, r) => [{ x: c.x - r, y: c.y - r }, { x: c.x + r, y: c.y + r }];
+    if (state.tab === 'nagel') return [g.A, g.B, g.C];
+    if (state.tab === 'soddy') { const d = soddyData(g.A, g.B, g.C); return [].concat(...[g.A, g.B, g.C].map((X, i) => box(X, d.radii[i]))); }
+    return [g.A, g.B, g.C, g.H, ...box(g.O, g.R)];
+  }
   function fit() {
-    let pts = state.V;
-    if (!degenerate()) {
-      const g = geo();
-      pts = [g.A, g.B, g.C, g.H, { x: g.O.x - g.R, y: g.O.y - g.R }, { x: g.O.x + g.R, y: g.O.y + g.R }];
-    }
+    const pts = fitPoints();
     const xs = pts.map((p) => p.x), ys = pts.map((p) => p.y);
     const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
     if (!(x1 - x0 > 1e-9 || y1 - y0 > 1e-9)) return;
@@ -77,7 +84,7 @@
   function lineInf(P, R, col, w, dash) { const d = sub(R, P), L = len(d); if (L < 1e-9) return; seg(sub(P, mul(d, 50 / L)), add(R, mul(d, 50 / L)), col, w, dash); }
   function dot(P, col, r) { const p = S(P); ctx.beginPath(); ctx.arc(p.x, p.y, PR(r), 0, 7); ctx.fillStyle = col; ctx.fill(); }
   /** 文字标注：默认放在点的 (dx, dy) 处；右边或下边放不下时改放到左侧或上方，再夹在画布内 */
-  function lab(P, txt, dx, dy) {
+  function labPos(P, txt, dx, dy) {
     const p = S(P), fs = FS(), ox = OFF(dx), oy = OFF(dy), pad = 4;
     ctx.font = '500 ' + fs + 'px sans-serif';
     const w = ctx.measureText(txt).width;
@@ -87,7 +94,43 @@
     if (y > H - pad) y = p.y - Math.abs(oy);
     if (y - fs < pad) y = p.y + Math.abs(oy) + fs * 0.8;
     x = Math.min(Math.max(x, pad), W - pad - w); y = Math.min(Math.max(y, fs + pad / 2), H - pad);
-    ctx.fillStyle = css('--ink'); ctx.fillText(txt, x, y);
+    return { x, y, w, h: fs };
+  }
+  function lab(P, txt, dx, dy) {
+    const r = labPos(P, txt, dx, dy);
+    placed.push({ x: r.x, y: r.y - r.h, w: r.w, h: r.h });
+    ctx.fillStyle = css('--ink'); ctx.fillText(txt, r.x, r.y);
+  }
+  /* 标签防重叠：本次绘制已占用的文字框（屏幕坐标）。每个标签依次试点周围的候选位置，
+   * 选第一个不出画布、不压到已有文字和这组点的；都不行就用第一个候选。 */
+  let placed = [];
+  const GAP = 4;   // 文字框之间至少留的间隔
+  const overlap = (r, q) => r.x < q.x + q.w + GAP && q.x < r.x + r.w + GAP && r.y < q.y + q.h + GAP && q.y < r.y + r.h + GAP;
+  function labelPoints(items, dir) {
+    const pts = items.map(([P]) => S(P)), fs = FS(), dd = OFF(11);
+    const dots = pts.map((p) => ({ x: p.x - 7, y: p.y - 7, w: 14, h: 14 }));
+    let n = { x: 0, y: -1 };
+    if (dir) { const L = len(dir); if (L > 1e-12) n = { x: -dir.y / L, y: dir.x / L }; }
+    ctx.font = '500 ' + fs + 'px sans-serif';
+    items.forEach(([, txt], i) => {
+      const p = pts[i];
+      if (!(p.x >= 0 && p.x <= W && p.y >= 0 && p.y <= H)) return;   // 点在画面外就不标
+      const w = ctx.measureText(txt).width, cands = [];
+      for (const k of [1, 1.7, 2.6]) {
+        for (const [ux, uy] of [[n.x, n.y], [-n.x, -n.y], [1, -1], [1, 1], [-1, -1], [-1, 1], [1, 0], [-1, 0], [0, -1], [0, 1]]) {
+          const L = Math.hypot(ux, uy) || 1, vx = ux / L, vy = uy / L;
+          const cx = p.x + vx * dd * k, cy = p.y + vy * dd * k;
+          const x = vx > 0.35 ? cx : vx < -0.35 ? cx - w : cx - w / 2;
+          const top = vy > 0.35 ? cy : vy < -0.35 ? cy - fs : cy - fs / 2;
+          cands.push({ x, y: top, w, h: fs });
+        }
+      }
+      const ok = (r) => r.x >= 2 && r.x + r.w <= W - 2 && r.y >= 2 && r.y + r.h <= H - 2 &&
+        !placed.some((q) => overlap(r, q)) && !dots.some((q, j) => j !== i && overlap(r, q));
+      const r = cands.find(ok) || cands[0];
+      placed.push(r);
+      ctx.fillStyle = css('--ink'); ctx.fillText(txt, r.x, r.y + r.h * 0.82);
+    });
   }
   function labPerp(P, txt, dir, side) {
     const L = len(dir) || 1, n = { x: -dir.y / L, y: dir.x / L }, p = S(P), fs = FS(), d = OFF(17);
@@ -264,6 +307,51 @@
       return info(thm, ops0 + '现在曲线是<b>' + kind + '</b>。' + note +
         (far ? '有 ' + far + ' 个对角点在无穷远处（P 与某个顶点的连线平行于对边）。' : ''));
     },
+    nagel(g) {
+      const sec = css('--muted'), n = nagelData(g.A, g.B, g.C), V = [g.A, g.B, g.C], U = [n.Ua, n.Ub, n.Uc];
+      sides(g, sec); circle(g.I, g.r, AM, 1.3);
+      U.forEach((u, i) => seg(V[i], u, PK, 1.1));
+      [mid(g.B, g.C), mid(g.C, g.A), mid(g.A, g.B)].forEach((m, i) => seg(V[i], m, TE, 1.1));
+      const same = len(sub(n.Na, n.I)) < g.R * 1e-6;
+      if (!same) { lineInf(n.I, n.Na, CO, 1.2, [7, 4]); seg(n.I, n.Na, CO, 2.2); }
+      U.forEach((u) => dot(u, PK, 4));
+      [[n.I, AM], [n.G, TE], [n.Sp, BL], [n.Na, PK]].forEach(([P, c]) => dot(P, c, 5.5));
+      labelPoints(same ? [[n.I, 'I = G = Sp = Na'], [n.Ua, 'Ua'], [n.Ub, 'Ub'], [n.Uc, 'Uc']]
+        : [[n.I, 'I'], [n.G, 'G'], [n.Sp, 'Sp'], [n.Na, 'Na'], [n.Ua, 'Ua'], [n.Ub, 'Ub'], [n.Uc, 'Uc']], sub(n.Na, n.I));
+      const ig = len(sub(n.G, n.I)), gn = len(sub(n.Na, n.G));
+      return info('Nagel 线：三角形的内心 I、重心 G、Spieker 点 Sp 和 Nagel 点 Na 在一条直线上，并且 IG : GNa = 1 : 2，Sp 是 I 与 Na 的中点。' +
+        '其中 Nagel 点是三个顶点与对边上旁切圆切点的连线的交点，Spieker 点是三边中点所成三角形的内心。' +
+        '<br>以 G 为中心、比例 −1/2 的位似把 Na 变成 I、把 I 变成 Sp，和欧拉线上把 H 变成 O、把 O 变成 N 是同一个位似。',
+        '拖动顶点 A、B、C 改变三角形。棕色圆是内切圆；粉色线是三个顶点到对边上旁切圆切点 Ua、Ub、Uc 的连线，交于 Nagel 点 Na；绿色线是三条中线，交于重心 G；橙色粗线是 Nagel 线。<br>' +
+        (same ? '三角形接近等边：I、G、Sp、Na 几乎重合，Nagel 线不再确定。'
+          : '实测：IG : GNa = 1 : ' + fmt(gn / ig) + '；ISp = ' + fmt(len(sub(n.Sp, n.I))) + '，SpNa = ' + fmt(len(sub(n.Na, n.Sp))) + '，Sp 是 I 与 Na 的中点。'));
+    },
+    soddy(g) {
+      const sec = css('--muted'), d = soddyData(g.A, g.B, g.C), V = [g.A, g.B, g.C], T = [d.Ta, d.Tb, d.Tc];
+      const outer = d.S2 && d.r2 > 0 && d.r2 < 100 * g.R;   // 外 Soddy 圆太大时看作已退化成直线
+      sides(g, sec);
+      V.forEach((X, i) => circle(X, d.radii[i], GR, 1.3));
+      T.forEach((t, i) => seg(V[i], t, TE, 1.1));
+      if (d.S1) circle(d.S1, d.r1, PU, 2);
+      if (outer) circle(d.S2, d.r2, PK, 1.8);
+      const pts = [[d.I, 'I', AM], [d.Ge, 'Ge', TE], [d.L, 'L', BL], [d.S1, 'S₁', PU]].concat(outer ? [[d.S2, 'S₂', PK]] : []).filter(([P]) => P);
+      // Soddy 线：取这些点里相距最远的两个连线
+      let far = [pts[0][0], pts[0][0]], fd = 0;
+      pts.forEach(([P]) => pts.forEach(([Q]) => { const x = len(sub(P, Q)); if (x > fd) { fd = x; far = [P, Q]; } }));
+      const same = fd < g.R * 1e-6;
+      if (!same) { lineInf(far[0], far[1], CO, 1.2, [7, 4]); seg(far[0], far[1], CO, 2.2); }
+      T.forEach((t) => dot(t, TE, 4));
+      pts.forEach(([P, , c]) => dot(P, c, 5.5));
+      labelPoints((same ? [[d.I, 'I = Ge = L = S₁ = S₂']] : pts.map(([P, t]) => [P, t])).concat([[d.Ta, 'Ta'], [d.Tb, 'Tb'], [d.Tc, 'Tc']]), sub(far[1], far[0]));
+      const offscreen = pts.filter(([P]) => { const q = S(P); return !(q.x >= 0 && q.x <= W && q.y >= 0 && q.y <= H); }).map(([, t]) => t);
+      return info('三个圆两两外切，和它们都相切的圆有两个，叫内、外 Soddy 圆。两个圆心所在的直线叫 Soddy 线，它也过内心 I、Gergonne 点 Ge 和 de Longchamps 点 L（L 是垂心关于外心的对称点）。',
+        '拖动顶点 A、B、C 改变三角形。灰色是以 A、B、C 为圆心、半径 s−a、s−b、s−c 的三个圆（s 为半周长），它们两两相切的切点正好是内切圆与三边的切点 Ta、Tb、Tc；' +
+        '绿色线是 A–Ta、B–Tb、C–Tc，交于 Gergonne 点 Ge；紫色是内 Soddy 圆（圆心 S₁），粉色是外 Soddy 圆（圆心 S₂，可能很大，伸出画面）；橙色粗线是 Soddy 线。<br>' +
+        (same ? '三角形接近等边：I、Ge、L、S₁、S₂ 几乎重合，Soddy 线不再确定。' :
+          '实测：内 Soddy 圆半径 ' + fmt(d.r1, 3) + (outer ? '，外 Soddy 圆半径 ' + fmt(d.r2, 3) + '。' : '。') +
+          (outer ? '' : '此时外 Soddy 圆退化成一条直线（和三个圆都相切的直线），不画外 Soddy 圆和 S₂。') +
+          (offscreen.length ? '画面外的点：' + offscreen.join('、') + '。' : '')));
+    },
   };
 
   /* ---------- 九点二次曲线：背景分区（离屏画布缓存） ----------
@@ -300,7 +388,7 @@
 
   /* ---------- 主绘制 ---------- */
   function draw() {
-    ctx.clearRect(0, 0, W, H);
+    ctx.clearRect(0, 0, W, H); placed = [];
     const ink = css('--ink');
     if (degenerate()) {
       const [A, B, C] = state.V; tri(A, B, C, ink, 1.3);
@@ -309,6 +397,7 @@
       return;
     }
     const g = geo();
+    placed = [[g.A, 'A'], [g.B, 'B'], [g.C, 'C']].map(([p, n]) => { const r = labPos(p, n, -16, -9); return { x: r.x, y: r.y - r.h, w: r.w, h: r.h }; });
     if (state.tab !== 'orthocentric' && state.tab !== 'conic') tri(g.A, g.B, g.C, ink, 1.3);
     const info = DRAW[state.tab](g);
     [[g.A, 'A'], [g.B, 'B'], [g.C, 'C']].forEach(([p, n]) => { dot(p, ink, 5.5); lab(p, n, -16, -9); });
@@ -367,6 +456,7 @@
   function setTab(id, pushHash) {
     if (!DRAW[id]) id = TABS[0][0];
     state.tab = id; if (id === 'homothety') state.k = 1;
+    fit();
     if (pushHash && location.hash !== '#' + id) history.replaceState(null, '', '#' + id);
     renderTabs(); renderOpts(); renderRelated(); draw();
   }

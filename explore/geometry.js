@@ -58,6 +58,53 @@
     return { A, B, C, O, R: oc.r, H, G, N, r9: oc.r / 2, I, r: area / s, excircles };
   }
 
+  /** 重心坐标权重 (wA, wB, wC) → 点；权重和相对太小（点在无穷远）时返回 null */
+  function bary(A, B, C, wA, wB, wC, tol = 1e-9) {
+    const t = wA + wB + wC, m = Math.abs(wA) + Math.abs(wB) + Math.abs(wC);
+    if (!(Math.abs(t) > tol * m)) return null;
+    return { x: (wA * A.x + wB * B.x + wC * C.x) / t, y: (wA * A.y + wB * B.y + wC * C.y) / t };
+  }
+  /** 从 U 出发、沿 UV 方向走距离 d 的点 */
+  const along = (U, V, d) => add(U, mul(sub(V, U), d / len(sub(V, U))));
+
+  /** Nagel 线上的点：内心 I、重心 G、Nagel 点 Na、Spieker 点 Sp；旁切圆在对边上的切点 Ua、Ub、Uc */
+  function nagelData(A, B, C) {
+    const a = len(sub(B, C)), b = len(sub(C, A)), c = len(sub(A, B)), s = (a + b + c) / 2;
+    return {
+      a, b, c, s,
+      I: bary(A, B, C, a, b, c), G: bary(A, B, C, 1, 1, 1),
+      Na: bary(A, B, C, s - a, s - b, s - c), Sp: bary(A, B, C, b + c, c + a, a + b),
+      Ua: along(B, C, s - c), Ub: along(C, A, s - a), Uc: along(A, B, s - b),   // BUa = s−c，CUb = s−a，AUc = s−b
+    };
+  }
+
+  /** Soddy 线上的点：以 A、B、C 为圆心、半径 s−a、s−b、s−c 的三个圆两两外切；
+   *  内心 I、Gergonne 点 Ge、de Longchamps 点 L = 2O − H、内外 Soddy 圆 (S1, r1)、(S2, r2)；
+   *  内切圆与三边的切点 Ta、Tb、Tc。外 Soddy 圆退化成直线（权重和接近 0）时 S2 为 null。 */
+  function soddyData(A, B, C) {
+    const a = len(sub(B, C)), b = len(sub(C, A)), c = len(sub(A, B)), s = (a + b + c) / 2;
+    const ra = s - a, rb = s - b, rc = s - c, radii = [ra, rb, rc];
+    const area = Math.sqrt(Math.max(s * ra * rb * rc, 0));
+    const oc = circumcircle(A, B, C), H = orthocenter(A, B, C);
+    const S1 = bary(A, B, C, a + area / ra, b + area / rb, c + area / rc);
+    const r1 = S1 ? len(sub(S1, A)) - ra : null;
+    const S2 = bary(A, B, C, a - area / ra, b - area / rb, c - area / rc, 1e-4);
+    let r2 = null;
+    if (S2) {
+      // 外 Soddy 圆可能把三个圆包在里面（r = d + rᵢ），也可能和它们外切（r = d − rᵢ）；取对三个顶点都一致的那种
+      const d = [A, B, C].map((X) => len(sub(S2, X)));
+      const enc = d.map((x, i) => x + radii[i]), ext = d.map((x, i) => x - radii[i]);
+      const spread = (v) => Math.max(...v) - Math.min(...v);
+      r2 = spread(enc) <= spread(ext) ? enc[0] : ext[0];
+    }
+    return {
+      a, b, c, s, area, radii,
+      I: bary(A, B, C, a, b, c), Ge: bary(A, B, C, 1 / ra, 1 / rb, 1 / rc),
+      L: sub(mul({ x: oc.x, y: oc.y }, 2), H), S1, r1, S2, r2,
+      Ta: along(B, C, s - b), Tb: along(C, A, s - c), Tc: along(A, B, s - a),   // BTa = s−b，CTb = s−c，ATc = s−a
+    };
+  }
+
   /* ---------- 二次曲线 ax² + bxy + cy² + dx + ey + f = 0 ---------- */
 
   /** 过 P、Q 两点的直线，系数 [a, b, c]（已单位化） */
@@ -137,5 +184,6 @@
   }
 
   window.GA = { sub, add, mul, mid, len, circumcircle, orthocenter, foot, ninePoints, triangleData,
+    bary, nagelData, soddyData,
     lineCoeffs, lineProduct, evalConic, conicCenter, asymptoteSlopes, intersect, conicThrough, traceImplicit };
 })();
