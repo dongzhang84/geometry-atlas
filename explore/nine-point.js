@@ -29,7 +29,7 @@
   const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim() || '#888';
 
   const TABS = [
-    ['orthocentric', '九点圆'], ['euler', '欧拉线'], ['homothety', '外接圆位似'],
+    ['orthocentric', '九点圆'], ['euler', '欧拉线'], ['homothety', '缩小外接圆'],
     ['feuerbach', 'Feuerbach 相切'], ['simson', '西摩松线'], ['conic', '九点二次曲线'],
   ];
   const LEG = {
@@ -169,7 +169,7 @@
       seg(P, g.H, AM, 1.6); const M = mid(P, g.H);
       dot(M, CO, 6.5); dot(P, AM, 7); dot(g.H, PK, 5); lab(P, 'P（拖我）', 9, -9); lab(g.H, 'H', 8, -8); lab(M, 'M', 8, 14);
       return '在画面上拖动（顶点以外的地方），P 沿外接圆移动。P 到三边的三个垂足共线（西摩松线），这条线平分 PH，中点 M 始终在九点圆上。' +
-        '<br><span class="note">M 在九点圆上，是因为以 H 为中心缩小一半把外接圆变成九点圆（见「外接圆位似」）；西摩松线经过 M，可以用复数直接算出来。</span>';
+        '<br><span class="note">M 在九点圆上，是因为以 H 为中心缩小一半把外接圆变成九点圆（见「缩小外接圆」）；西摩松线经过 M，可以用复数直接算出来。</span>';
     },
     orthocentric(g) {
       const sec = css('--muted');
