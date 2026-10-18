@@ -1,0 +1,13 @@
+{
+  "version": "0.1",
+  "page": "explore/nine-point.html",
+  "note": "专题页各标签与目录中定理的对应关系。theorem_ids 待按最新 theorems.json 填写；match 是用来查找的关键词，填完 theorem_ids 后可删除。",
+  "links": [
+    {"anchor": "euler",        "title": "欧拉线",         "match": ["欧拉线", "九点圆"],               "theorem_ids": []},
+    {"anchor": "homothety",    "title": "外接圆位似",     "match": ["九点圆", "位似", "外接圆"],       "theorem_ids": []},
+    {"anchor": "feuerbach",    "title": "Feuerbach 相切", "match": ["费尔巴哈", "Feuerbach"],          "theorem_ids": []},
+    {"anchor": "simson",       "title": "西摩松线",       "match": ["西摩松", "Simson"],               "theorem_ids": []},
+    {"anchor": "orthocentric", "title": "垂心组",         "match": ["垂心"],                           "theorem_ids": []},
+    {"anchor": "hyperbola",    "title": "等轴双曲线",     "match": ["等轴双曲线", "直角双曲线"],       "theorem_ids": []}
+  ]
+}
