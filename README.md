@@ -1,6 +1,14 @@
 # Geometry Atlas · 几何图谱
 
+> **在线访问：<https://geometry-atlas.vercel.app/>**　·　专题页：[九点圆和它的邻居](https://geometry-atlas.vercel.app/explore/nine-point.html)
+
 三本经典几何书中的约 300 条定理，按「几何层次 → 大类 → 小类 → 定理」排成一张可以点开、筛选、搜索的环形地图。
+
+- **分类图**：射影 → 仿射 → 欧氏三层的环形图，点开逐层放大，右侧显示定理内容与出处；可按书筛选、搜索。
+- **推广图**：定理之间的推广、射影对偶、逆命题关系，从简单的定理往下推到更一般的定理。
+- **专题页**：可拖动的动态几何图，目前有「九点圆和它的邻居」，和主页的定理互相链接。
+
+更新记录见 [CHANGELOG.md](CHANGELOG.md)，文档与待办见 [TRACKER.md](TRACKER.md)。
 
 - 吉川实夫著、王邦珍译《近世综合几何学》，商务印书馆，1925
 - 严济慈《几何证题法》，1928 年初版（依据 1982 年高等教育出版社白话本）
@@ -15,6 +23,8 @@ data/relations.json   定理之间的推广、对偶、逆命题关系
 data/demos.json       专题页各标签 ↔ 目录定理编号的对应表
 explore/              专题页（可拖动的动态几何图），见下文「专题页」
 scripts/validate.py   数据检查脚本
+CHANGELOG.md          更新记录
+TRACKER.md            文档清单、待办与已知问题
 vendor/d3.min.js      D3 v7.8.5（画图库，ISC 许可证见 vendor/d3-LICENSE）
 vendor/dagre.min.js   dagre 0.8.5（推广图的分层布局，MIT 许可证见 vendor/dagre-LICENSE）
 ```
@@ -115,12 +125,11 @@ python3 -m http.server 8000      # 然后打开 http://localhost:8000
 npx serve .
 ```
 
-## 部署到 Vercel
+## 部署
 
-纯静态站点，不需要任何配置：
+线上地址：<https://geometry-atlas.vercel.app/>，由 Vercel 从 GitHub 仓库的 `main` 分支部署，推送后自动更新。纯静态站点，不需要构建：Framework Preset 选 Other，不填 Build Command。
 
-- 网页方式：把这个文件夹推到 GitHub 仓库，在 vercel.com 选 Add New → Project 导入，Framework Preset 选 Other，不填 Build Command，点 Deploy。
-- 命令行方式：在这个文件夹里运行 `npx vercel`（首次会要求登录），正式发布用 `npx vercel --prod`。
+需要手动发布时，在仓库根目录运行 `npx vercel --prod`。
 
 ## 许可证
 
@@ -129,9 +138,6 @@ npx serve .
 - `vendor/d3.min.js`：D3 自带的 ISC 许可证，见 `vendor/d3-LICENSE`
 - `vendor/dagre.min.js`：dagre 自带的 MIT 许可证，见 `vendor/dagre-LICENSE`
 
-## 公开前待办
+## 待办
 
-- [ ] 对照原书核对 `status` 为 toc_only、placeholder 的矢野条目，补全 placeholder 的内容
-- [ ] 核对 T047 与 T058 是否重复
-- [ ] 抽查严济慈部分的公式和字母（从扫描页读出）
-- [ ] 把直接沿用原书文字的条目（尤其吉川的文言译文、矢野）改写成自己的表述，只保留出处
+数据核对、文档缺口和已知问题统一记在 [TRACKER.md](TRACKER.md)。
