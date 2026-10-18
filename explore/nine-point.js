@@ -1,9 +1,9 @@
 /* Geometry Atlas · 专题页「九点圆和它的邻居」
  * 依赖 geometry.js（window.GA）。
- * 每个标签页有锚点：#euler #homothety #feuerbach #simson #orthocentric #hyperbola */
+ * 每个标签页有锚点：#orthocentric #euler #homothety #feuerbach #simson #conic */
 (function () {
   const { sub, add, mul, mid, len, foot, ninePoints, orthocenter, triangleData,
-    lineCoeffs, lineProduct, evalConic, conicCenter, asymptoteSlopes, traceImplicit } = window.GA;
+    evalConic, conicCenter, asymptoteSlopes, intersect, conicThrough, traceImplicit } = window.GA;
 
   const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
   /* 画布按容器实际宽度绘制（单位：CSS 像素）。K 是相对原设计宽度 680 的缩放，
@@ -30,7 +30,7 @@
 
   const TABS = [
     ['orthocentric', '九点圆'], ['euler', '欧拉线'], ['homothety', '外接圆位似'],
-    ['feuerbach', 'Feuerbach 相切'], ['simson', '西摩松线'], ['hyperbola', '等轴双曲线'],
+    ['feuerbach', 'Feuerbach 相切'], ['simson', '西摩松线'], ['conic', '九点二次曲线'],
   ];
   const LEG = {
     euler: [[BL, '中垂线 → O'], [TE, '中线 → G'], [PK, '高 → H'], [CO, '欧拉线'], [PU, '九点圆']],
@@ -38,14 +38,14 @@
     feuerbach: [[TE, '角平分线、内切圆、旁切圆'], [CO, '直线 NI 与切点'], [PU, '九点圆']],
     simson: [[TE, '西摩松线'], [AM, '线段 PH'], [PU, '九点圆']],
     orthocentric: [[TE, '当前三角形'], [PK, '它的三条高'], [CO, '它的 9 个点'], [PU, '九点圆']],
-    hyperbola: [[AM, '等轴双曲线与渐近线'], [CO, '中心及其轨迹'], [PU, '九点圆']],
+    conic: [[TE, '6 条连线的中点'], [CO, '3 个对角点、渐近线'], [PU, '九点二次曲线'], ['rgba(29,158,117,.45)', '背景绿：P 在此处时是椭圆'], ['rgba(216,90,48,.4)', '背景橙：P 在此处时是双曲线']],
   };
 
   const state = {
     tab: TABS[0][0],
     V: [{ x: -2.0, y: 1.2 }, { x: 2.2, y: 1.2 }, { x: -1.0, y: -1.5 }],
     show: { pb: true, md: true, al: true },
-    k: 1, center: 'H', theta: -0.6, tri: 0, Q: null, trail: [],
+    k: 1, center: 'H', theta: -0.6, tri: 0, P: null, onCircle: false,
   };
   let view = { s: 80, ox: W / 2, oy: H / 2 };
   const S = (p) => ({ x: p.x * view.s + view.ox, y: p.y * view.s + view.oy });
@@ -188,35 +188,102 @@
         '<br>用上面的按钮切换三角形：A、B、C、H 中任取三点组成的四个三角形，每个的垂心正好是剩下的那个点，它们的九点圆是同一个。' +
         (flat ? '<br><span class="note">现在是直角三角形，垂心 H 落在直角顶点上，这个三角形退化成一条线段，没有高和九点，只画出三边。</span>' : '');
     },
-    hyperbola(g) {
-      circle(g.N, g.r9, PU, 2.6);
-      [g.A, g.B, g.C].forEach((P) => seg(P, foot(P, ...[g.A, g.B, g.C].filter((x) => x !== P)), PK, 0.8, [3, 3]));
-      if (!state.Q) state.Q = { x: g.O.x + g.R * 1.15, y: g.O.y - 0.2 };
-      const hv = [g.A, g.B, g.C].some((V) => near(V, g.H, g));
-      const qv = [g.A, g.B, g.C, g.H].some((V) => len(sub(S(V), S(state.Q))) < 2);
-      if (hv || qv) {
-        dot(state.Q, AM, 7); lab(state.Q, 'Q（拖我）', 9, -9); dot(g.H, PK, 5); lab(g.H, 'H', 8, -8);
-        return hv ? '现在是直角三角形，垂心 H 落在直角顶点上，A、B、C、H 只剩三个不同的点，过它们和 Q 的二次曲线不唯一，所以不画双曲线。把顶点拖开一些。'
-          : 'Q 与 A、B、C、H 之一重合，五个点只剩四个，确定不了唯一的二次曲线，所以暂不画双曲线。把 Q 拖开一点。';
+    conic(g) {
+      const sec = css('--muted'), ink = css('--ink'), R = g.R, V = [g.A, g.B, g.C];
+      const nrm = (p) => ({ x: (p.x - g.O.x) / R, y: (p.y - g.O.y) / R });   // 归一化坐标，避免数值问题
+      if (!state.P) state.P = { x: g.G.x + 0.12 * R, y: g.G.y + 0.06 * R };
+      if (state.onCircle) state.P = onCircumcircle(state.P, g);
+      const P = state.P;
+      // 背景分区：拖动顶点时先不画，松手后重算
+      if (!(drag && drag.v !== undefined)) { ensureRegions(g, nrm); ctx.drawImage(regionCv, 0, 0, W, H); }
+      // 六条连线：整条直线画淡虚线，线段本身画实线
+      const sides = [[g.A, g.B], [g.B, g.C], [g.C, g.A]], spokes = [[g.A, P], [g.B, P], [g.C, P]];
+      ctx.globalAlpha = 0.55; [...sides, ...spokes].forEach(([U, X]) => lineInf(U, X, sec, 0.7, [4, 4])); ctx.globalAlpha = 1;
+      sides.forEach(([U, X]) => seg(U, X, ink, 1.3)); spokes.forEach(([U, X]) => seg(U, X, sec, 1.1));
+      if (state.onCircle) circle(g.O, R, sec, 1.1, [5, 4]);
+
+      const kindEl = document.getElementById('ckind'), setKind = (t) => { if (kindEl) kindEl.textContent = t; };
+      const scr = (X) => S(X), close = (X, Y) => len(sub(scr(X), scr(Y))) < 1;
+      const onVertex = V.some((X) => close(X, P));
+      const onSide = !onVertex && sides.some(([U, X]) => close(foot(P, U, X), P));
+      const base = '任取四点 A、B、C、P，6 条连线的中点和 3 个对角点（AP∩BC、BP∩CA、CP∩AB）共 9 个点，总在同一条二次曲线上（Bôcher，1892）。' +
+        'P 在三角形内部或顶点背后的区域时是椭圆，在边的外侧时是双曲线；P 在外接圆上时是等轴双曲线；P 在垂心时就是九点圆。' +
+        '所以九点圆是这条定理在 P 落在垂心时的特例：从欧氏几何升到仿射几何，「圆」变成了「二次曲线」。<br>';
+      const finishP = () => { dot(P, ink, 6.5); lab(P, 'P（拖我）', 9, -9); };
+      if (onVertex || onSide) {
+        finishP(); setKind('—');
+        return base + '<span class="note">' + (onVertex ? 'P 与一个顶点重合，四点只剩三个，九个点里有几个重合，确定不了二次曲线。把 P 拖开一点。'
+          : 'P 正好在一条边所在的直线上，九点二次曲线退化成两条直线，所以暂不画曲线。把 P 拖离这条线。') + '</span>';
       }
-      const q1 = lineProduct(lineCoeffs(g.A, g.B), lineCoeffs(g.C, g.H));
-      const q2 = lineProduct(lineCoeffs(g.A, g.C), lineCoeffs(g.B, g.H));
-      const ph = Math.atan2(-evalConic(q1, state.Q), evalConic(q2, state.Q));
-      const co = q1.map((v, j) => Math.cos(ph) * v + Math.sin(ph) * q2[j]);
-      ctx.strokeStyle = AM; ctx.lineWidth = LW(2);
-      traceImplicit(ctx, (sx, sy) => evalConic(co, Wd({ x: sx, y: sy })), W, H, 4);
-      const cen = conicCenter(co);
-      if (cen && isFinite(cen.x) && isFinite(cen.y)) {
-        asymptoteSlopes(co).forEach((m) => lineInf(cen, { x: cen.x + 1, y: cen.y + m }, AM, 0.8, [4, 4]));
-        state.trail.push(cen); if (state.trail.length > 800) state.trail.shift();
-        const ts = Math.max(2.4, 2.4 * K);
-        ctx.fillStyle = CO; state.trail.forEach((p) => { const s = S(p); ctx.fillRect(s.x - ts / 2, s.y - ts / 2, ts, ts); });
-        dot(cen, CO, 6);
+
+      // 用 5 个中点确定曲线（只用中点，P 靠近边线时也稳定）
+      const mids = [mid(g.A, g.B), mid(g.A, g.C), mid(g.A, P), mid(g.B, g.C), mid(g.B, P), mid(g.C, P)];
+      const diag = [intersect(g.A, P, g.B, g.C), intersect(g.B, P, g.C, g.A), intersect(g.C, P, g.A, g.B)];
+      const co = conicThrough(mids.slice(0, 5).map(nrm)), big = Math.max(...co.map(Math.abs));
+      if (!(big > 1e-12) || !co.every(isFinite)) {
+        finishP(); setKind('—');
+        return base + '<span class="note">这个位置上九个点退化，确定不了二次曲线。把 P 拖开一点。</span>';
       }
-      dot(state.Q, AM, 7); lab(state.Q, 'Q（拖我）', 9, -9); dot(g.H, PK, 5); lab(g.H, 'H', 8, -8);
-      return '在画面上拖动（顶点以外的地方）点 Q：过 A、B、C、H、Q 五点的二次曲线总是等轴双曲线（两条渐近线垂直），它的中心总在九点圆上。拖多了，橙色轨迹会描出九点圆。';
+      ctx.strokeStyle = PU; ctx.lineWidth = LW(2.4);
+      traceImplicit(ctx, (sx, sy) => evalConic(co, nrm(Wd({ x: sx, y: sy }))), W, H, 3);
+
+      const [a, b, c] = co, sc = Math.abs(a) + Math.abs(c) + 1e-300, disc = b * b - 4 * a * c;
+      let kind, note = '';
+      if (Math.abs(a - c) / sc < 0.03 && Math.abs(b) / sc < 0.03) { kind = '圆'; note = '<b style="color:' + PU + '">这就是九点圆</b>：P 落在垂心时，九点二次曲线变成圆，9 个点正是三边中点、三条高的垂足和顶点到垂心连线的中点。'; }
+      else if (Math.abs(disc) / (sc * sc) < 1e-4) kind = '抛物线';
+      else if (disc < 0) kind = '椭圆';
+      else {
+        const rect = Math.abs(a + c) / sc < 0.03; kind = rect ? '等轴双曲线' : '双曲线';
+        const cn = conicCenter(co);
+        if (cn && isFinite(cn.x) && isFinite(cn.y)) {
+          const cen = { x: g.O.x + cn.x * R, y: g.O.y + cn.y * R };
+          const ms = asymptoteSlopes(co), dirs = ms.length ? ms.map((m) => ({ x: 1, y: m })) : [{ x: 0, y: 1 }, { x: 1, y: -a / b }];
+          dirs.forEach((d) => lineInf(cen, add(cen, d), CO, 1.2, [7, 5]));
+          const cosT = Math.abs(dirs[0].x * dirs[1].x + dirs[0].y * dirs[1].y) / (len(dirs[0]) * len(dirs[1]));
+          note = '两条渐近线（橙色虚线）夹角约 ' + fmt(Math.acos(Math.min(1, cosT)) * 180 / Math.PI, 1) + '°' + (rect ? '，互相垂直。' : '。');
+        }
+      }
+      setKind(kind);
+      mids.forEach((p) => dot(p, TE, 4.5));
+      const far = diag.filter((p) => !p).length;
+      diag.forEach((p) => { if (p) { const q = S(p); if (q.x > -W && q.x < 2 * W && q.y > -H && q.y < 2 * H) dot(p, CO, 5); } });
+      finishP();
+      return base + '<span class="note">现在曲线是<b>' + kind + '</b>。' + note +
+        (far ? '有 ' + far + ' 个对角点在无穷远处（P 与某个顶点的连线平行于对边）。' : '') + '</span>';
     },
   };
+
+  /* ---------- 九点二次曲线：背景分区（离屏画布缓存） ----------
+   * 每个小格把 P 放在格心，看九点二次曲线是椭圆还是双曲线。顶点、视图或画布尺寸变化后重算。 */
+  const regionCv = document.createElement('canvas'), regionCtx = regionCv.getContext('2d');
+  let regionKey = '';
+  function ensureRegions(g, nrm) {
+    const key = JSON.stringify([state.V, view, W, H]);
+    if (key === regionKey) return;
+    regionKey = key; regionCv.width = W; regionCv.height = H; regionCtx.clearRect(0, 0, W, H);
+    const s = Math.max(6, Math.round(8 * K)), fixed = [mid(g.A, g.B), mid(g.A, g.C), mid(g.B, g.C)].map(nrm);
+    for (let x = 0; x < W; x += s) for (let y = 0; y < H; y += s) {
+      const Pc = Wd({ x: x + s / 2 + 0.37, y: y + s / 2 + 0.29 });
+      const co = conicThrough([fixed[0], fixed[1], nrm(mid(g.A, Pc)), fixed[2], nrm(mid(g.B, Pc))]);
+      const disc = co[1] * co[1] - 4 * co[0] * co[2];
+      if (!isFinite(disc)) continue;
+      regionCtx.fillStyle = disc < 0 ? 'rgba(29,158,117,0.13)' : 'rgba(216,90,48,0.11)';
+      regionCtx.fillRect(x, y, s, s);
+    }
+  }
+  /** P 投影到外接圆上；P 在圆心时取最右边的点 */
+  function onCircumcircle(p, g) {
+    const d = sub(p, g.O), L = len(d);
+    return L < 1e-12 ? { x: g.O.x + g.R, y: g.O.y } : add(g.O, mul(d, g.R / L));
+  }
+  /** 外接圆上离三个顶点最远的位置（最大弧的中点），勾选「沿外接圆」时把 P 放在这里 */
+  function arcMidpoint(g) {
+    const t = [g.A, g.B, g.C].map((X) => Math.atan2(X.y - g.O.y, X.x - g.O.x)).sort((u, v) => u - v);
+    const gaps = [[t[0], t[1]], [t[1], t[2]], [t[2], t[0] + 2 * Math.PI]];
+    const [u, v] = gaps.reduce((best, gp) => (gp[1] - gp[0] > best[1] - best[0] ? gp : best));
+    const m = (u + v) / 2;
+    return { x: g.O.x + g.R * Math.cos(m), y: g.O.y + g.R * Math.sin(m) };
+  }
 
   /* ---------- 主绘制 ---------- */
   function draw() {
@@ -229,7 +296,7 @@
       return;
     }
     const g = geo();
-    if (state.tab !== 'orthocentric') tri(g.A, g.B, g.C, ink, 1.3);
+    if (state.tab !== 'orthocentric' && state.tab !== 'conic') tri(g.A, g.B, g.C, ink, 1.3);
     const info = DRAW[state.tab](g);
     [[g.A, 'A'], [g.B, 'B'], [g.C, 'C']].forEach(([p, n]) => { dot(p, ink, 5.5); lab(p, n, -16, -9); });
     document.getElementById('info').innerHTML = info;
@@ -273,13 +340,20 @@
     if (state.tab === 'orthocentric') {
       ['ABC', 'ABH', 'ACH', 'BCH'].forEach((n, i) => optsEl.appendChild(chip('三角形 ' + n, i === state.tri, () => { state.tri = i; renderOpts(); draw(); })));
     }
-    if (state.tab === 'hyperbola') optsEl.appendChild(chip('清除轨迹', false, () => { state.trail = []; draw(); }));
+    if (state.tab === 'conic') {
+      optsEl.appendChild(chip('把 P 放到垂心', false, () => { state.onCircle = false; const g = geo(); state.P = { x: g.H.x, y: g.H.y }; renderOpts(); draw(); }));
+      const l = document.createElement('label'); l.className = 'ck';
+      const c = document.createElement('input'); c.type = 'checkbox'; c.checked = state.onCircle;
+      c.onchange = () => { state.onCircle = c.checked; if (c.checked) state.P = arcMidpoint(geo()); draw(); };
+      l.append(c, '让 P 只能沿外接圆走'); optsEl.appendChild(l);
+      const k = document.createElement('span'); k.innerHTML = '曲线类型：<b id="ckind" style="color:var(--ink)">—</b>'; optsEl.appendChild(k);
+    }
     legendEl.innerHTML = '';
     LEG[state.tab].forEach(([c, n]) => { const s = document.createElement('span'); s.innerHTML = '<i style="background:' + c + '"></i>' + n; legendEl.appendChild(s); });
   }
   function setTab(id, pushHash) {
     if (!DRAW[id]) id = TABS[0][0];
-    state.tab = id; state.trail = []; if (id === 'homothety') state.k = 1;
+    state.tab = id; if (id === 'homothety') state.k = 1;
     if (pushHash && location.hash !== '#' + id) history.replaceState(null, '', '#' + id);
     renderTabs(); renderOpts(); renderRelated(); draw();
   }
@@ -287,11 +361,11 @@
   /* ---------- 拖动 ---------- */
   let drag = null;
   const pos = (e) => { const r = cv.getBoundingClientRect(); return { x: (e.clientX - r.left) * W / r.width, y: (e.clientY - r.top) * H / r.height }; };
-  const draggablePoint = () => ['simson', 'homothety', 'hyperbola'].includes(state.tab);
+  const draggablePoint = () => ['simson', 'homothety', 'conic'].includes(state.tab);
   function movePoint(p) {
     const w = Wd(p), g = geo();
     if (state.tab === 'simson' || state.tab === 'homothety') state.theta = Math.atan2(w.y - g.O.y, w.x - g.O.x);
-    else if (state.tab === 'hyperbola') state.Q = w;
+    else if (state.tab === 'conic') state.P = state.onCircle ? onCircumcircle(w, g) : w;
     draw();
   }
   cv.addEventListener('pointerdown', (e) => {
@@ -304,9 +378,9 @@
   });
   cv.addEventListener('pointermove', (e) => {
     if (!drag) return; const p = pos(e);
-    if (drag.pt) movePoint(p); else { state.V[drag.v] = Wd(p); state.trail = []; draw(); }
+    if (drag.pt) movePoint(p); else { state.V[drag.v] = Wd(p); draw(); }
   });
-  cv.addEventListener('pointerup', () => { if (drag && drag.v !== undefined) { fit(); draw(); } drag = null; });
+  cv.addEventListener('pointerup', () => { const wasVertex = drag && drag.v !== undefined; drag = null; if (wasVertex) { fit(); draw(); } });
 
   /* ---------- 与目录中定理的链接（可选） ----------
    * 读取 ../data/demos.json 与 ../data/theorems.json；文件不存在时静默跳过。 */

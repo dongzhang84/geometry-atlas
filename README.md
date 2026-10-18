@@ -83,7 +83,7 @@ vendor/dagre.min.js   dagre 0.8.5（推广图的分层布局，MIT 许可证见 
 ```
 explore/nine-point.html   专题页「九点圆和它的邻居」（配色与主页一致，支持深色模式）
 explore/nine-point.js     页面逻辑：六个标签页的绘制与交互
-explore/geometry.js       共用几何计算（外心、垂心、垂足、九点、二次曲线、隐函数描线），以后的专题页可复用
+explore/geometry.js       共用几何计算（外心、垂心、垂足、九点、直线交点、过五点的二次曲线、隐函数描线），以后的专题页可复用
 ```
 
 标签页与锚点（`explore/nine-point.html#<锚点>` 直接打开对应标签；不带锚点时打开第一个标签「九点圆」）：
@@ -95,7 +95,7 @@ explore/geometry.js       共用几何计算（外心、垂心、垂足、九点
 | `#homothety` | 外接圆位似：以 H（或 G）为中心缩放，k = 1/2（或 −1/2）时变成九点圆 | 拖动顶点；滑块调 k；拖动外接圆上的 P |
 | `#feuerbach` | Feuerbach 相切：NI = R/2 − r | 拖动顶点 |
 | `#simson` | 西摩松线平分 PH，中点在九点圆上 | 拖动顶点；拖动 P |
-| `#hyperbola` | 过 A、B、C、H 的等轴双曲线，中心在九点圆上 | 拖动顶点；拖动 Q |
+| `#conic` | 九点二次曲线：任意四点 A、B、C、P 的 6 条连线中点和 3 个对角点共一条二次曲线；P 在垂心时是九点圆，在外接圆上时是等轴双曲线；背景按 P 的位置标出椭圆区和双曲线区 | 拖动顶点；拖动 P；按钮把 P 放到垂心；勾选让 P 沿外接圆走 |
 
 `data/demos.json` 记录每个标签对应的目录定理编号（`theorem_ids`）。两边互相链接：
 
@@ -112,7 +112,7 @@ explore/geometry.js       共用几何计算（外心、垂心、垂足、九点
 python3 scripts/validate.py
 ```
 
-只用 Python 标准库。theorems.json：检查 id 连续且唯一、count 等于条目数、必填字段非空、status / books / layer / conclusion 的取值、status 与来源书是否对得上、subcategory 编号与 category 是否一致。demos.json：检查 anchor 只能是 euler / homothety / feuerbach / simson / orthocentric / hyperbola 之一、不重复，theorem_ids 里的编号都存在。relations.json：检查边上的 id 都存在、type / operation / confidence 的取值、没有重复边和自环、generalizes 边不成环、目录外节点编号连续且不超过 30 个。全部通过时退出码为 0，否则列出每个问题并以 1 退出。
+只用 Python 标准库。theorems.json：检查 id 连续且唯一、count 等于条目数、必填字段非空、status / books / layer / conclusion 的取值、status 与来源书是否对得上、subcategory 编号与 category 是否一致。demos.json：检查 anchor 只能是 orthocentric / euler / homothety / feuerbach / simson / conic 之一、不重复，theorem_ids 里的编号都存在。relations.json：检查边上的 id 都存在、type / operation / confidence 的取值、没有重复边和自环、generalizes 边不成环、目录外节点编号连续且不超过 30 个。全部通过时退出码为 0，否则列出每个问题并以 1 退出。
 
 ## 本地预览
 

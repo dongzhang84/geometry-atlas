@@ -85,6 +85,35 @@
     return [(-c[1] + r) / (2 * c[2]), (-c[1] - r) / (2 * c[2])];
   }
 
+  /** 直线 PQ 与 RS 的交点；两线平行（交点在无穷远）时返回 null */
+  function intersect(P, Q, R, S) {
+    const d = (P.x - Q.x) * (R.y - S.y) - (P.y - Q.y) * (R.x - S.x);
+    const n = Math.hypot(P.x - Q.x, P.y - Q.y) * Math.hypot(R.x - S.x, R.y - S.y);
+    if (!(Math.abs(d) > 1e-12 * n)) return null;
+    const t = ((P.x - R.x) * (R.y - S.y) - (P.y - R.y) * (R.x - S.x)) / d;
+    return { x: P.x + t * (Q.x - P.x), y: P.y + t * (Q.y - P.y) };
+  }
+  /** 5×5 行列式（部分主元高斯消元） */
+  function det5(m) {
+    m = m.map((r) => r.slice()); let d = 1;
+    for (let i = 0; i < 5; i++) {
+      let p = i;
+      for (let r = i + 1; r < 5; r++) if (Math.abs(m[r][i]) > Math.abs(m[p][i])) p = r;
+      if (Math.abs(m[p][i]) < 1e-14) return 0;
+      if (p !== i) { [m[p], m[i]] = [m[i], m[p]]; d = -d; }
+      d *= m[i][i];
+      for (let r = i + 1; r < 5; r++) { const f = m[r][i] / m[i][i]; for (let c = i; c < 5; c++) m[r][c] -= f * m[i][c]; }
+    }
+    return d;
+  }
+  /** 过 5 点的二次曲线系数 [a, b, c, d, e, f]（按第一行余子式展开）。点的坐标应先归一化到 1 左右，避免数值问题 */
+  function conicThrough(pts) {
+    const rows = pts.map((p) => [p.x * p.x, p.x * p.y, p.y * p.y, p.x, p.y, 1]);
+    const co = [];
+    for (let j = 0; j < 6; j++) co.push((j % 2 ? -1 : 1) * det5(rows.map((r) => r.filter((_, k) => k !== j))));
+    return co;
+  }
+
   /** 用 marching squares 在画布上描出 F(x, y) = 0；F 接收屏幕坐标 */
   function traceImplicit(ctx, F, width, height, step) {
     ctx.beginPath();
@@ -108,5 +137,5 @@
   }
 
   window.GA = { sub, add, mul, mid, len, circumcircle, orthocenter, foot, ninePoints, triangleData,
-    lineCoeffs, lineProduct, evalConic, conicCenter, asymptoteSlopes, traceImplicit };
+    lineCoeffs, lineProduct, evalConic, conicCenter, asymptoteSlopes, intersect, conicThrough, traceImplicit };
 })();

@@ -24,7 +24,7 @@ EDGE_TYPES = {"generalizes", "dual", "converse"}
 OPERATIONS = {"退化", "加度量", "取特殊对象", "降维", "参数取特殊值"}
 CONFIDENCE = {"确定", "可能"}
 MAX_EXTERNAL = 30
-DEMO_ANCHORS = {"euler", "homothety", "feuerbach", "simson", "orthocentric", "hyperbola"}
+DEMO_ANCHORS = {"orthocentric", "euler", "homothety", "feuerbach", "simson", "conic"}
 
 
 def check(data):

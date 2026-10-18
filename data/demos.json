@@ -45,11 +45,11 @@
    ]
   },
   {
-   "anchor": "hyperbola",
-   "title": "等轴双曲线",
+   "anchor": "conic",
+   "title": "九点二次曲线",
    "match": [
-    "等轴双曲线",
-    "直角双曲线"
+    "九点二次曲线",
+    "二次曲线"
    ],
    "theorem_ids": []
   }
