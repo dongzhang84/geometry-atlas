@@ -36,7 +36,7 @@
     euler: [[BL, '中垂线 → O'], [TE, '中线 → G'], [PK, '高 → H'], [CO, '欧拉线'], [PU, '九点圆']],
     homothety: [[GR, '外接圆与样点'], [AM, '缩放后的圆'], [PU, '九点圆']],
     feuerbach: [[TE, '角平分线、内切圆、旁切圆'], [CO, '直线 NI 与切点'], [PU, '九点圆']],
-    simson: [[TE, '西摩松线'], [AM, '线段 PH'], [PU, '九点圆']],
+    simson: [[TE, '西摩松线'], [PK, '三条高 → 垂心 H'], [AM, '线段 PH'], [PU, '九点圆']],
     orthocentric: [[TE, '当前三角形'], [PK, '它的三条高'], [CO, '它的 9 个点'], [PU, '九点圆']],
     conic: [[TE, '6 条连线的中点'], [CO, '3 个对角点、渐近线'], [PU, '九点二次曲线'], ['rgba(29,158,117,.45)', '背景绿：P 在此处时是椭圆'], ['rgba(216,90,48,.4)', '背景橙：P 在此处时是双曲线']],
   };
@@ -165,6 +165,11 @@
     simson(g) {
       const sec = css('--muted');
       sides(g, sec); circle(g.O, g.R, sec, 1, [5, 4]); circle(g.N, g.r9, PU, 2.6);
+      // 三条高（粉色虚线）交于垂心 H；H 在三角形外时延长到 H
+      [[g.A, g.B, g.C], [g.B, g.C, g.A], [g.C, g.A, g.B]].forEach(([X, U, V]) => {
+        const F = foot(X, U, V); seg(X, F, PK, 0.9, [4, 3]);
+        if (len(sub(g.H, F)) > len(sub(X, F)) || len(sub(g.H, X)) > len(sub(F, X))) seg(len(sub(g.H, F)) < len(sub(g.H, X)) ? F : X, g.H, PK, 0.9, [4, 3]);
+      });
       const P = { x: g.O.x + g.R * Math.cos(state.theta), y: g.O.y + g.R * Math.sin(state.theta) };
       const f = [foot(P, g.B, g.C), foot(P, g.C, g.A), foot(P, g.A, g.B)];
       f.forEach((q) => { seg(P, q, sec, 0.8); dot(q, TE, 4.5); });
@@ -173,7 +178,7 @@
       seg(P, g.H, AM, 1.6); const M = mid(P, g.H);
       dot(M, CO, 6.5); dot(P, AM, 7); dot(g.H, PK, 5); lab(P, 'P', 9, -9); lab(g.H, 'H', 8, -8); lab(M, 'M', 8, 14);
       return info('西摩松定理：P 是三角形外接圆上任意一点，从 P 向三边（或其延长线）作垂线，三个垂足在一条直线上，这条直线叫做 P 的西摩松线。西摩松线平分 P 与垂心 H 的连线 PH，PH 的中点 M 在九点圆上。',
-        '在画面上拖动（顶点以外的地方），P 沿外接圆移动；也可以拖动顶点。灰线是 P 到三边的垂线，绿色点是三个垂足，绿色直线是西摩松线，棕色线段是 PH，橙色点是它的中点 M。' +
+        '在画面上拖动（顶点以外的地方），P 沿外接圆移动；也可以拖动顶点。粉色虚线是三角形的三条高，交于垂心 H；灰线是 P 到三边的垂线，绿色点是三个垂足，绿色直线是西摩松线，棕色线段是 PH，橙色点是它的中点 M。' +
         '<br>M 为什么在九点圆上：以 H 为中心把外接圆缩小一半就是九点圆（见「缩小外接圆」），P 被送到 PH 的中点 M。');
     },
     orthocentric(g) {
