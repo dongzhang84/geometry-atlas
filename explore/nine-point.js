@@ -61,13 +61,11 @@
     return m < 1e-9 || Math.abs((B.x - A.x) * (C.y - A.y) - (B.y - A.y) * (C.x - A.x)) < 1e-6 * m * m;
   }
   const near = (P, Q, g) => len(sub(P, Q)) < g.R * 1e-6;
-  /** 取景要框住的点：按标签不同。Nagel 线只看三角形，Soddy 线看三个顶点圆，其余标签看外接圆和垂心 */
+  /** 取景要框住的点：外接圆和垂心。所有标签共用同一取景，切换标签时三角形位置和大小不变 */
   function fitPoints() {
     if (degenerate()) return state.V;
-    const g = geo(), box = (c, r) => [{ x: c.x - r, y: c.y - r }, { x: c.x + r, y: c.y + r }];
-    if (state.tab === 'nagel') return [g.A, g.B, g.C];
-    if (state.tab === 'soddy') { const d = soddyData(g.A, g.B, g.C); return [].concat(...[g.A, g.B, g.C].map((X, i) => box(X, d.radii[i]))); }
-    return [g.A, g.B, g.C, g.H, ...box(g.O, g.R)];
+    const g = geo();
+    return [g.A, g.B, g.C, g.H, { x: g.O.x - g.R, y: g.O.y - g.R }, { x: g.O.x + g.R, y: g.O.y + g.R }];
   }
   function fit() {
     const pts = fitPoints();
@@ -346,7 +344,7 @@
       const offscreen = pts.filter(([P]) => { const q = S(P); return !(q.x >= 0 && q.x <= W && q.y >= 0 && q.y <= H); }).map(([, t]) => t);
       return info('三个圆两两外切，和它们都相切的圆有两个，叫内、外 Soddy 圆。两个圆心所在的直线叫 Soddy 线，它也过内心 I、Gergonne 点 Ge 和 de Longchamps 点 L（L 是垂心关于外心的对称点）。',
         '拖动顶点 A、B、C 改变三角形。灰色是以 A、B、C 为圆心、半径 s−a、s−b、s−c 的三个圆（s 为半周长），它们两两相切的切点正好是内切圆与三边的切点 Ta、Tb、Tc；' +
-        '绿色线是 A–Ta、B–Tb、C–Tc，交于 Gergonne 点 Ge；紫色是内 Soddy 圆（圆心 S₁），粉色是外 Soddy 圆（圆心 S₂，可能很大，伸出画面）；橙色粗线是 Soddy 线。<br>' +
+        '绿色线是 A–Ta、B–Tb、C–Tc，交于 Gergonne 点 Ge；紫色是内 Soddy 圆（圆心 S₁），粉色是外 Soddy 圆（圆心 S₂，可能很大，伸出画面；灰色圆也可能伸出画面）；橙色粗线是 Soddy 线。<br>' +
         (same ? '三角形接近等边：I、Ge、L、S₁、S₂ 几乎重合，Soddy 线不再确定。' :
           '实测：内 Soddy 圆半径 ' + fmt(d.r1, 3) + (outer ? '，外 Soddy 圆半径 ' + fmt(d.r2, 3) + '。' : '。') +
           (outer ? '' : '此时外 Soddy 圆退化成一条直线（和三个圆都相切的直线），不画外 Soddy 圆和 S₂。') +
