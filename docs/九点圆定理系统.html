@@ -1,0 +1,1591 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>九点圆定理系统</title>
+<style>
+  :root { color-scheme: light dark; --fg:#1a1a1a; --bg:#fcfcfa; --muted:#6b6b6b;
+           --rule:#e2e2dd; --th:#f2f2ee; --code:#f4f4f0; --link:#2f5fa8; }
+  @media (prefers-color-scheme: dark) {
+    :root { --fg:#e8e8e4; --bg:#17181a; --muted:#9a9a96; --rule:#2e3034;
+             --th:#212326; --code:#1f2124; --link:#8fb4ee; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB",
+      "Microsoft YaHei", "Noto Sans CJK SC", system-ui, sans-serif;
+    font-size:16px; line-height:1.75; }
+  .wrap { max-width: 860px; margin:0 auto; padding: 48px 20px 120px; }
+  h1 { font-size:1.9rem; line-height:1.25; margin:0 0 1.2rem; letter-spacing:-.01em; }
+  h2 { font-size:1.4rem; margin:2.6rem 0 .9rem; padding-bottom:.35rem;
+        border-bottom:1px solid var(--rule); }
+  h3 { font-size:1.15rem; margin:2rem 0 .7rem; }
+  h4 { font-size:1rem; margin:1.6rem 0 .6rem; color:var(--muted);
+        font-weight:600; letter-spacing:.02em; }
+  p, li { margin:.75rem 0; }
+  strong, b { font-weight:700; color:var(--fg); }
+  a { color:var(--link); }
+  code { background:var(--code); padding:.12em .38em; border-radius:4px;
+          font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size:.88em; }
+  pre { background:var(--code); padding:1rem; border-radius:8px; overflow-x:auto; }
+  pre code { background:none; padding:0; }
+  blockquote { margin:1.2rem 0; padding:.2rem 0 .2rem 1rem;
+                border-left:3px solid var(--rule); color:var(--muted); }
+  .tbl { overflow-x:auto; margin:1.2rem 0; }
+  table { border-collapse:collapse; width:100%; font-size:.92rem; }
+  th, td { border:1px solid var(--rule); padding:.5rem .7rem; text-align:left;
+            vertical-align:top; }
+  th { background:var(--th); font-weight:600; white-space:nowrap; }
+  hr { border:0; border-top:1px solid var(--rule); margin:2.5rem 0; }
+  img { max-width:100%; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1 id="_1">九点圆定理系统</h1>
+<p>以九点圆为中心的一组三角形定理，以及它们之间的联系。整理于 2026 年 10 月。</p>
+<h2 id="2026-10-18">更新（2026-10-18）：三轮数值试探</h2>
+<p>用最简单的机械方法「数值试探」跑了三轮：列出构型里的名点和名曲线，在几十个随机构型上全部算出来，检查所有三点组合是否共线、所有四点组合是否共圆、每个点是否落在每条曲线上，只保留在全部构型上都成立的关系。关键结果用 40–50 位精度复核。</p>
+<h3 id="35">第一轮：三角形的 35 个名点</h3>
+<p>（之前说的「38 个」是我数错了，程序里实际是 35 个。）</p>
+<p><strong>做法。</strong>取 25 个随机三角形（排除太扁、太小的），把下表 35 个点都按公式算出坐标。检查所有三点组合是否共线、所有四点组合是否共圆，只保留在 25 个三角形里<strong>全部</strong>成立的，再把有公共点的组合并成最大的共线组、共圆组。</p>
+<h4 id="135">表 1：35 个点</h4>
+<p>前 11 个是 ETC（三角形中心百科全书）里的中心，按 ETC 编号排列；X(9) 等编号这一轮没有用到。</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>记号</th>
+<th>名称</th>
+<th>怎么作</th>
+<th>ETC 编号</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>I</td>
+<td>内心</td>
+<td>三条内角平分线交点</td>
+<td>X(1)</td>
+</tr>
+<tr>
+<td>2</td>
+<td>G</td>
+<td>重心</td>
+<td>三条中线交点</td>
+<td>X(2)</td>
+</tr>
+<tr>
+<td>3</td>
+<td>O</td>
+<td>外心</td>
+<td>三边中垂线交点</td>
+<td>X(3)</td>
+</tr>
+<tr>
+<td>4</td>
+<td>H</td>
+<td>垂心</td>
+<td>三条高交点</td>
+<td>X(4)</td>
+</tr>
+<tr>
+<td>5</td>
+<td>N</td>
+<td>九点圆心</td>
+<td>OH 中点</td>
+<td>X(5)</td>
+</tr>
+<tr>
+<td>6</td>
+<td>K</td>
+<td>类似重心</td>
+<td>见附录 A</td>
+<td>X(6)</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Ge</td>
+<td>Gergonne 点</td>
+<td>见附录 A</td>
+<td>X(7)</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Na</td>
+<td>Nagel 点</td>
+<td>见附录 A</td>
+<td>X(8)</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Sp</td>
+<td>Spieker 点</td>
+<td>见附录 A</td>
+<td>X(10)</td>
+</tr>
+<tr>
+<td>10</td>
+<td>F</td>
+<td>Feuerbach 点</td>
+<td>见附录 A</td>
+<td>X(11)</td>
+</tr>
+<tr>
+<td>11</td>
+<td>L</td>
+<td>de Longchamps 点</td>
+<td>见附录 A</td>
+<td>X(20)</td>
+</tr>
+<tr>
+<td>12–14</td>
+<td>A、B、C</td>
+<td>三顶点</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>15–17</td>
+<td>Ia、Ib、Ic</td>
+<td>旁心</td>
+<td>见附录 A</td>
+<td></td>
+</tr>
+<tr>
+<td>18–20</td>
+<td>Ma、Mb、Mc</td>
+<td>三边中点</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>21–23</td>
+<td>Ha、Hb、Hc</td>
+<td>三个垂足</td>
+<td>高与对边的交点</td>
+<td></td>
+</tr>
+<tr>
+<td>24–26</td>
+<td>Ea、Eb、Ec</td>
+<td>Euler 点</td>
+<td>AH、BH、CH 的中点</td>
+<td></td>
+</tr>
+<tr>
+<td>27–29</td>
+<td>Ta、Tb、Tc</td>
+<td>内切圆切点</td>
+<td>内切圆与三边的切点</td>
+<td></td>
+</tr>
+<tr>
+<td>30–32</td>
+<td>Ua、Ub、Uc</td>
+<td>旁切圆切点</td>
+<td>每个旁切圆与它所对的那条边的切点</td>
+<td></td>
+</tr>
+<tr>
+<td>33–35</td>
+<td>Aa、Ab、Ac</td>
+<td>对径点</td>
+<td>A、B、C 关于 O 的对称点</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>记号约定：小写字母表示「属于哪个顶点或哪条边」，如 Ma 是边 a（即 BC）的中点，Ia 是 A 所对的旁心。</p>
+<h4 id="2-37">表 2：找到的共线（共 37 组）</h4>
+<p><strong>没有新的共线定理。</strong>37 组全部已知。真正有内容的只有前三条；第 4–6 行（9 组）由位似或中点关系直接得到；第 7–15 行（25 组）按作法成立。</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>共线的点</th>
+<th>名称</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>O、G、H、N、L</td>
+<td><strong>欧拉线</strong></td>
+<td>OG : GH = 1 : 2；N 是 OH 中点；O 是 HL 中点</td>
+</tr>
+<tr>
+<td>2</td>
+<td>I、G、Sp、Na</td>
+<td><strong>Nagel 线</strong></td>
+<td>IG : GNa = 1 : 2；Sp 是 I–Na 中点。和欧拉线是同一个位似（见下文）</td>
+</tr>
+<tr>
+<td>3</td>
+<td>I、Ge、L</td>
+<td><strong>Soddy 线</strong></td>
+<td>也过两个 Soddy 圆的圆心（这一轮没列这两个点）</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Aa、Ea、G（共 3 组）</td>
+<td></td>
+<td>以 G 为中心、比例 −1/2 的位似把 Aa 变成 Ea</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Aa、H、Ma（共 3 组）</td>
+<td></td>
+<td>Ma 是 H 与 Aa 的中点（H 关于 Ma 的对称点在外接圆上）</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Ea、Ma、N（共 3 组）</td>
+<td></td>
+<td>EaMa 是九点圆的直径</td>
+</tr>
+<tr>
+<td>7</td>
+<td>A、B、Hc、Mc、Tc、Uc（共 3 组）</td>
+<td>三条边</td>
+<td>中点、垂足、两种切点本来就取在边上</td>
+</tr>
+<tr>
+<td>8</td>
+<td>A、O、Aa（共 3 组）</td>
+<td>外接圆直径</td>
+<td>Aa 定义为 A 关于 O 的对称点</td>
+</tr>
+<tr>
+<td>9</td>
+<td>A、G、Ma（共 3 组）</td>
+<td>中线</td>
+<td>G 在中线上</td>
+</tr>
+<tr>
+<td>10</td>
+<td>A、Ea、H、Ha（共 3 组）</td>
+<td>高</td>
+<td>Ea 是 AH 中点，Ha 是高的垂足</td>
+</tr>
+<tr>
+<td>11</td>
+<td>A、I、Ia（共 3 组）</td>
+<td>内角平分线</td>
+<td>旁心 Ia 也在 A 的内角平分线上</td>
+</tr>
+<tr>
+<td>12</td>
+<td>A、Ib、Ic（共 3 组）</td>
+<td>外角平分线</td>
+<td>Ib、Ic 都在 A 的外角平分线上</td>
+</tr>
+<tr>
+<td>13</td>
+<td>A、Ge、Ta（共 3 组）</td>
+<td>Gergonne 点的塞瓦线</td>
+<td>Ge 就是这三条线的交点</td>
+</tr>
+<tr>
+<td>14</td>
+<td>A、Na、Ua（共 3 组）</td>
+<td>Nagel 点的塞瓦线</td>
+<td>Na 就是这三条线的交点</td>
+</tr>
+<tr>
+<td>15</td>
+<td>F、I、N</td>
+<td>连心线</td>
+<td>两圆相切，切点在连心线上；程序里 F 本来就取在 NI 上</td>
+</tr>
+</tbody>
+</table>
+<h4 id="3-25">表 3：找到的共圆（共 25 个圆）</h4>
+<p><strong>没有新的共圆定理。</strong>25 个圆全部已知：有内容的 3 个是已知定理（九点圆、Feuerbach 定理、Mandart 圆过 F），其余平凡。</p>
+<p>程序的共圆判据对共线的点也成立，所以另有 8 组「共圆」其实是表 2 里的直线，已剔除。</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>共圆的点</th>
+<th>名称</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Ma、Mb、Mc、Ha、Hb、Hc、Ea、Eb、Ec、F</td>
+<td><strong>九点圆</strong></td>
+<td>九点圆定理本身；F 是按定义取在九点圆上的</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Ta、Tb、Tc、F</td>
+<td><strong>内切圆</strong></td>
+<td>有内容的是「F 在内切圆上」，即 Feuerbach 定理</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Ua、Ub、Uc、F</td>
+<td><strong>Mandart 圆</strong></td>
+<td>旁切圆三切点的外接圆也过 F；第二轮的定理 X 解释了它</td>
+</tr>
+<tr>
+<td>4</td>
+<td>A、B、C、Aa、Ab、Ac</td>
+<td>外接圆</td>
+<td>按作法成立</td>
+</tr>
+<tr>
+<td>5</td>
+<td>A、B、I、Ic（共 3 个）</td>
+<td></td>
+<td>以 IIc 为直径：内、外角平分线互相垂直</td>
+</tr>
+<tr>
+<td>6</td>
+<td>A、B、Ia、Ib（共 3 个）</td>
+<td></td>
+<td>以 IaIb 为直径，理由同上</td>
+</tr>
+<tr>
+<td>7</td>
+<td>A、B、Ha、Hb（共 3 个）</td>
+<td></td>
+<td>以 AB 为直径（直角所对）</td>
+</tr>
+<tr>
+<td>8</td>
+<td>A、H、Hb、Hc（共 3 个）</td>
+<td></td>
+<td>以 AH 为直径</td>
+</tr>
+<tr>
+<td>9</td>
+<td>A、Mb、Mc、O（共 3 个）</td>
+<td></td>
+<td>以 AO 为直径</td>
+</tr>
+<tr>
+<td>10</td>
+<td>A、I、Tb、Tc（共 3 个）</td>
+<td></td>
+<td>以 AI 为直径</td>
+</tr>
+<tr>
+<td>11</td>
+<td>Ab、Ac、Ta、Ua（共 3 个）</td>
+<td></td>
+<td>等腰梯形：Ta、Ua 关于 Ma 对称</td>
+</tr>
+</tbody>
+</table>
+<p>类似重心 K 在这一轮里没有出现在任何共线或共圆中。</p>
+<h4 id="nagel">欧拉线和 Nagel 线是同一个位似</h4>
+<p>以 G 为中心、比例 −1/2 的位似把三角形变成它的中点三角形。它同时给出两串点：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>欧拉线</th>
+<th>Nagel 线</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>起点</td>
+<td>垂心 H</td>
+<td>Nagel 点 Na</td>
+</tr>
+<tr>
+<td>位似一次</td>
+<td>外心 O</td>
+<td>内心 I</td>
+</tr>
+<tr>
+<td>再位似一次</td>
+<td>九点圆心 N</td>
+<td>Spieker 点 Sp</td>
+</tr>
+<tr>
+<td>对应的圆</td>
+<td>外接圆 → 九点圆</td>
+<td>内切圆 → Spieker 圆（中点三角形的内切圆）</td>
+</tr>
+</tbody>
+</table>
+<p>位似中心、点、像三者共线，所以这两条线是同一个事实的两个特例，在网络里算一个节点。</p>
+<h4 id="_2">第一轮小结</h4>
+<p>找到的关系全部已知，分三层：</p>
+<ol>
+<li><strong>按作法成立的</strong>：大部分共线和外接圆；</li>
+<li><strong>一个位似解释的</strong>：欧拉线、Nagel 线，以及表 2 的第 4–6 行；</li>
+<li><strong>真正有内容的</strong>：九点圆、Soddy 线、F 在内切圆上（Feuerbach）、F 在 Mandart 圆上。</li>
+</ol>
+<h3 id="p">第二轮：三角形加任意点 P</h3>
+<p><strong>做法。</strong>在三角形之外再任取一点 P，取 30 个随机构型（排除 P 太靠近三边的情况）。在 34 个点、5 条曲线上检查所有共线、共圆，以及每个点是否落在每条曲线上，只保留在全部 30 个构型里都成立的关系。重点看三角形的对象和 P 派生出的对象之间有没有「混合」关系。</p>
+<p>（程序原本列了 35 个点，其中 Y4 和 Poncelet 点 Po 是同一个点，合并后为 34 个。修正前的输出曾把三条不同的曲线误并成一个「14 点圆」，以下数字均为修正后的。）</p>
+<h4 id="4">表 4：第二轮的点</h4>
+<table>
+<thead>
+<tr>
+<th>类别</th>
+<th>记号</th>
+<th>名称</th>
+<th>怎么作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>三角形的点</td>
+<td>A、B、C</td>
+<td>三顶点</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>O、H、G、N、I</td>
+<td>外心、垂心、重心、九点圆心、内心</td>
+<td>同表 1</td>
+</tr>
+<tr>
+<td></td>
+<td>Ma、Mb、Mc</td>
+<td>三边中点</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>Ha、Hb、Hc</td>
+<td>三个垂足</td>
+<td></td>
+</tr>
+<tr>
+<td>P 派生的点</td>
+<td>P</td>
+<td>任意点</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>Ka、Kb、Kc</td>
+<td>P 与顶点连线的中点</td>
+<td>Ka 是 AP 的中点</td>
+</tr>
+<tr>
+<td></td>
+<td>Da、Db、Dc</td>
+<td>塞瓦点（对角点）</td>
+<td>Da 是 AP 与 BC 的交点；Da、Db、Dc 组成 P 的塞瓦三角形</td>
+</tr>
+<tr>
+<td></td>
+<td>Fa、Fb、Fc</td>
+<td>P 的垂足</td>
+<td>Fa 是 P 在 BC 上的投影；Fa、Fb、Fc 组成 P 的垂足三角形</td>
+</tr>
+<tr>
+<td></td>
+<td>G4</td>
+<td>四点重心</td>
+<td>A、B、C、P 的平均</td>
+</tr>
+<tr>
+<td></td>
+<td>Q</td>
+<td>P 的补点</td>
+<td>以 G 为中心、比例 −1/2 的位似下 P 的像</td>
+</tr>
+<tr>
+<td></td>
+<td>aP</td>
+<td>P 的反补点</td>
+<td>以 G 为中心、比例 −2 的位似下 P 的像</td>
+</tr>
+<tr>
+<td></td>
+<td>P*</td>
+<td>P 的等角共轭点</td>
+<td>见附录 A</td>
+</tr>
+<tr>
+<td></td>
+<td>Piso</td>
+<td>P 的等截共轭点</td>
+<td>见附录 A</td>
+</tr>
+<tr>
+<td></td>
+<td>Po</td>
+<td>Poncelet 点</td>
+<td>过 A、B、C、P 的等轴双曲线的中心，见附录 A</td>
+</tr>
+<tr>
+<td></td>
+<td>Pr</td>
+<td>P 关于 O 的对称点</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>PH、PO</td>
+<td>中点</td>
+<td>P 与 H 的中点、P 与 O 的中点</td>
+</tr>
+<tr>
+<td>曲线的交点</td>
+<td>X4</td>
+<td>第 4 交点</td>
+<td>Ω 与外接圆除 A、B、C 外的第 4 个交点</td>
+</tr>
+<tr>
+<td></td>
+<td>Y4</td>
+<td>第 4 交点</td>
+<td>Γ 与九点圆除三边中点外的第 4 个交点；<strong>就是 Po</strong></td>
+</tr>
+</tbody>
+</table>
+<h4 id="55">表 5：5 条曲线</h4>
+<table>
+<thead>
+<tr>
+<th>记号</th>
+<th>曲线</th>
+<th>定义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Γ</td>
+<td>九点二次曲线</td>
+<td>过 Ma、Mb、Mc、Ka、Kb 的二次曲线，见附录 B</td>
+</tr>
+<tr>
+<td>Ω</td>
+<td>外接二次曲线</td>
+<td>Γ 以 P 为中心放大 2 倍；经过 A、B、C</td>
+</tr>
+<tr>
+<td></td>
+<td>外接圆</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>九点圆</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>P 的垂足圆</td>
+<td>过 Fa、Fb、Fc 的圆</td>
+</tr>
+</tbody>
+</table>
+<h4 id="6-25">表 6：找到的共线（共 25 组）</h4>
+<p><strong>没有新的共线定理。</strong>25 组全部已知。有内容的只有欧拉线；第 2–11 行（12 组）由位似或中点关系直接得到；第 12–15 行（12 组）按作法成立。</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>共线的点</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>O、H、G、N</td>
+<td><strong>欧拉线</strong></td>
+</tr>
+<tr>
+<td>2</td>
+<td>G、Po、X4</td>
+<td>以 G 为中心、比例 −1/2 的位似把外接圆变成九点圆、把 Ω 变成 Γ，所以把 X4 变成 Po</td>
+</tr>
+<tr>
+<td>3</td>
+<td>P、G、G4、Q、aP</td>
+<td>都是 P 与 G 的线性组合：G4 = (3G + P)/4，Q = (3G − P)/2，aP = 3G − 2P。这是欧拉线的一般形式，见表 11</td>
+</tr>
+<tr>
+<td>4</td>
+<td>P、O、Pr、PO</td>
+<td>Pr、PO 按定义在直线 PO 上</td>
+</tr>
+<tr>
+<td>5</td>
+<td>P、H、PH</td>
+<td>PH 是 P 与 H 的中点</td>
+</tr>
+<tr>
+<td>6</td>
+<td>O、G4、PH</td>
+<td>G4 是 O 与 PH 的中点</td>
+</tr>
+<tr>
+<td>7</td>
+<td>H、Q、Pr</td>
+<td>Q 是 H 与 Pr 的中点</td>
+</tr>
+<tr>
+<td>8</td>
+<td>G、Pr、PH</td>
+<td>以 G 为中心、比例 −1/2 的位似把 Pr 变成 PH</td>
+</tr>
+<tr>
+<td>9</td>
+<td>N、G4、PO</td>
+<td>G4 是 N 与 PO 的中点</td>
+</tr>
+<tr>
+<td>10</td>
+<td>N、Q、PH</td>
+<td>N 是 Q 与 PH 的中点</td>
+</tr>
+<tr>
+<td>11</td>
+<td>Ma、Ka、G4（共 3 组）</td>
+<td>四边形的对边中点连线交于 G4，并被它平分。这是「九点圆直径」的一般形式，见表 11</td>
+</tr>
+<tr>
+<td>12</td>
+<td>A、B、Mc、Dc、Fc、Hc（共 3 组）</td>
+<td>三条边：中点、塞瓦点、垂足本来就取在边上</td>
+</tr>
+<tr>
+<td>13</td>
+<td>A、P、Ka、Da（共 3 组）</td>
+<td>塞瓦线。这是「高」的一般形式，见表 11</td>
+</tr>
+<tr>
+<td>14</td>
+<td>A、H、Ha（共 3 组）</td>
+<td>高</td>
+</tr>
+<tr>
+<td>15</td>
+<td>A、G、Ma（共 3 组）</td>
+<td>中线</td>
+</tr>
+</tbody>
+</table>
+<h4 id="7-19">表 7：找到的共圆（共 19 个圆）</h4>
+<p><strong>本轮没有发现任何新的共圆定理。</strong>19 个圆分三类：已知定理 3 个，可由已知定理换标号得到 3 个，平凡 13 个。</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>共圆的点</th>
+<th>名称</th>
+<th>类别</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Ma、Mb、Mc、Ha、Hb、Hc、Po</td>
+<td>九点圆</td>
+<td>已知定理</td>
+<td>「Po 在九点圆上」是 Poncelet 点的基本性质（维基百科）</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Ma、Kb、Kc、Fa、Po（共 3 个）</td>
+<td>三角形 PBC、PCA、PAB 的九点圆</td>
+<td>第 1 行换标号</td>
+<td>Ma、Kb、Kc、Fa 共圆只是九点圆定理用在三角形 PBC 上；Po 对 A、B、C、P 对称，把 P 与 A 对调，第 1 行就变成这一行</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Da、Db、Dc、Po</td>
+<td>P 的塞瓦圆</td>
+<td>已知定理</td>
+<td>即定理 X，见于维基百科「Poncelet point」条目</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Fa、Fb、Fc、Po</td>
+<td>P 的垂足圆</td>
+<td>已知定理</td>
+<td>维基百科「Poncelet point」条目</td>
+</tr>
+<tr>
+<td>5</td>
+<td>A、B、C、X4</td>
+<td>外接圆</td>
+<td>平凡</td>
+<td>X4 按定义取在外接圆上</td>
+</tr>
+<tr>
+<td>6</td>
+<td>A、B、Ha、Hb（共 3 个）</td>
+<td></td>
+<td>平凡</td>
+<td>以 AB 为直径（直角所对）</td>
+</tr>
+<tr>
+<td>7</td>
+<td>A、P、Fb、Fc（共 3 个）</td>
+<td></td>
+<td>平凡</td>
+<td>以 AP 为直径</td>
+</tr>
+<tr>
+<td>8</td>
+<td>A、O、Mb、Mc（共 3 个）</td>
+<td></td>
+<td>平凡</td>
+<td>以 AO 为直径</td>
+</tr>
+<tr>
+<td>9</td>
+<td>A、H、Hb、Hc（共 3 个）</td>
+<td></td>
+<td>平凡</td>
+<td>以 AH 为直径</td>
+</tr>
+</tbody>
+</table>
+<p>去掉换标号的重复后，有内容的只是 3 条已知定理：Po 在九点圆上、在塞瓦圆上、在垂足圆上。</p>
+<h4 id="8">表 8：点在哪些曲线上</h4>
+<table>
+<thead>
+<tr>
+<th>曲线</th>
+<th>经过的点</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>九点二次曲线 Γ</td>
+<td>Ma、Mb、Mc、Ka、Kb、Kc、Da、Db、Dc、Po</td>
+<td>前 9 点即九点二次曲线定理（Bôcher 1892）。Po 在上面是平凡的：Γ 正是所有过 A、B、C、P 的二次曲线的中心的轨迹，Po 是其中一条（等轴双曲线）的中心</td>
+</tr>
+<tr>
+<td>Ω</td>
+<td>A、B、C、X4</td>
+<td>按定义</td>
+</tr>
+<tr>
+<td>外接圆</td>
+<td>A、B、C、X4</td>
+<td>按定义</td>
+</tr>
+<tr>
+<td>九点圆</td>
+<td>Ma、Mb、Mc、Ha、Hb、Hc、Po</td>
+<td>同表 7 第 1 行</td>
+</tr>
+<tr>
+<td>P 的垂足圆</td>
+<td>Fa、Fb、Fc、Po</td>
+<td>同表 7 第 4 行</td>
+</tr>
+</tbody>
+</table>
+<p>内心 I、P 的等角共轭点 P*、等截共轭点 Piso 在这一轮里没有出现在任何关系中。</p>
+<h4 id="_3">讨论：第二轮的对象与第一轮欧氏对象的对应</h4>
+<p>第二轮的四个点 A、B、C、P，是第一轮「三角形 ABC 加垂心 H」的一般化。前面第 10 条说过：任给一点 P，总能换一把尺子（换一个二次型），使 P 成为垂心。在这把新尺子下，第二轮里只由 A、B、C、P 作出的对象，每一个都变成第一轮的某个欧氏对象；反过来，把 P 取成 H，第二轮的对象就回到第一轮。下面三张表列出这种对应。</p>
+<p>左栏是欧氏情形（P 就是垂心 H），右栏是一般情形（P 任意）。</p>
+<p><strong>表 9：点的对应</strong></p>
+<table>
+<thead>
+<tr>
+<th>欧氏（P = H）</th>
+<th>一般（P 任意）</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>垂心 H</td>
+<td>任意点 P</td>
+<td>在新尺子下，P 就是垂心</td>
+</tr>
+<tr>
+<td>垂心组 A、B、C、H</td>
+<td>四点形 A、B、C、P</td>
+<td></td>
+</tr>
+<tr>
+<td>三个垂足 Ha、Hb、Hc</td>
+<td>三个对角点 Da、Db、Dc</td>
+<td>高 AH 与 BC 的交点，对应 AP 与 BC 的交点</td>
+</tr>
+<tr>
+<td>Euler 点 Ea、Eb、Ec（AH 等的中点）</td>
+<td>Ka、Kb、Kc（AP 等的中点）</td>
+<td></td>
+</tr>
+<tr>
+<td>三边中点 Ma、Mb、Mc</td>
+<td>三边中点 Ma、Mb、Mc</td>
+<td>中点不依赖尺子，不变</td>
+</tr>
+<tr>
+<td>重心 G</td>
+<td>重心 G</td>
+<td>不变</td>
+</tr>
+<tr>
+<td>九点圆心 N</td>
+<td>四点重心 G4 = (A + B + C + P)/4</td>
+<td>欧氏里 N = (A + B + C + H)/4。G4 是九点二次曲线 Γ 的中心</td>
+</tr>
+<tr>
+<td>外心 O</td>
+<td>补点 Q = (A + B + C − P)/2</td>
+<td>欧氏里 O = (A + B + C − H)/2。Q 是 Ω 的中心</td>
+</tr>
+<tr>
+<td>de Longchamps 点 L</td>
+<td>反补点 aP = A + B + C − 2P</td>
+<td>欧氏里 L = A + B + C − 2H</td>
+</tr>
+<tr>
+<td>对径点 Aa</td>
+<td>点 B + C − P（不在第二轮点表里）</td>
+<td>欧氏里 Aa = B + C − H</td>
+</tr>
+<tr>
+<td>无对应（P = H 时不唯一）</td>
+<td>Poncelet 点 Po</td>
+<td>P = H 时，过四点的二次曲线全是等轴双曲线，中心铺满整个九点圆</td>
+</tr>
+</tbody>
+</table>
+<p><strong>表 10：曲线的对应</strong></p>
+<table>
+<thead>
+<tr>
+<th>欧氏（P = H）</th>
+<th>一般（P 任意）</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>九点圆</td>
+<td>九点二次曲线 Γ</td>
+<td>9 点对应 9 点：3 个中点不变；3 个 Euler 点对应 Ka、Kb、Kc；3 个垂足对应 Da、Db、Dc</td>
+</tr>
+<tr>
+<td>外接圆</td>
+<td>Ω</td>
+<td>外接圆是九点圆以 H 为中心放大 2 倍；Ω 是 Γ 以 P 为中心放大 2 倍</td>
+</tr>
+<tr>
+<td>以 G 为中心、比例 −1/2 的位似把外接圆变成九点圆</td>
+<td>同一个位似把 Ω 变成 Γ</td>
+<td>这就是表 6 第 2 行（G、Po、X4 共线）的来源</td>
+</tr>
+<tr>
+<td>圆</td>
+<td>椭圆（P 在三角形内）或双曲线（P 在三角形外）</td>
+<td>新尺子下的「圆」</td>
+</tr>
+<tr>
+<td>过 A、B、C、H 的二次曲线全是等轴双曲线，中心都在九点圆上</td>
+<td>过 A、B、C、P 的二次曲线有一整族，中心都在 Γ 上</td>
+<td>Brianchon–Poncelet（1821）的一般形式</td>
+</tr>
+</tbody>
+</table>
+<p><strong>表 11：共线的对应</strong></p>
+<table>
+<thead>
+<tr>
+<th>欧氏（P = H）</th>
+<th>一般（P 任意）</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>欧拉线 H、G、N、O、L（表 2 第 1 行）</td>
+<td>P、G、G4、Q、aP（表 6 第 3 行）</td>
+<td>比例完全一样：HG : GN : NO = PG : GG4 : G4Q</td>
+</tr>
+<tr>
+<td>高 A、Ea、H、Ha（表 2 第 10 行）</td>
+<td>塞瓦线 A、Ka、P、Da（表 6 第 13 行）</td>
+<td></td>
+</tr>
+<tr>
+<td>九点圆的直径 Ea、N、Ma（表 2 第 6 行）</td>
+<td>Ka、G4、Ma（表 6 第 11 行）</td>
+<td>EaMa 是九点圆的直径；KaMa 是 Γ 的直径</td>
+</tr>
+<tr>
+<td>Aa、Ea、G（表 2 第 4 行）</td>
+<td>B + C − P、Ka、G</td>
+<td>以 G 为中心、比例 −1/2 的位似</td>
+</tr>
+<tr>
+<td>Aa、H、Ma（表 2 第 5 行）</td>
+<td>B + C − P、P、Ma</td>
+<td>Ma 是中点</td>
+</tr>
+<tr>
+<td>三条边、三条中线</td>
+<td>不变</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>这三张表说明了什么。</strong></p>
+<ol>
+<li><strong>表 6 里标为「平凡」的第 3、11、13 行，其实是欧拉线、九点圆直径、高的一般形式。</strong>在一般情形下，它们只是 P 和 G 的线性组合，所以平凡。反过来看，欧拉线在欧氏几何里的全部内容，就是「外心 O 恰好等于 (A + B + C − H)/2」这一个事实；其余都是线性代数。</li>
+<li><strong>第二轮的对象有两类。</strong>一类只由 A、B、C、P 作出，比如中点、对角点、G4、Q、Γ、Ω，它们都是第一轮欧氏对象的一般形式，彼此之间的关系就是欧氏定理换了尺子，不会有新内容。另一类用到原来的尺子，比如 O、H、N、ABC 的九点圆、外接圆、P 的垂足 Fa 和垂足圆，它们和 P 的关系是「两把尺子之间」的混合关系。</li>
+<li><strong>第二轮有内容的结果，全部属于混合关系：</strong>Po 在 ABC 的九点圆上、在塞瓦圆上、在垂足圆上（表 7 第 1、3、4 行）。这三条都是已知定理。</li>
+</ol>
+<h4 id="_4">第二轮小结</h4>
+<p><strong>第二轮没有发现新定理，所有结果都是已知的或平凡的。</strong></p>
+<ul>
+<li>共线 25 组：只有欧拉线有内容（第一轮已有），其余都由线性关系或作法得到。</li>
+<li>共圆 19 个：有内容的是 3 条已知定理（Po 在九点圆、塞瓦圆、垂足圆上），另有 3 个是这些定理换标号的结果，其余 13 个平凡。</li>
+<li>曲线上的点：九点二次曲线定理是已知定理（Bôcher 1892），其余按定义或平凡。</li>
+</ul>
+<p>这一轮的价值不在发现，而在两点：一是验证了方法能把已知结果完整地重新找出来；二是暴露了过滤器要补的规则，即交换 A、B、C、P 角色后相同的关系只算一次。</p>
+<h3 id="_5">意外得到的结构：一条上游定理统一三条事实</h3>
+<p><strong>定理 X：</strong>P 的塞瓦三角形的外接圆经过 A、B、C、P 的 Poncelet 点（即表 7 第 3 行）。这条定理已知，见于维基百科「Poncelet point」条目。</p>
+<p>已知 Feuerbach 双曲线（过 A、B、C、H、I 的等轴双曲线）的中心是 Feuerbach 点 F，并且经过 Gergonne 点和 Nagel 点。把 P 取成这条双曲线上的点：</p>
+<h4 id="12-x">表 12：定理 X 的特例</h4>
+<table>
+<thead>
+<tr>
+<th>P 取</th>
+<th>塞瓦三角形的外接圆</th>
+<th>推出</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Gergonne 点</td>
+<td>内切圆</td>
+<td>F 在内切圆上</td>
+</tr>
+<tr>
+<td>Nagel 点</td>
+<td>Mandart 圆</td>
+<td>F 在 Mandart 圆上（第一轮找到的那条）</td>
+</tr>
+<tr>
+<td>内心</td>
+<td>内心塞瓦三角形的外接圆</td>
+<td>F 也在这个圆上（已数值验证，是否已有记载待查）</td>
+</tr>
+</tbody>
+</table>
+<p>第一轮里看似孤立的 Mandart 圆，和 Feuerbach 切点在内切圆上，是同一条定理的两个特例。</p>
+<h3 id="p_1">第三轮：内切圆分支（P 的第二种身份）</h3>
+<h4 id="_6">为什么要做第三轮</h4>
+<p>第二轮里，P 扮演的是<strong>垂心</strong> H 的角色：把 H 换成任意点 P，九点圆变成九点二次曲线，欧拉线变成 P、G、G4、Q、aP（表 9–11）。但这样只推广了三角形几何的「垂心分支」（九点圆、欧拉线）。三角形几何还有另一大分支，即「内切圆分支」：内切圆、Gergonne 点、Nagel 点、Nagel 线、Soddy 线，以及连接两大分支的 Feuerbach 定理（九点圆与内切圆相切）。第二轮的点表里没有这一分支的任何对象，所以 Nagel 线、Soddy 线、Feuerbach 定理的推广都不可能被找到。</p>
+<p>第三轮把这一分支补上。做法是让 P 以两种身份出现。</p>
+<p><strong>身份一：P 当作垂心（换尺子）。</strong>按第 10 条，任给 P，总能找到一把尺子（一个二次型 S），使 P 在这把尺子下成为垂心。具体算法是解两个线性方程：</p>
+<ul>
+<li>(B − C) 与 (A − P) 在 S 下垂直：(B − C)ᵀ S (A − P) = 0；</li>
+<li>(C − A) 与 (B − P) 在 S 下垂直：(C − A)ᵀ S (B − P) = 0。</li>
+</ul>
+<p>第三个条件 (A − B) ⊥ (C − P) 自动成立。S 有 3 个未知数、2 个方程，相差一个倍数唯一确定。P 在三角形内时 S 是正定的（看起来是一把普通的、但被「压扁」了的尺子）。</p>
+<p>在这把尺子下，量出三边的「长度」aQ、bQ、cQ，然后照搬欧氏公式，就得到这把尺子下的内心、切点、Gergonne 点、Nagel 点。下面带下标 Q 的对象都是这样得到的。在这把尺子下，第二轮的对象恰好扮演欧氏对象的角色：Γ 是「九点圆」，Ω 是「外接圆」，Q 是「外心」，aP 是「de Longchamps 点」。</p>
+<p><strong>身份二：P 当作透视点（不需要尺子）。</strong>欧氏里，内切圆的三个切点和对顶点的连线交于 Gergonne 点，叫内切圆的透视点。反过来，任给一点 P，它的三个塞瓦足 Da、Db、Dc 总是某一条内切二次曲线的三个切点，这条曲线记作 KP。这只用到相切和交点，是仿射概念。同样，以 P 为透视点的外接二次曲线也唯一，记作 CPc。</p>
+<h4 id="_7">做法</h4>
+<ul>
+<li><strong>构型：</strong>30 个随机构型。P 取在三角形内部，保证身份一里的尺子是正定的。</li>
+<li><strong>点：</strong>36 个。第二轮的大部分点保留，另加身份一、身份二的新点（表 13）。</li>
+<li><strong>曲线：</strong>8 条（表 14）。</li>
+<li><strong>检查：</strong>所有三点组合是否共线；每个点是否在每条曲线上；每两条曲线是否相切（共 28 对）。只保留在 30 个构型里全部成立的关系。</li>
+<li><strong>相切的判法：</strong>两条二次曲线相切，等价于它们张成的曲线族里有一个退化成员是「二重」的，可以用一个三次方程的判别式等于 0 来检验。</li>
+</ul>
+<h4 id="1336">表 13：第三轮的点（36 个）</h4>
+<table>
+<thead>
+<tr>
+<th>类别</th>
+<th>记号</th>
+<th>名称</th>
+<th>怎么作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>保留自第二轮</td>
+<td>A、B、C、P、G</td>
+<td></td>
+<td>同表 4</td>
+</tr>
+<tr>
+<td></td>
+<td>Ma、Mb、Mc</td>
+<td>三边中点</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>Ka、Kb、Kc</td>
+<td>AP 等的中点</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>Da、Db、Dc</td>
+<td>塞瓦足（对角点）</td>
+<td>AP 与 BC 的交点，等等</td>
+</tr>
+<tr>
+<td></td>
+<td>G4、Q、aP</td>
+<td>四点重心、P 的补点、反补点</td>
+<td>同表 4</td>
+</tr>
+<tr>
+<td></td>
+<td>Piso</td>
+<td>P 的等截共轭点</td>
+<td>同表 4</td>
+</tr>
+<tr>
+<td></td>
+<td>Po</td>
+<td>Poncelet 点</td>
+<td>同表 4</td>
+</tr>
+<tr>
+<td></td>
+<td>O、H、N、I</td>
+<td>外心、垂心、九点圆心、内心</td>
+<td>原来的欧氏尺子</td>
+</tr>
+<tr>
+<td>身份二（P 当透视点）</td>
+<td>XP</td>
+<td>KP 的中心</td>
+<td>等于 Piso 的补点</td>
+</tr>
+<tr>
+<td></td>
+<td>SpP</td>
+<td>XP 的补点</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>Va、Vb、Vc</td>
+<td>Da 关于 Ma 的对称点，等等</td>
+<td>「旁切圆切点」的对应物</td>
+</tr>
+<tr>
+<td></td>
+<td>CP</td>
+<td>CPc 的中心</td>
+<td></td>
+</tr>
+<tr>
+<td>身份一（P 当垂心）</td>
+<td>IQ</td>
+<td>尺子 Q 下的内心</td>
+<td>以 aQ、bQ、cQ 为权的加权平均</td>
+</tr>
+<tr>
+<td></td>
+<td>TQa、TQb、TQc</td>
+<td>尺子 Q 下的内切圆切点</td>
+<td>TQa = B + (sQ − bQ)/aQ · (C − B)，sQ 是 Q 下的半周长</td>
+</tr>
+<tr>
+<td></td>
+<td>GeQ</td>
+<td>尺子 Q 下的 Gergonne 点</td>
+<td>A–TQa、B–TQb、C–TQc 的交点</td>
+</tr>
+<tr>
+<td></td>
+<td>NaQ</td>
+<td>尺子 Q 下的 Nagel 点</td>
+<td>GeQ 的等截共轭点</td>
+</tr>
+<tr>
+<td></td>
+<td>SpQ</td>
+<td>尺子 Q 下的 Spieker 点</td>
+<td>IQ 的补点</td>
+</tr>
+</tbody>
+</table>
+<h4 id="148">表 14：第三轮的曲线（8 条）</h4>
+<table>
+<thead>
+<tr>
+<th>记号</th>
+<th>曲线</th>
+<th>在尺子 Q 下扮演的角色</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Γ</td>
+<td>九点二次曲线</td>
+<td>九点圆</td>
+</tr>
+<tr>
+<td>Ω</td>
+<td>外接二次曲线</td>
+<td>外接圆</td>
+</tr>
+<tr>
+<td>IQc</td>
+<td>尺子 Q 下的内切「圆」，在 TQa、TQb、TQc 处与三边相切</td>
+<td>内切圆</td>
+</tr>
+<tr>
+<td>KP</td>
+<td>以 P 为透视点的内切二次曲线，在 Da、Db、Dc 处与三边相切</td>
+<td>无（与尺子无关）</td>
+</tr>
+<tr>
+<td>CPc</td>
+<td>以 P 为透视点的外接二次曲线</td>
+<td>无（与尺子无关）</td>
+</tr>
+<tr>
+<td>外接圆、九点圆、内切圆</td>
+<td>原来欧氏尺子下的三个圆</td>
+<td>无（属于原来的尺子）</td>
+</tr>
+</tbody>
+</table>
+<h4 id="15-25">表 15：找到的共线（共 25 组）</h4>
+<p><strong>没有新的共线定理。</strong>25 组分四类：按作法 15 组，线性组合 6 组，欧氏已知 1 组，有内容的一般形式 3 组。</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>共线的点</th>
+<th>类别</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>A、B、Mc、Dc、Vc、TQc（共 3 组）</td>
+<td>按作法</td>
+<td>三条边：这些点都是按定义取在边上的</td>
+</tr>
+<tr>
+<td>2</td>
+<td>A、P、Ka、Da（共 3 组）</td>
+<td>按作法</td>
+<td>塞瓦线</td>
+</tr>
+<tr>
+<td>3</td>
+<td>A、G、Ma（共 3 组）</td>
+<td>按作法</td>
+<td>中线</td>
+</tr>
+<tr>
+<td>4</td>
+<td>A、Piso、Va（共 3 组）</td>
+<td>按作法</td>
+<td>等截共轭的定义：Piso 的塞瓦线经过 Va</td>
+</tr>
+<tr>
+<td>5</td>
+<td>A、GeQ、TQa（共 3 组）</td>
+<td>按作法</td>
+<td>Gergonne 点的定义</td>
+</tr>
+<tr>
+<td>6</td>
+<td>P、G、G4、Q、aP</td>
+<td>线性组合</td>
+<td>欧拉线的一般形式（表 11）</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Ma、Ka、G4（共 3 组）</td>
+<td>线性组合</td>
+<td>九点圆直径的一般形式（表 11）</td>
+</tr>
+<tr>
+<td>8</td>
+<td>G、Piso、XP、SpP</td>
+<td>线性组合</td>
+<td><strong>Nagel 线的一般形式（身份二）：</strong>XP 是 Piso 的补点，SpP 是 XP 的补点，所以四点都在过 G 的同一条线上，比例 1 : 2。P 取 Gergonne 点时，Piso 是 Nagel 点、XP 是内心、SpP 是 Spieker 点，这正是 Nagel 线</td>
+</tr>
+<tr>
+<td>9</td>
+<td>G、IQ、NaQ、SpQ</td>
+<td>线性组合</td>
+<td><strong>Nagel 线的一般形式（身份一）：</strong>就是尺子 Q 下的 Nagel 线。同样只用到补点关系</td>
+</tr>
+<tr>
+<td>10</td>
+<td>G、O、H、N</td>
+<td>欧氏，已知</td>
+<td>原来尺子下的欧拉线</td>
+</tr>
+<tr>
+<td>11</td>
+<td>aP、IQ、GeQ</td>
+<td>有内容的一般形式</td>
+<td><strong>Soddy 线的一般形式。</strong>在尺子 Q 下，aP 是 de Longchamps 点，IQ 是内心，GeQ 是 Gergonne 点，所以这就是尺子 Q 下的 Soddy 线。由换尺子保证成立，但不能化归为线性运算。P = H 时回到欧氏的 Soddy 线 L、I、Ge</td>
+</tr>
+<tr>
+<td>12</td>
+<td>Piso、GeQ、NaQ</td>
+<td>有内容的一般形式</td>
+<td>在尺子 Q 下，Piso 是「垂心的等截共轭点」（欧氏里是 X69），所以这是欧氏事实「X69、Ge、Na 三点共线」的一般形式。这条欧氏事实已收录于 ETC，第一轮扫描 ETC 中心时也找到过</td>
+</tr>
+<tr>
+<td>13</td>
+<td>P、XP、CP</td>
+<td>有内容（仿射）</td>
+<td>透视点 P、以 P 为透视点的内切二次曲线的中心、外接二次曲线的中心，三点共线。P 取类似重心 K 时，外接二次曲线就是外接圆（中心 O），内切二次曲线是 Brocard 内切椭圆（中心 X39），于是 K、X39、O 共线，这是 Brocard 轴的一部分。应为经典结果，未查证</td>
+</tr>
+</tbody>
+</table>
+<h4 id="16">表 16：点在哪些曲线上</h4>
+<table>
+<thead>
+<tr>
+<th>曲线</th>
+<th>经过的点</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Γ</td>
+<td>Ma、Mb、Mc、Ka、Kb、Kc、Da、Db、Dc、Po</td>
+<td>同第二轮</td>
+</tr>
+<tr>
+<td>Ω</td>
+<td>A、B、C</td>
+<td>按定义</td>
+</tr>
+<tr>
+<td>IQc</td>
+<td>TQa、TQb、TQc</td>
+<td>按定义</td>
+</tr>
+<tr>
+<td>KP</td>
+<td>Da、Db、Dc</td>
+<td>按定义</td>
+</tr>
+<tr>
+<td>CPc</td>
+<td>A、B、C</td>
+<td>按定义</td>
+</tr>
+<tr>
+<td>外接圆</td>
+<td>A、B、C</td>
+<td>按定义</td>
+</tr>
+<tr>
+<td>九点圆</td>
+<td>Ma、Mb、Mc、Po</td>
+<td>Po 在九点圆上（同第二轮）</td>
+</tr>
+<tr>
+<td>内切圆</td>
+<td>（无）</td>
+<td>点表里没有原来尺子下的切点</td>
+</tr>
+</tbody>
+</table>
+<p>这张表没有任何意外：每个点只在按定义该在的曲线上。</p>
+<h4 id="17">表 17：曲线之间的相切</h4>
+<p>28 对曲线里有 3 对相切，其余 25 对都不相切。</p>
+<table>
+<thead>
+<tr>
+<th>相切的两条曲线</th>
+<th>类别</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>九点圆与内切圆</td>
+<td>欧氏，已知</td>
+<td>Feuerbach 定理本身</td>
+</tr>
+<tr>
+<td>Γ 与 IQc</td>
+<td>有内容的一般形式</td>
+<td><strong>Feuerbach 定理的一般形式：</strong>四点形 A、B、C、P 的九点二次曲线，与「P 当垂心」那把尺子下的内切「圆」相切。在尺子 Q 下，这两条曲线就是九点圆和内切圆，所以由换尺子保证成立。示意图见 feuerbach_general.png</td>
+</tr>
+<tr>
+<td>KP 与 CPc</td>
+<td>有内容（仿射）</td>
+<td>以同一点 P 为透视点的内切二次曲线和外接二次曲线，在 P 的三线极线上<strong>双重接触</strong>：两条曲线有两个切点（可能是虚的），都在这条直线上。已单独数值核对，应为经典结果，未查证</td>
+</tr>
+</tbody>
+</table>
+<p>几对不相切的组合也值得记下：</p>
+<table>
+<thead>
+<tr>
+<th>不相切的两条曲线</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Γ 与 KP</td>
+<td>P 同时当垂心（Γ）和透视点（KP），两条曲线不相切。所以 Feuerbach 定理的推广里，「垂心」和「Gergonne 点」必须是两个不同的点，由同一把尺子联系起来，不能由同一个 P 兼任</td>
+</tr>
+<tr>
+<td>Γ 与原来的内切圆</td>
+<td>两把尺子之间没有这种关系</td>
+</tr>
+<tr>
+<td>原来的九点圆与 IQc</td>
+<td>同上</td>
+</tr>
+</tbody>
+</table>
+<h4 id="_8">讨论：第三轮的对象与第一轮欧氏对象的对应</h4>
+<p>和第二轮一样，下表左栏是欧氏情形（第一轮），右栏是第三轮里对应的一般形式。</p>
+<p><strong>表 18：内切圆分支的对应</strong></p>
+<table>
+<thead>
+<tr>
+<th>欧氏（第一轮）</th>
+<th>一般形式：身份一（P 当垂心，尺子 Q）</th>
+<th>一般形式：身份二（P 当透视点）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>内切圆</td>
+<td>IQc</td>
+<td>KP</td>
+</tr>
+<tr>
+<td>内心 I</td>
+<td>IQ</td>
+<td>XP</td>
+</tr>
+<tr>
+<td>内切圆切点 Ta、Tb、Tc</td>
+<td>TQa、TQb、TQc</td>
+<td>Da、Db、Dc</td>
+</tr>
+<tr>
+<td>Gergonne 点 Ge</td>
+<td>GeQ</td>
+<td>P</td>
+</tr>
+<tr>
+<td>Nagel 点 Na</td>
+<td>NaQ</td>
+<td>Piso</td>
+</tr>
+<tr>
+<td>Spieker 点 Sp</td>
+<td>SpQ</td>
+<td>SpP</td>
+</tr>
+<tr>
+<td>旁切圆切点 Ua、Ub、Uc</td>
+<td>（未列入）</td>
+<td>Va、Vb、Vc</td>
+</tr>
+<tr>
+<td>Nagel 线 I、G、Sp、Na</td>
+<td>G、IQ、NaQ、SpQ（表 15 第 9 行）</td>
+<td>G、Piso、XP、SpP（表 15 第 8 行）</td>
+</tr>
+<tr>
+<td>Soddy 线 L、I、Ge</td>
+<td>aP、IQ、GeQ（表 15 第 11 行）</td>
+<td>无</td>
+</tr>
+<tr>
+<td>X69、Ge、Na 共线</td>
+<td>Piso、GeQ、NaQ（表 15 第 12 行）</td>
+<td>无</td>
+</tr>
+<tr>
+<td>Feuerbach：九点圆与内切圆相切</td>
+<td>Γ 与 IQc 相切（表 17）</td>
+<td>无（Γ 与 KP 不相切）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>这张表说明了什么。</strong></p>
+<ol>
+<li><strong>Nagel 线在两种身份下都有一般形式，而且都是平凡的。</strong>它只用到「中心 = 等截共轭点的补点」这个仿射公式，和度量无关。这和第一轮的判断一致：Nagel 线的内容只在「挑了内切圆」。</li>
+<li><strong>Soddy 线、Feuerbach 定理只在身份一下有一般形式，而且是有内容的。</strong>它们同时用到「垂心」（欧拉线一侧）和「内切圆」，必须由同一把尺子把两者联系起来。身份二没有尺子，所以没有它们的对应物。</li>
+<li><strong>两大分支的分界线清楚了。</strong>只属于内切圆分支、不碰垂心的关系（Nagel 线），是仿射的、平凡的；跨越两大分支的关系（Soddy 线、Feuerbach 定理、X69–Ge–Na），才是欧氏几何里真正有内容的部分。</li>
+</ol>
+<h4 id="_9">第三轮小结</h4>
+<p><strong>第三轮没有发现新定理，所有结果都是已知的、平凡的，或者是已知欧氏定理换了尺子的一般形式。</strong></p>
+<ul>
+<li>共线 25 组：按作法 15 组，线性组合 6 组（含 Nagel 线的两种一般形式），欧氏已知 1 组（欧拉线），有内容的一般形式 3 组（Soddy 线、X69–Ge–Na 线的一般形式，以及仿射的 P–XP–CP 线）。</li>
+<li>相切 3 对：Feuerbach 定理本身、Feuerbach 定理的一般形式、内切与外接二次曲线的双重接触。</li>
+<li>点在曲线上：没有意外。</li>
+</ul>
+<p>这一轮的价值有三点：</p>
+<ol>
+<li><strong>验证了「先推广、再扫描」这条路是通的。</strong>Nagel 线、Soddy 线、Feuerbach 定理的一般形式都被程序自动找了出来，没有一条是事先告诉程序的。</li>
+<li><strong>P 的两种身份对应三角形几何的两大分支。</strong>第二轮做了垂心分支，第三轮做了内切圆分支，两轮合起来，第一轮里有内容的结果（欧拉线、Nagel 线、Soddy 线、九点圆、Feuerbach 定理）都有了一般形式。</li>
+<li><strong>待查的两条仿射结果</strong>（表 15 第 13 行、表 17 第 3 行）形式简单，应该是经典结果，需要查文献确认。</li>
+</ol>
+<h3 id="_10">结论</h3>
+<ol>
+<li><strong>三轮都没有找到新定理。</strong>第一轮（三角形的名点）、第二轮（三角形加一点，P 当垂心）、第三轮（P 当垂心或透视点，补上内切圆分支）的结果，全部是已知的、平凡的，或者是已知定理换了尺子的一般形式。表 12 第三行（F 在内心塞瓦圆上）未在标准资料中查到，但它是定理 X 的直接特例，不算新发现。</li>
+<li><strong>方法本身可靠：</strong>已知结果被完整重新发现。第三轮还自动找回了 Nagel 线、Soddy 线、Feuerbach 定理的一般形式，说明「先推广、再扫描」这条路是通的。</li>
+<li><strong>三角形与圆的名点之间，共线、共圆已被前人挖尽。</strong>几百年的人工研究加上 ETC 的计算机扫描，这块地不太可能再有简单的新结果。</li>
+<li><strong>真正的产出是结构：</strong>散落的已知事实可以挂到同一条上游定理之下。系统地做这件事（把一般定理里的 P 依次换成名点，列出特例并与已知事实对照），是网络的主要建设方式。</li>
+<li><strong>找新定理要换地方：</strong>四边形、四面体，二次曲线与三次曲线之间的关系，Cayley–Klein 平面（双曲、闵可夫斯基几何）中的对应版本。网络的作用是指方向：三角形里的某个结构，在这些地方有没有对应物。</li>
+</ol>
+<h2 id="_11">记号</h2>
+<p>三角形 ABC。O 为外心，R 为外接圆半径；G 为重心；H 为垂心；I 为内心，r 为内切圆半径；N 为九点圆圆心。</p>
+<h2 id="_12">关系图</h2>
+<p>实线表示两条定理之间有不平凡的联系；虚线表示只差一次变换，在网络里算作同一个节点。</p>
+<pre><code class="language-mermaid">graph TD
+    NPC[&quot;九点圆&quot;]
+    EUL[&quot;欧拉线&quot;]
+    CIRC[&quot;外接圆位似&quot;]
+    FEU[&quot;Feuerbach 定理&quot;]
+    SIM[&quot;西摩松线&quot;]
+    ORT[&quot;垂心组&quot;]
+    RHY[&quot;过三顶点的等轴双曲线&quot;]
+    DEL[&quot;Steiner 三尖瓣线&quot;]
+    NPCC[&quot;九点二次曲线（Bôcher）&quot;]
+    PROJ[&quot;关于任意直线的射影版本&quot;]
+
+    EUL -- &quot;N 是 OH 的中点&quot; --- NPC
+    CIRC -- &quot;以 H 为中心缩小一半&quot; --- NPC
+    FEU -- &quot;与内切圆、旁切圆相切&quot; --- NPC
+    SIM -- &quot;平分 PH，中点在九点圆上&quot; --- NPC
+    ORT -- &quot;四个三角形共用一个九点圆&quot; --- NPC
+    RHY -- &quot;中心的轨迹是九点圆&quot; --- NPC
+    SIM -- &quot;所有西摩松线的包络&quot; --- DEL
+    DEL -- &quot;中心为 N&quot; --- NPC
+    CIRC -- &quot;同一个位似把 P 送到 M&quot; --- SIM
+    NPC -. &quot;换一把尺子&quot; .- NPCC
+    NPCC -. &quot;射影变换&quot; .- PROJ
+</code></pre>
+<h2 id="_13">一、核心定理</h2>
+<h3 id="1">1. 九点圆</h3>
+<p>三角形三边的中点、三条高的垂足、垂心到三个顶点连线的中点，这九个点共圆。</p>
+<ul>
+<li>历史：Brianchon 与 Poncelet 1821 年证明；Feuerbach 1822 年独立得到。</li>
+<li>层次：欧氏（相似）层。</li>
+</ul>
+<h3 id="2">2. 欧拉线</h3>
+<p>外心 O、重心 G、垂心 H 三点共线，且 OG : GH = 1 : 2。九点圆圆心 N 是 OH 的中点。</p>
+<ul>
+<li>历史：Euler，1765 年。</li>
+<li>与九点圆的联系：九点圆圆心落在欧拉线上，且平分 OH。</li>
+</ul>
+<h3 id="3">3. 外接圆与九点圆的位似</h3>
+<p>以垂心 H 为中心、比例 1/2 的位似，把外接圆变成九点圆，同时把 A、B、C 送到 AH、BH、CH 的中点。以重心 G 为中心、比例 −1/2 的位似也把外接圆变成九点圆。</p>
+<ul>
+<li>推论：九点圆半径是 R/2。</li>
+<li>作用：外接圆上任一点 P，经这个位似变成 PH 的中点 M，所以 M 在九点圆上。</li>
+</ul>
+<h3 id="4-feuerbach">4. Feuerbach 定理</h3>
+<p>九点圆与内切圆内切，与三个旁切圆外切。</p>
+<ul>
+<li>历史：Feuerbach，1822 年。</li>
+<li>定量形式：NI = R/2 − r。</li>
+<li>说明：九点圆最深的一个性质，传统证明需要较高技巧。</li>
+</ul>
+<h3 id="5">5. 西摩松线</h3>
+<p>外接圆上任一点 P 到三边（所在直线）的三个垂足共线，这条线叫 P 的西摩松线。</p>
+<ul>
+<li>历史：以 Robert Simson 命名，实际最早由 William Wallace 于 1797 年发表。</li>
+<li>与九点圆的联系：P 的西摩松线平分线段 PH，中点 M 落在九点圆上。</li>
+<li>进一步：P 绕外接圆一周，所有西摩松线的包络是一条三尖瓣线（Steiner 三尖瓣线），中心是 N。</li>
+</ul>
+<p><strong>证明（复数法）。</strong>以外心为原点、外接圆半径为 1，记 A、B、C、P 为单位圆上的复数 a、b、c、p。</p>
+<ol>
+<li>垂心 h = a + b + c，所以 PH 的中点 M = (p + a + b + c)/2。</li>
+<li>P 到 BC 的垂足 d = (p + b + c − bc/p)/2，所以 d − M = −(ap + bc)/(2p)。</li>
+<li>同理，P 到 CA 的垂足 e 满足 e − M = −(bp + ca)/(2p)。</li>
+<li>比值 (ap + bc)/(bp + ca) 在单位圆上取共轭后不变，因此是实数，d、e、M 共线。</li>
+</ol>
+<p>对第三个垂足同样成立。这一次计算同时证明了：三个垂足共线（西摩松定理），这条线经过 PH 的中点。</p>
+<h3 id="6">6. 垂心组</h3>
+<p>A、B、C、H 中任取三点组成三角形，共四个三角形，每个三角形的垂心是剩下的那个点，四个三角形的九点圆是同一个。</p>
+<h3 id="7">7. 过三顶点的等轴双曲线</h3>
+<p>过 A、B、C 的等轴双曲线一定经过垂心 H；过 A、B、C、H 四点的二次曲线都是等轴双曲线。这些等轴双曲线的中心都落在九点圆上。</p>
+<ul>
+<li>历史：Brianchon 与 Poncelet 1821 年的论文研究的就是这类双曲线，九点圆正是作为它们中心的轨迹出现的。</li>
+</ul>
+<h2 id="_14">二、往上升：九点二次曲线</h2>
+<h3 id="8_1">8. 九点二次曲线</h3>
+<p>任取平面上四点 A、B、C、P，两两连线得 6 条线段。这 6 条线段的中点，加上 3 个「对角点」（AP 与 BC、BP 与 CA、CP 与 AB 的交点），共 9 个点，总在同一条二次曲线上。</p>
+<ul>
+<li>历史：Bôcher，1892 年；Gates（1894）、Minthorn（1912，证明它是过四点的所有二次曲线中心的轨迹）等继续研究。</li>
+<li>P 取垂心时，就是九点圆。</li>
+<li>曲线类型：四点中有一点落在另三点的三角形内时是椭圆；四点围成凸四边形时是双曲线。</li>
+<li>P 在外接圆上时，是等轴双曲线。</li>
+</ul>
+<h3 id="9">9. 射影版本</h3>
+<p>把「中点」换成「关于直线 ℓ 的调和共轭点」，对任意直线 ℓ，九点仍共二次曲线。ℓ 取无穷远直线时，就是第 8 条。</p>
+<h3 id="10-erlangen">10. Erlangen 视角：九点二次曲线就是换了尺子的九点圆</h3>
+<p>对任意 P，可以选一个二次型（一把「尺子」），使 PA ⊥ BC、PB ⊥ CA，于是 PC ⊥ AB 自动成立，P 成为垂心。中点是仿射概念，换尺子不变；三个对角点变成三条高的垂足。九点圆定理的证明只用到代数恒等式，对任何非退化二次型都成立，所以 9 个点在新尺子的「圆」上：</p>
+<ul>
+<li>新尺子是正定的，它的「圆」看起来是椭圆；</li>
+<li>新尺子是不定的（闵可夫斯基式），它的「圆」看起来是双曲线。</li>
+</ul>
+<p>结论：第 8、9 条和第 1 条只差一次变换，在网络里算同一个节点，不算新定理。</p>
+<h2 id="_15">三、待补充</h2>
+<ul>
+<li>九点圆其他邻居的推广：九点二次曲线有没有对应的「Feuerbach 定理」（与某条内切二次曲线相切）？西摩松线、垂心组、等轴双曲线各有什么对应版本？</li>
+<li>几何图形：各条定理的示意图。</li>
+<li>每条定理的出处和原始文献。</li>
+</ul>
+<h2 id="a">附录 A：不常见的点</h2>
+<p><strong>旁心 Ia、Ib、Ic 与旁切圆。</strong>A 的内角平分线和 B、C 的外角平分线交于一点 Ia，叫 A 所对的旁心。以 Ia 为圆心的圆与边 BC 相切，并与 AB、AC 的延长线相切，叫旁切圆，它在三角形外面、BC 一侧。三角形有三个旁切圆。</p>
+<p><strong>Euler 点 Ea、Eb、Ec。</strong>顶点和垂心连线的中点。九点圆的「九点」里就有这三个。</p>
+<p><strong>对径点 Aa、Ab、Ac。</strong>A 在外接圆上的对径点，即 A 关于外心 O 的对称点。</p>
+<p><strong>Gergonne 点 Ge。</strong>内切圆与三边的切点是 Ta、Tb、Tc。连 ATa、BTb、CTc，三线交于一点。理由：从一个顶点到内切圆的两条切线等长，所以 BTa = BTc = s − b 等（s 是半周长），代入 Ceva 定理乘积为 1。</p>
+<p><strong>Nagel 点 Na。</strong>把内切圆切点换成旁切圆切点：Ua 是 A 所对旁切圆与 BC 的切点，连 AUa、BUb、CUc，三线交于一点。Ua 有个简单刻画：从 A 出发沿三角形周长走半圈，停下的点就是 Ua（所以 AUa 也叫「平分周长线」）。</p>
+<p><strong>Spieker 点 Sp。</strong>中点三角形 MaMbMc 的内心。另一种看法：把三角形的三条边看成密度均匀的细棒，整个「周长框」的重心就是 Sp。它是 I 与 Na 的中点。</p>
+<p><strong>类似重心 K。</strong>把三条中线分别关于同一顶点的角平分线对称过去，得到的三条线（叫类似中线）交于一点。也说 K 是 G 的等角共轭点。它到三边的距离与边长成正比。</p>
+<p><strong>de Longchamps 点 L。</strong>垂心 H 关于外心 O 的对称点，在欧拉线上。它还是三角形「力矩圆」的根心：分别以 A、B、C 为圆心、对边长 a、b、c 为半径作三个圆，它们的根心是 L。</p>
+<p><strong>Feuerbach 点 F。</strong>九点圆与内切圆的切点（Feuerbach 定理说两者内切）。在程序里 F 是这样算的：从 N 出发，沿 N→I 方向走九点圆半径 R/2。所以「F 在九点圆上、F 在 NI 上」是按作法成立的；「F 在内切圆上」才是 Feuerbach 定理。</p>
+<p><strong>等角共轭点 P*。</strong>把 AP、BP、CP 分别关于 A、B、C 的角平分线作对称，得到的三条线交于一点，就是 P 的等角共轭点。例如重心的等角共轭点是类似重心 K，外心和垂心互为等角共轭。</p>
+<p><strong>等截共轭点。</strong>设 AP 交 BC 于 Da，在 BC 上取 Da 关于中点 Ma 的对称点，同样处理另外两边，得到的三条塞瓦线交于一点，就是 P 的等截共轭点。例如 Gergonne 点和 Nagel 点互为等截共轭。</p>
+<p><strong>补点、反补点。</strong>以重心 G 为中心、比例 −1/2 的位似叫「取补点」，比例 −2 叫「取反补点」。例如 O 是 H 的补点，H 是 O 的反补点。</p>
+<p><strong>塞瓦三角形。</strong>AP、BP、CP 分别交对边于 Da、Db、Dc，三角形 DaDbDc 叫 P 的塞瓦三角形，它的外接圆叫 P 的塞瓦圆。</p>
+<p><strong>垂足三角形。</strong>P 在三边上的投影 Fa、Fb、Fc 组成的三角形，它的外接圆叫 P 的垂足圆。P = O 时垂足圆就是九点圆。</p>
+<p><strong>Poncelet 点 Po。</strong>对四个点 A、B、C、P，过它们的等轴双曲线（两条渐近线互相垂直的双曲线）恰有一条，它的中心叫 Poncelet 点。等价的定义是：三角形 ABC、PBC、PCA、PAB 的四个九点圆交于一点，这个点就是 Po。P = 内心 I 时，Po 就是 Feuerbach 点 F。</p>
+<h2 id="b">附录 B：有名的线和圆</h2>
+<p><strong>欧拉线。</strong>过 O、G、H、N、L。</p>
+<p><strong>Nagel 线。</strong>过 I、G、Sp、Na。</p>
+<p><strong>Soddy 线。</strong>给三角形的每个顶点画一个圆，使三个圆两两外切（半径分别是 s − a、s − b、s − c）。和这三个圆都相切的圆有两个，叫内、外 Soddy 圆。两个 Soddy 圆心所在的直线叫 Soddy 线，它过 I、Ge、L。</p>
+<p><strong>Mandart 圆。</strong>旁切圆三切点 Ua、Ub、Uc 所成三角形（叫旁切点三角形）的外接圆。它过 Feuerbach 点 F。</p>
+<p><strong>Spieker 圆。</strong>中点三角形的内切圆，圆心 Sp，半径 r/2。它是内切圆在以 G 为中心、比例 −1/2 的位似下的像。</p>
+<p><strong>九点二次曲线 Γ。</strong>四个点 A、B、C、P 两两连线共 6 条，6 条线段的中点，加上 3 个对角点（AP 与 BC、BP 与 CA、CP 与 AB 的交点），共 9 点在一条二次曲线上（Bôcher 1892）。P 在三角形内时是椭圆，在外时是双曲线；P = H 时就是九点圆。它也是所有过 A、B、C、P 的二次曲线的中心的轨迹。</p>
+<p><strong>外接二次曲线 Ω。</strong>Γ 以 P 为中心放大 2 倍得到的二次曲线，经过 A、B、C。</p>
+</div>
+<script>
+  // 表格套一层横向滚动容器，窄屏不撑破版面
+  document.querySelectorAll('table').forEach(t => {
+    const d = document.createElement('div'); d.className = 'tbl';
+    t.parentNode.insertBefore(d, t); d.appendChild(t);
+  });
+</script>
+</body>
+</html>
