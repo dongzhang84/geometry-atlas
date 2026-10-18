@@ -1,4 +1,4 @@
-/* Geometry Atlas · 专题页「九点圆和它的邻居」
+/* Geometry Atlas · 专题页「九点圆和其他相关定理」
  * 依赖 geometry.js（window.GA）。
  * 每个标签页有锚点：#orthocentric #euler #homothety #feuerbach #simson #conic */
 (function () {

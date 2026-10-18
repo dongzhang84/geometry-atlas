@@ -1,12 +1,12 @@
 # Geometry Atlas · 几何图谱
 
-> **在线访问：<https://geometry-atlas.vercel.app/>**　·　专题页：[九点圆和它的邻居](https://geometry-atlas.vercel.app/explore/nine-point.html)
+> **在线访问：<https://geometry-atlas.vercel.app/>**　·　专题页：[九点圆和其他相关定理](https://geometry-atlas.vercel.app/explore/nine-point.html)
 
 三本经典几何书中的约 300 条定理，按「几何层次 → 大类 → 小类 → 定理」排成一张可以点开、筛选、搜索的环形地图。
 
 - **分类图**：射影 → 仿射 → 欧氏三层的环形图，点开逐层放大，右侧显示定理内容与出处；可按书筛选、搜索。
 - **推广图**：定理之间的推广、射影对偶、逆命题关系，从简单的定理往下推到更一般的定理。
-- **专题页**：可拖动的动态几何图，目前有「九点圆和它的邻居」，和主页的定理互相链接。
+- **专题页**：可拖动的动态几何图，目前有「九点圆和其他相关定理」，和主页的定理互相链接。
 
 更新记录、待办和已知问题都在 [CHANGELOG.md](CHANGELOG.md)。
 
@@ -81,7 +81,7 @@ vendor/dagre.min.js   dagre 0.8.5（推广图的分层布局，MIT 许可证见 
 `explore/` 下放独立的专题页，每页把一组相关定理做成可拖动的动态几何图。主页顶部的「专题：九点圆」进入。
 
 ```
-explore/nine-point.html   专题页「九点圆和它的邻居」（配色与主页一致，支持深色模式）
+explore/nine-point.html   专题页「九点圆和其他相关定理」（配色与主页一致，支持深色模式）
 explore/nine-point.js     页面逻辑：六个标签页的绘制与交互
 explore/geometry.js       共用几何计算（外心、垂心、垂足、九点、直线交点、过五点的二次曲线、隐函数描线），以后的专题页可复用
 ```
