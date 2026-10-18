@@ -34,7 +34,7 @@
   ];
   const LEG = {
     euler: [[BL, '中垂线 → O'], [TE, '中线 → G'], [PK, '高 → H'], [CO, '欧拉线'], [PU, '九点圆']],
-    homothety: [[GR, '外接圆与射线'], [AM, '缩放后的圆'], [PU, '九点圆']],
+    homothety: [[GR, '外接圆与样点'], [AM, '缩放后的圆'], [PU, '九点圆']],
     feuerbach: [[TE, '角平分线、内切圆、旁切圆'], [CO, '直线 NI 与切点'], [PU, '九点圆']],
     simson: [[TE, '西摩松线'], [AM, '线段 PH'], [PU, '九点圆']],
     orthocentric: [[TE, '当前三角形'], [PK, '它的三条高'], [CO, '它的 9 个点'], [PU, '九点圆']],
@@ -127,11 +127,11 @@
       const img = (X) => add(Cn, mul(sub(X, Cn), k));
       for (let i = 0; i < 16; i++) {
         const t = i / 16 * 2 * Math.PI, X = { x: g.O.x + g.R * Math.cos(t), y: g.O.y + g.R * Math.sin(t) };
-        seg(Cn, X, GR, 0.5, [2, 3]); dot(X, GR, 2.5); dot(img(X), AM, 3);
+        dot(X, GR, 2.5); dot(img(X), AM, 3);
       }
       [g.A, g.B, g.C].forEach((X) => { seg(Cn, X, GR, 0.9); dot(img(X), AM, 4.5); });
       const P = { x: g.O.x + g.R * Math.cos(state.theta), y: g.O.y + g.R * Math.sin(state.theta) }, Pi = img(P);
-      seg(Cn, P, AM, 1.4); dot(P, AM, 6.5); lab(P, 'P（拖我）', 9, -9); dot(Pi, CO, 6.5); lab(Pi, 'P′', 9, 14);
+      seg(Cn, P, AM, 1.4); dot(P, AM, 6.5); lab(P, 'P', 9, -9); dot(Pi, CO, 6.5); lab(Pi, 'P′', 9, 14);
       const Oi = img(g.O); circle(Oi, g.R * k, AM, 2); seg(Cn, g.O, BL, 1, [3, 3]); dot(g.O, BL, 5); lab(g.O, 'O', 8, -8); dot(Oi, AM, 4.5);
       dot(Cn, PK, 6); lab(Cn, cn, 8, -8);
       const hit = Math.abs(k - target) < 0.006;
