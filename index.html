@@ -60,6 +60,7 @@ input#q{font:inherit;font-size:14px;padding:6px 12px;border:1px solid var(--rule
 .detail .note{margin:-4px 0 10px;font-size:13px;color:var(--muted)}
 .detail h3 small,.item b small{font-family:var(--sans);font-size:12px;font-weight:400;color:var(--muted);margin-left:8px}
 .tag.warn{border-color:var(--aff);color:var(--aff)}
+.demos{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
 .meta{display:flex;flex-wrap:wrap;gap:6px;font-size:12px}
 .tag{border:1px solid var(--rule);border-radius:4px;padding:1px 8px;color:var(--muted)}
 .list{margin-top:12px;overflow:auto;border-top:1px solid var(--rule);flex:1;min-height:120px}
@@ -170,11 +171,22 @@ path.gedge{fill:none;stroke-width:1.4}
 <script src="vendor/dagre.min.js"></script>
 <script>
 const getJSON=u=>fetch(u).then(r=>{if(!r.ok)throw new Error(r.status);return r.json()});
-Promise.all([getJSON("data/theorems.json"),getJSON("data/relations.json").catch(()=>null)]).then(([DATA,REL])=>{
+Promise.all([getJSON("data/theorems.json"),getJSON("data/relations.json").catch(()=>null),getJSON("data/demos.json").catch(()=>null)]).then(([DATA,REL,DEMOS])=>{
 const ROWS=DATA.theorems;
 document.getElementById("total").textContent=ROWS.length;
 document.querySelectorAll("[data-n]").forEach(el=>el.textContent=ROWS.filter(t=>t.status===el.dataset.n).length);
 const STATUS_TAG={toc_only:"目录补写",placeholder:"仅有标题"};
+// 专题页：定理编号 → 出现在哪些标签里
+const DEMO_BY={};
+if(DEMOS)(DEMOS.links||[]).forEach(l=>(l.theorem_ids||[]).forEach(id=>(DEMO_BY[id]=DEMO_BY[id]||[]).push(l)));
+function demoButtons(id){
+  const ls=DEMO_BY[id]; if(!ls)return null;
+  const box=document.createElement("div"); box.className="demos";
+  ls.forEach(l=>{const a=document.createElement("a");a.className="chip";
+    a.href=`${DEMOS.page||"explore/nine-point.html"}#${l.anchor}`;
+    a.textContent=ls.length>1?`看动态图 · ${l.title}`:"看动态图";a.title=`专题页：${l.title}`;box.append(a)});
+  return box;
+}
 
 
 const LAYERS=["射影","仿射","欧氏"];
@@ -300,6 +312,7 @@ function renderPanel(){
     if(STATUS_TAG[r.status]){const s=document.createElement("span");s.className="tag warn";s.textContent=STATUS_TAG[r.status];meta.append(s)}
     [["出处",r.source],["小类",r.subcategory],["结论类型",r.conclusion]].forEach(([k,v])=>{const s=document.createElement("span");s.className="tag";s.textContent=`${k}：${v}`;meta.append(s)});
     det.append(meta);
+    const dm=demoButtons(r.id); if(dm)det.append(dm);
   } else det.hidden=true;
   const list=document.getElementById("list"); list.innerHTML="";
   (book||query?m:leaves).forEach(d=>{
@@ -462,6 +475,7 @@ function gPanel(){
   if(STATUS_TAG[r.status]){const s=document.createElement("span");s.className="tag warn";s.textContent=STATUS_TAG[r.status];meta.append(s)}
   tags.forEach(([k,v])=>{const s=document.createElement("span");s.className="tag";s.textContent=`${k}：${v}`;meta.append(s)});
   det.append(meta);
+  const dm=demoButtons(gSel); if(dm)det.append(dm);
   const groups=[
     ["由此推广而来（更简单）",EDGES.filter(e=>e.type==="generalizes"&&e.to===gSel).map(e=>[e.from,e])],
     ["可推广为（更一般）",EDGES.filter(e=>e.type==="generalizes"&&e.from===gSel).map(e=>[e.to,e])],
@@ -499,6 +513,26 @@ const repaint=()=>{paint();gPaint()};
 matchMedia("(prefers-color-scheme: dark)").addEventListener("change",repaint);
 new MutationObserver(repaint).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
 paint(); renderPanel();
+
+/* ---------- 锚点 #T136：打开时选中该定理 ---------- */
+const LEAF_BY_ID={};
+root.leaves().forEach(d=>{if(d.data.idx!==undefined)LEAF_BY_ID[ROWS[d.data.idx].id]=d});
+function openAnchor(){
+  const id=decodeURIComponent(location.hash.slice(1));
+  if(!/^[TX]\d{3}$/.test(id))return;
+  const leaf=LEAF_BY_ID[id], inGraph=GIDS.includes(id)&&REL&&EDGES.length;
+  // 优先留在当前视图；当前视图找不到时切到能找到的那个
+  if(view==="graph"&&inGraph){ gSel=null; gPick(id,true); return }
+  if(leaf){
+    if(view!=="sun")setView("sun");
+    zoom(leaf.parent); pick(leaf);
+    if(matchMedia("(max-width:860px)").matches)document.querySelector(".panel").scrollIntoView({block:"start"});
+    return;
+  }
+  if(inGraph){ setView("graph"); gSel=null; gPick(id,true) }
+}
+window.addEventListener("hashchange",openAnchor);
+openAnchor();
 
 }).catch(err=>{document.getElementById("ptitle").textContent="数据没有加载出来";
 document.getElementById("pcount").textContent="请通过本地服务器或部署后的网址打开（直接双击 index.html 打不开数据）。";});
