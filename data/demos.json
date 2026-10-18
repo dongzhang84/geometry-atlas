@@ -3,6 +3,13 @@
  "page": "explore/nine-point.html",
  "links": [
   {
+   "anchor": "orthocentric",
+   "title": "九点圆",
+   "theorem_ids": [
+    "T136"
+   ]
+  },
+  {
    "anchor": "euler",
    "title": "欧拉线",
    "theorem_ids": [
@@ -36,14 +43,6 @@
     "T150",
     "T151"
    ]
-  },
-  {
-   "anchor": "orthocentric",
-   "title": "垂心组",
-   "match": [
-    "垂心"
-   ],
-   "theorem_ids": []
   },
   {
    "anchor": "hyperbola",

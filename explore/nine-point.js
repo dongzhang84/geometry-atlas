@@ -29,8 +29,8 @@
   const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim() || '#888';
 
   const TABS = [
-    ['euler', '欧拉线'], ['homothety', '外接圆位似'], ['feuerbach', 'Feuerbach 相切'],
-    ['simson', '西摩松线'], ['orthocentric', '垂心组'], ['hyperbola', '等轴双曲线'],
+    ['orthocentric', '九点圆'], ['euler', '欧拉线'], ['homothety', '外接圆位似'],
+    ['feuerbach', 'Feuerbach 相切'], ['simson', '西摩松线'], ['hyperbola', '等轴双曲线'],
   ];
   const LEG = {
     euler: [[BL, '中垂线 → O'], [TE, '中线 → G'], [PK, '高 → H'], [CO, '欧拉线'], [PU, '九点圆']],
@@ -42,7 +42,7 @@
   };
 
   const state = {
-    tab: 'euler',
+    tab: TABS[0][0],
     V: [{ x: -2.0, y: 1.2 }, { x: 2.2, y: 1.2 }, { x: -1.0, y: -1.5 }],
     show: { pb: true, md: true, al: true },
     k: 1, center: 'H', theta: -0.6, tri: 0, Q: null, trail: [],
@@ -184,7 +184,8 @@
         ninePoints(T[0], T[1], T[2]).forEach((p) => dot(p, CO, 4.5));
       }
       dot(g.H, PK, 5); lab(g.H, 'H', 8, -8);
-      return '用上面的按钮切换三角形。A、B、C、H 中任取三点组成的四个三角形，每个的垂心正好是剩下的那个点，它们的九点圆是同一个。' +
+      return '三角形三边的中点、三条高的垂足、三个顶点到垂心连线的中点，这九个点在同一个圆上，叫做九点圆。' +
+        '<br>用上面的按钮切换三角形：A、B、C、H 中任取三点组成的四个三角形，每个的垂心正好是剩下的那个点，它们的九点圆是同一个。' +
         (flat ? '<br><span class="note">现在是直角三角形，垂心 H 落在直角顶点上，这个三角形退化成一条线段，没有高和九点，只画出三边。</span>' : '');
     },
     hyperbola(g) {
@@ -277,7 +278,7 @@
     LEG[state.tab].forEach(([c, n]) => { const s = document.createElement('span'); s.innerHTML = '<i style="background:' + c + '"></i>' + n; legendEl.appendChild(s); });
   }
   function setTab(id, pushHash) {
-    if (!DRAW[id]) id = 'euler';
+    if (!DRAW[id]) id = TABS[0][0];
     state.tab = id; state.trail = []; if (id === 'homothety') state.k = 1;
     if (pushHash && location.hash !== '#' + id) history.replaceState(null, '', '#' + id);
     renderTabs(); renderOpts(); renderRelated(); draw();
@@ -333,5 +334,5 @@
   if (window.ResizeObserver) new ResizeObserver(onResize).observe(cv.parentElement); else window.addEventListener('resize', onResize);
 
   fit();
-  setTab(location.hash.slice(1) || 'euler', false);
+  setTab(location.hash.slice(1) || TABS[0][0], false);
 })();
