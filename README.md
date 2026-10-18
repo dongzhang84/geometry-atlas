@@ -8,7 +8,7 @@
 - **推广图**：定理之间的推广、射影对偶、逆命题关系，从简单的定理往下推到更一般的定理。
 - **专题页**：可拖动的动态几何图，目前有「九点圆和它的邻居」，和主页的定理互相链接。
 
-更新记录见 [CHANGELOG.md](CHANGELOG.md)，文档与待办见 [TRACKER.md](TRACKER.md)。
+更新记录、待办和已知问题都在 [CHANGELOG.md](CHANGELOG.md)。
 
 - 吉川实夫著、王邦珍译《近世综合几何学》，商务印书馆，1925
 - 严济慈《几何证题法》，1928 年初版（依据 1982 年高等教育出版社白话本）
@@ -23,8 +23,7 @@ data/relations.json   定理之间的推广、对偶、逆命题关系
 data/demos.json       专题页各标签 ↔ 目录定理编号的对应表
 explore/              专题页（可拖动的动态几何图），见下文「专题页」
 scripts/validate.py   数据检查脚本
-CHANGELOG.md          更新记录
-TRACKER.md            文档清单、待办与已知问题
+CHANGELOG.md          更新记录、待办与已知问题
 vendor/d3.min.js      D3 v7.8.5（画图库，ISC 许可证见 vendor/d3-LICENSE）
 vendor/dagre.min.js   dagre 0.8.5（推广图的分层布局，MIT 许可证见 vendor/dagre-LICENSE）
 ```
@@ -140,4 +139,4 @@ npx serve .
 
 ## 待办
 
-数据核对、文档缺口和已知问题统一记在 [TRACKER.md](TRACKER.md)。
+数据核对、文档缺口和已知问题统一记在 [CHANGELOG.md](CHANGELOG.md) 的「待办」一节。
