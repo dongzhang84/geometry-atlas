@@ -100,6 +100,8 @@
   function tri(X, Y, Z, col, w) { seg(X, Y, col, w); seg(Y, Z, col, w); seg(Z, X, col, w); }
   function sides(g, c) { lineInf(g.A, g.B, c, 0.5, [2, 4]); lineInf(g.B, g.C, c, 0.5, [2, 4]); lineInf(g.C, g.A, c, 0.5, [2, 4]); }
   const fmt = (x, n = 2) => x.toFixed(n);
+  /** 图下说明：上面一段只写定理，下面一段写操作方法、图上标记和实测 */
+  const info = (thm, ops) => '<p class="thm">' + thm + '</p>' + (ops ? '<p class="ops">' + ops + '</p>' : '');
 
   /* ---------- 各标签页 ---------- */
   const DRAW = {
@@ -117,9 +119,10 @@
       const dir = sub(g.H, g.O), same = near(g.O, g.G, g);
       if (same) { dot(g.O, CO, 5.5); lab(g.O, 'O = G = H = N', 9, -9); }
       else [[g.O, 'O', BL, 1], [g.G, 'G', TE, -1], [g.N, 'N', PU, 1], [g.H, 'H', PK, -1]].forEach(([p, n, c, sd]) => { dot(p, c, 5.5); labPerp(p, n, dir, sd); });
-      return '三条中垂线交于外心 O，三条中线交于重心 G，三条高交于垂心 H。O、G、H 在一条线上（欧拉线），九点圆圆心 N 是 OH 的中点。' +
-        '<br><span class="note">' + (same ? '三角形接近等边：O、G、H、N 几乎重合，欧拉线不再确定。' :
-          '实测：ON = ' + fmt(len(sub(g.N, g.O))) + '，NH = ' + fmt(len(sub(g.H, g.N))) + '；OG : GH = 1 : ' + fmt(len(sub(g.H, g.G)) / len(sub(g.G, g.O))) + '。') + '</span>';
+      return info('三条中垂线交于外心 O，三条中线交于重心 G，三条高交于垂心 H。O、G、H 在一条直线上，叫做欧拉线，并且 OG : GH = 1 : 2。九点圆的圆心 N 是 OH 的中点。',
+        '拖动顶点 A、B、C 改变三角形；用上面的复选框显示或隐藏中垂线（蓝）、中线（绿）、高（粉）。橙色粗线是欧拉线，紫色是九点圆。<br>' +
+        (same ? '三角形接近等边：O、G、H、N 几乎重合，欧拉线不再确定。' :
+          '实测：ON = ' + fmt(len(sub(g.N, g.O))) + '，NH = ' + fmt(len(sub(g.H, g.N))) + '；OG : GH = 1 : ' + fmt(len(sub(g.H, g.G)) / len(sub(g.G, g.O))) + '。'));
     },
     homothety(g) {
       const Cn = state.center === 'H' ? g.H : g.G, cn = state.center, k = state.k, target = cn === 'H' ? 0.5 : -0.5;
@@ -136,13 +139,13 @@
       dot(Cn, PK, 6); lab(Cn, cn, 8, -8);
       const hit = Math.abs(k - target) < 0.006;
       if (hit) { dot(g.N, PU, 5); lab(g.N, 'N', 8, 14); }
-      let s = '<b>位似</b>就是以一个点为中心，按同一个比例把整个图放大或缩小：每个点 X 沿着从中心出发、经过 X 的射线移动，新位置 X′ 到中心的距离 = k × 原来的距离（k 为负时，X′ 跑到中心的另一侧）。' +
-        '<br><span class="note">现在中心是 ' + cn + '，k = ' + fmt(k) + '。以 P 为例：' + cn + 'P = ' + fmt(len(sub(P, Cn))) + '，' + cn + 'P′ = ' + fmt(len(sub(Pi, Cn))) +
-        '。灰色是外接圆上 16 个样点，琥珀色是它们的像，连起来就是缩放后的圆。</span><br>';
-      s += hit ? '<b style="color:' + PU + '">此时 k = ' + target + '：外接圆上每个点的像都正好落在九点圆上，缩放后的圆和九点圆重合；圆心 O 被送到九点圆圆心 N，半径从 R 变成 R/2。' +
-        (cn === 'H' ? 'A、B、C 的像是 AH、BH、CH 的中点，P 的像就是 PH 的中点。' : 'A、B、C 的像是三边的中点。') + '</b>'
-        : '把滑块拖到 k = ' + target + '，看缩放后的圆会变成什么。';
-      return s;
+      const ops = '缩放的意思：以一个点为中心，每个点 X 沿着从中心出发、经过 X 的射线移动，新位置 X′ 到中心的距离 = k × 原来的距离（k 为负时，X′ 跑到中心的另一侧）。' +
+        '<br>用上面的按钮选择以 H 还是 G 为中心，拖动滑块改变 k；在画面上拖动（顶点以外的地方）让 P 沿外接圆移动，也可以拖动顶点。灰色是外接圆上 16 个样点，棕色是它们缩放后的位置，连起来就是缩放后的圆。' +
+        '<br>现在中心是 ' + cn + '，k = ' + fmt(k) + '：' + cn + 'P = ' + fmt(len(sub(P, Cn))) + '，' + cn + 'P′ = ' + fmt(len(sub(Pi, Cn))) + '。' +
+        (hit ? '<b style="color:' + PU + '">此时缩放后的圆和九点圆重合：圆心 O 被送到 N，半径从 R 变成 R/2；' +
+          (cn === 'H' ? 'A、B、C 的像是 AH、BH、CH 的中点，P 的像就是 PH 的中点。' : 'A、B、C 的像是三边的中点。') + '</b>'
+          : '把滑块拖到 k = ' + target + '，看缩放后的圆会变成什么。');
+      return info('以垂心 H 为中心，把外接圆缩小到一半（k = 1/2），得到的正是九点圆；以重心 G 为中心、按 k = −1/2 缩放，也得到九点圆。所以九点圆的半径是外接圆半径的一半，圆心 N 是 OH 的中点。', ops);
     },
     feuerbach(g) {
       const sec = css('--muted');
@@ -154,9 +157,10 @@
       g.excircles.forEach((e) => { const q = tp(e); seg(g.N, q, CO, 0.8, [3, 3]); dot(q, CO, 4.5); });
       dot(g.N, PU, 5); dot(g.I, TE, 5);
       if (same) lab(g.N, 'N = I', 8, -8); else { lab(g.N, 'N', 8, -8); lab(g.I, 'I', 8, -8); }
-      return '三条角平分线交于内心 I。九点圆与内切圆相切，切点 T 在直线 NI 上，且 NI = R/2 − r（R 为外接圆半径，r 为内切圆半径）。三个旁切圆（虚线，可能伸出画面）也与九点圆相切。' +
-        '<br><span class="note">' + (same ? '等边三角形中九点圆与内切圆重合（N 与 I 重合，r = R/2），切点不再唯一，所以不画直线 NI 和切点 T。' :
-          '实测：NI = ' + fmt(len(sub(g.I, g.N)), 3) + '，R/2 − r = ' + fmt(g.r9 - g.r, 3) + '。') + '</span>';
+      return info('费尔巴哈定理：三角形的九点圆与内切圆相切，也与三个旁切圆相切。设 R 为外接圆半径、r 为内切圆半径、I 为内心，则九点圆圆心 N 到内心的距离 NI = R/2 − r，九点圆与内切圆的切点 T 在直线 NI 上。',
+        '拖动顶点 A、B、C 改变三角形。绿色虚线是三条角平分线（交于内心 I），绿色实线圆是内切圆，绿色虚线圆是三个旁切圆（可能伸出画面），紫色是九点圆，橙色点是四个切点。<br>' +
+        (same ? '等边三角形中九点圆与内切圆重合（N 与 I 重合，r = R/2），切点不再唯一，所以不画直线 NI 和切点 T。' :
+          '实测：NI = ' + fmt(len(sub(g.I, g.N)), 3) + '，R/2 − r = ' + fmt(g.r9 - g.r, 3) + '。'));
     },
     simson(g) {
       const sec = css('--muted');
@@ -167,9 +171,10 @@
       const pr = [[0, 1], [1, 2], [0, 2]].reduce((b, ij) => len(sub(f[ij[0]], f[ij[1]])) > len(sub(f[b[0]], f[b[1]])) ? ij : b);
       lineInf(f[pr[0]], f[pr[1]], TE, 1.8);
       seg(P, g.H, AM, 1.6); const M = mid(P, g.H);
-      dot(M, CO, 6.5); dot(P, AM, 7); dot(g.H, PK, 5); lab(P, 'P（拖我）', 9, -9); lab(g.H, 'H', 8, -8); lab(M, 'M', 8, 14);
-      return '在画面上拖动（顶点以外的地方），P 沿外接圆移动。P 到三边的三个垂足共线（西摩松线），这条线平分 PH，中点 M 始终在九点圆上。' +
-        '<br><span class="note">M 在九点圆上，是因为以 H 为中心缩小一半把外接圆变成九点圆（见「缩小外接圆」）；西摩松线经过 M，可以用复数直接算出来。</span>';
+      dot(M, CO, 6.5); dot(P, AM, 7); dot(g.H, PK, 5); lab(P, 'P', 9, -9); lab(g.H, 'H', 8, -8); lab(M, 'M', 8, 14);
+      return info('西摩松定理：P 是三角形外接圆上任意一点，从 P 向三边（或其延长线）作垂线，三个垂足在一条直线上，这条直线叫做 P 的西摩松线。西摩松线平分 P 与垂心 H 的连线 PH，PH 的中点 M 在九点圆上。',
+        '在画面上拖动（顶点以外的地方），P 沿外接圆移动；也可以拖动顶点。灰线是 P 到三边的垂线，绿色点是三个垂足，绿色直线是西摩松线，棕色线段是 PH，橙色点是它的中点 M。' +
+        '<br>M 为什么在九点圆上：以 H 为中心把外接圆缩小一半就是九点圆（见「缩小外接圆」），P 被送到 PH 的中点 M。');
     },
     orthocentric(g) {
       const sec = css('--muted');
@@ -184,9 +189,10 @@
         ninePoints(T[0], T[1], T[2]).forEach((p) => dot(p, CO, 4.5));
       }
       dot(g.H, PK, 5); lab(g.H, 'H', 8, -8);
-      return '三角形三边的中点、三条高的垂足、三个顶点到垂心连线的中点，这九个点在同一个圆上，叫做九点圆。' +
-        '<br>用上面的按钮切换三角形：A、B、C、H 中任取三点组成的四个三角形，每个的垂心正好是剩下的那个点，它们的九点圆是同一个。' +
-        (flat ? '<br><span class="note">现在是直角三角形，垂心 H 落在直角顶点上，这个三角形退化成一条线段，没有高和九点，只画出三边。</span>' : '');
+      return info('三角形三边的中点、三条高的垂足、三个顶点到垂心连线的中点，这九个点在同一个圆上，叫做九点圆。' +
+        '<br>进一步：A、B、C 和垂心 H 这四个点中任取三点，组成四个三角形，每个三角形的垂心正好是剩下的那个点；这四个三角形共用同一个九点圆。',
+        '拖动顶点 A、B、C 改变三角形；用上面的按钮在四个三角形之间切换。绿色是当前三角形，粉色虚线是它的三条高，橙色是它的九个点，紫色是九点圆。' +
+        (flat ? '<br>现在是直角三角形，垂心 H 落在直角顶点上，这个三角形退化成一条线段，没有高和九点，只画出三边。' : ''));
     },
     conic(g) {
       const sec = css('--muted'), ink = css('--ink'), R = g.R, V = [g.A, g.B, g.C];
@@ -206,14 +212,16 @@
       const scr = (X) => S(X), close = (X, Y) => len(sub(scr(X), scr(Y))) < 1;
       const onVertex = V.some((X) => close(X, P));
       const onSide = !onVertex && sides.some(([U, X]) => close(foot(P, U, X), P));
-      const base = '任取四点 A、B、C、P，6 条连线的中点和 3 个对角点（AP∩BC、BP∩CA、CP∩AB）共 9 个点，总在同一条二次曲线上（Bôcher，1892）。' +
-        'P 在三角形内部或顶点背后的区域时是椭圆，在边的外侧时是双曲线；P 在外接圆上时是等轴双曲线；P 在垂心时就是九点圆。' +
-        '所以九点圆是这条定理在 P 落在垂心时的特例：从欧氏几何升到仿射几何，「圆」变成了「二次曲线」。<br>';
-      const finishP = () => { dot(P, ink, 6.5); lab(P, 'P（拖我）', 9, -9); };
+      const thm = '九点二次曲线（Bôcher，1892）：任取四点 A、B、C、P（其中任意三点不共线），六条连线 AB、BC、CA、AP、BP、CP 的中点，和三个对角点 AP∩BC、BP∩CA、CP∩AB，这 9 个点在同一条二次曲线上。' +
+        'P 在三角形内部，或在顶点背后的对顶角区域时，这条曲线是椭圆；P 在边的外侧时是双曲线；P 在外接圆上时是等轴双曲线；P 在垂心时就是九点圆。';
+      const ops0 = '在画面上拖动（顶点以外的地方）移动 P，也可以拖动顶点。绿色点是 6 个中点，橙色点是 3 个对角点，紫色是过这 9 点的二次曲线；背景浅绿表示 P 在这里时曲线是椭圆，浅橙表示是双曲线。' +
+        '「把 P 放到垂心」会把 P 移到垂心；勾选「让 P 只能沿外接圆走」后，P 被限制在外接圆上。' +
+        '<br>九点圆是这条定理在 P 落在垂心时的特例：从欧氏几何升到仿射几何，「圆」变成了「二次曲线」。<br>';
+      const finishP = () => { dot(P, ink, 6.5); lab(P, 'P', 9, -9); };
       if (onVertex || onSide) {
         finishP(); setKind('—');
-        return base + '<span class="note">' + (onVertex ? 'P 与一个顶点重合，四点只剩三个，九个点里有几个重合，确定不了二次曲线。把 P 拖开一点。'
-          : 'P 正好在一条边所在的直线上，九点二次曲线退化成两条直线，所以暂不画曲线。把 P 拖离这条线。') + '</span>';
+        return info(thm, ops0 + (onVertex ? 'P 与一个顶点重合，四点只剩三个，九个点里有几个重合，确定不了二次曲线。把 P 拖开一点。'
+          : 'P 正好在一条边所在的直线上，九点二次曲线退化成两条直线，所以暂不画曲线。把 P 拖离这条线。'));
       }
 
       // 用 5 个中点确定曲线（只用中点，P 靠近边线时也稳定）
@@ -222,7 +230,7 @@
       const co = conicThrough(mids.slice(0, 5).map(nrm)), big = Math.max(...co.map(Math.abs));
       if (!(big > 1e-12) || !co.every(isFinite)) {
         finishP(); setKind('—');
-        return base + '<span class="note">这个位置上九个点退化，确定不了二次曲线。把 P 拖开一点。</span>';
+        return info(thm, ops0 + '这个位置上九个点退化，确定不了二次曲线。把 P 拖开一点。');
       }
       ctx.strokeStyle = PU; ctx.lineWidth = LW(2.4);
       traceImplicit(ctx, (sx, sy) => evalConic(co, nrm(Wd({ x: sx, y: sy }))), W, H, 3);
@@ -248,8 +256,8 @@
       const far = diag.filter((p) => !p).length;
       diag.forEach((p) => { if (p) { const q = S(p); if (q.x > -W && q.x < 2 * W && q.y > -H && q.y < 2 * H) dot(p, CO, 5); } });
       finishP();
-      return base + '<span class="note">现在曲线是<b>' + kind + '</b>。' + note +
-        (far ? '有 ' + far + ' 个对角点在无穷远处（P 与某个顶点的连线平行于对边）。' : '') + '</span>';
+      return info(thm, ops0 + '现在曲线是<b>' + kind + '</b>。' + note +
+        (far ? '有 ' + far + ' 个对角点在无穷远处（P 与某个顶点的连线平行于对边）。' : ''));
     },
   };
 
