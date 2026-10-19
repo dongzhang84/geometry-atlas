@@ -24,7 +24,7 @@ data/demos.json       专题页各标签 ↔ 目录定理编号的对应表
 explore/              专题页（可拖动的动态几何图），见下文「专题页」
 scripts/validate.py   数据检查脚本
 docs/                 长文（《九点圆定理系统》）与配图说明
-docs/code/            该文前三轮数值试探的代码，见 docs/code/README.md
+docs/code/            前四轮数值试探的代码，见 docs/code/README.md
 CHANGELOG.md          更新记录、待办与已知问题
 vendor/d3.min.js      D3 v7.8.5（画图库，ISC 许可证见 vendor/d3-LICENSE）
 vendor/dagre.min.js   dagre 0.8.5（推广图的分层布局，MIT 许可证见 vendor/dagre-LICENSE）
@@ -86,7 +86,14 @@ vendor/dagre.min.js   dagre 0.8.5（推广图的分层布局，MIT 许可证见 
 - 第二轮：三角形加任意点 P，P 扮演垂心，九点圆推广成九点二次曲线；
 - 第三轮：把「圆」推广成同形的椭圆和双曲线，第一轮的 37 组共线、25 个共圆一一对应，包括 Feuerbach 相切的二次曲线版本。
 
-三轮都没有找到新定理，产出是结构：散落的已知事实挂到同一条上游定理之下。配图在 `pics/`，代码在 `docs/code/`（见该目录的 README）。
+三轮都没有找到新定理，产出是结构：散落的已知事实挂到同一条上游定理之下。
+
+接着写的两篇在同一目录下：
+
+- `docs/九点圆定理系统第四轮：扩大搜索范围.md`：把点的范围从 35 个名点扩大到 ETC 的 753 个三角形中心，找到 623 个四点以上共圆，逐个判断能否由已知事实推出，并做文献检索。同样没有确认新定理。
+- `docs/四面体中心库.md`：仿照 ETC，为一般四面体生成的 1957 个「中心」（T1–T1957），作为下一步扫描共线、共面、共球的点库。
+
+配图在 `pics/`，代码在 `docs/code/`（见该目录的 README）。
 
 ## 专题页
 
