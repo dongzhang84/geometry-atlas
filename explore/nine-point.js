@@ -1,8 +1,8 @@
 /* Geometry Atlas · 专题页「九点圆和其它相关定理」
  * 依赖 geometry.js（window.GA）。
- * 每个标签页有锚点：#orthocentric #euler #homothety #feuerbach #simson #conic #nagel #soddy */
+ * 每个标签页有锚点：#orthocentric #euler #homothety #feuerbach #simson #conic #nagel #soddy #mandart */
 (function () {
-  const { sub, add, mul, mid, len, foot, ninePoints, orthocenter, triangleData,
+  const { sub, add, mul, mid, len, foot, ninePoints, orthocenter, triangleData, circumcircle,
     evalConic, conicCenter, asymptoteSlopes, intersect, conicThrough, traceImplicit, nagelData, soddyData } = window.GA;
 
   const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
@@ -31,7 +31,7 @@
   const TABS = [
     ['orthocentric', '九点圆'], ['euler', '欧拉线'], ['homothety', '缩小外接圆'],
     ['feuerbach', 'Feuerbach 相切'], ['simson', '西摩松线'], ['conic', '九点二次曲线'],
-    ['nagel', 'Nagel 线'], ['soddy', 'Soddy 线'],
+    ['nagel', 'Nagel 线'], ['soddy', 'Soddy 线'], ['mandart', 'Mandart 圆'],
   ];
   const LEG = {
     euler: [[BL, '中垂线 → O'], [TE, '中线 → G'], [PK, '高 → H'], [CO, '欧拉线'], [PU, '九点圆']],
@@ -41,6 +41,7 @@
     orthocentric: [[TE, '当前三角形'], [PK, '它的三条高'], [CO, '它的 9 个点'], [PU, '九点圆']],
     nagel: [[AM, '内切圆、内心 I'], [PK, '顶点到旁切圆切点的连线 → Na'], [TE, '中线 → G'], [BL, 'Spieker 点 Sp'], [CO, 'Nagel 线']],
     soddy: [[GR, '以顶点为圆心的三个圆'], [TE, '顶点到切点的连线 → Ge'], [PU, '内 Soddy 圆'], [PK, '外 Soddy 圆'], [BL, 'de Longchamps 点 L'], [CO, 'Soddy 线']],
+    mandart: [[TE, '内切圆、三个旁切圆'], [CO, '旁切点 Ua、Ub、Uc 与旁切点三角形'], [AM, 'Mandart 圆'], [PU, '九点圆'], [PK, 'Feuerbach 点 F']],
     conic: [[TE, '6 条连线的中点'], [CO, '3 个对角点、渐近线'], [PU, '九点二次曲线'], ['rgba(29,158,117,.45)', '背景绿：P 在此处时是椭圆'], ['rgba(216,90,48,.4)', '背景橙：P 在此处时是双曲线']],
   };
 
@@ -349,6 +350,34 @@
           '实测：内 Soddy 圆半径 ' + fmt(d.r1, 3) + (outer ? '，外 Soddy 圆半径 ' + fmt(d.r2, 3) + '。' : '。') +
           (outer ? '' : '此时外 Soddy 圆退化成一条直线（和三个圆都相切的直线），不画外 Soddy 圆和 S₂。') +
           (offscreen.length ? '画面外的点：' + offscreen.join('、') + '。' : '')));
+    },
+    mandart(g) {
+      const sec = css('--muted'), d = nagelData(g.A, g.B, g.C);
+      sides(g, sec);
+      g.excircles.forEach((e) => circle(e, e.r, TE, 1, [4, 3]));
+      circle(g.I, g.r, TE, 1.6);
+      const U = [d.Ua, d.Ub, d.Uc];
+      tri(U[0], U[1], U[2], CO, 1.1);
+      const M = circumcircle(U[0], U[1], U[2]);
+      circle(M, M.r, AM, 2.4);
+      circle(g.N, g.r9, PU, 2.6);
+      U.forEach((u) => dot(u, CO, 5));
+      // Feuerbach 点：九点圆与内切圆的切点，在直线 NI 上
+      const same = near(g.N, g.I, g);
+      let F = null;
+      if (!same) {
+        F = add(g.N, mul(sub(g.I, g.N), g.r9 / len(sub(g.I, g.N))));
+        seg(g.N, g.I, CO, 0.8, [3, 3]); dot(F, PK, 6.5);
+      }
+      dot(g.N, PU, 5); dot(g.I, TE, 5); dot(M, AM, 4.5);
+      labelPoints([[U[0], 'Ua'], [U[1], 'Ub'], [U[2], 'Uc'], [g.N, 'N'], [g.I, 'I'], [M, 'M']]
+        .concat(F ? [[F, 'F']] : []), sub(g.I, g.N));
+      const ops = '拖动顶点 A、B、C 改变三角形。绿色虚线圆是三个旁切圆（可能伸出画面），绿色实线圆是内切圆；' +
+        '橙色点是三个旁切点 Ua、Ub、Uc，橙色细线是它们连成的旁切点三角形，棕色是这个三角形的外接圆，也就是 Mandart 圆（圆心 M）；' +
+        '紫色是九点圆，粉色点是 Feuerbach 点 F。<br>';
+      return info('Mandart 圆：三个旁切圆与它们所对的边分别切于 Ua、Ub、Uc，这三点连成旁切点三角形，它的外接圆叫 Mandart 圆。这个圆经过 Feuerbach 点 F —— 也就是九点圆与内切圆的切点。',
+        ops + (same ? '等边三角形中九点圆与内切圆重合，切点不唯一，所以不标 F。'
+          : '实测：Mandart 圆半径 ' + fmt(M.r, 3) + '，圆心 M 到 F 的距离 ' + fmt(len(sub(F, M)), 3) + '，两者相等即 F 在圆上。'));
     },
   };
 
