@@ -78,13 +78,23 @@ vendor/dagre.min.js   dagre 0.8.5（推广图的分层布局，MIT 许可证见 
 
 `external` 数组放目录外的著名定理（如余弦定理），id 从 X001 起编，只有 name 和 statement，不进 theorems.json，总数不超过 30 个。
 
+## 长文：九点圆定理系统
+
+`docs/九点圆定理系统.md` 是以九点圆为中心的一组三角形定理的整理，以及它们之间的联系。主体是三轮数值试探：
+
+- 第一轮：三角形的 35 个名点，扫描所有三点共线、四点共圆；
+- 第二轮：三角形加任意点 P，P 扮演垂心，九点圆推广成九点二次曲线；
+- 第三轮：把「圆」推广成同形的椭圆和双曲线，第一轮的 37 组共线、25 个共圆一一对应，包括 Feuerbach 相切的二次曲线版本。
+
+三轮都没有找到新定理，产出是结构：散落的已知事实挂到同一条上游定理之下。配图在 `pics/`，代码在 `docs/code/`（见该目录的 README）。
+
 ## 专题页
 
 `explore/` 下放独立的专题页，每页把一组相关定理做成可拖动的动态几何图。主页顶部的「专题：九点圆」进入。
 
 ```
 explore/nine-point.html   专题页「九点圆和其它相关定理」（配色与主页一致，支持深色模式）
-explore/nine-point.js     页面逻辑：八个标签页的绘制与交互
+explore/nine-point.js     页面逻辑：九个标签页的绘制与交互
 explore/geometry.js       共用几何计算（外心、垂心、垂足、九点、重心坐标、Nagel 线与 Soddy 线上的点、直线交点、过五点的二次曲线、隐函数描线），以后的专题页可复用
 ```
 
@@ -100,6 +110,7 @@ explore/geometry.js       共用几何计算（外心、垂心、垂足、九点
 | `#conic` | 九点二次曲线：任意四点 A、B、C、P 的 6 条连线中点和 3 个对角点共一条二次曲线；P 在垂心时是九点圆，在外接圆上时是等轴双曲线；背景按 P 的位置标出椭圆区和双曲线区 | 拖动顶点；拖动 P；按钮把 P 放到垂心；勾选让 P 沿外接圆走 |
 | `#nagel` | Nagel 线：内心 I、重心 G、Spieker 点 Sp、Nagel 点 Na 共线，IG : GNa = 1 : 2，Sp 是 I 与 Na 的中点 | 拖动顶点 |
 | `#soddy` | Soddy 线：以顶点为圆心的三个两两外切的圆，内、外 Soddy 圆的圆心连线过 I、Gergonne 点 Ge、de Longchamps 点 L | 拖动顶点 |
+| `#mandart` | Mandart 圆：三个旁切点 Ua、Ub、Uc 的外接圆，经过 Feuerbach 点 F | 拖动顶点 |
 
 `data/demos.json` 记录每个标签对应的目录定理编号（`theorem_ids`）。两边互相链接：
 
