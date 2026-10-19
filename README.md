@@ -23,6 +23,8 @@ data/relations.json   定理之间的推广、对偶、逆命题关系
 data/demos.json       专题页各标签 ↔ 目录定理编号的对应表
 explore/              专题页（可拖动的动态几何图），见下文「专题页」
 scripts/validate.py   数据检查脚本
+docs/                 长文（《九点圆定理系统》）与配图说明
+docs/code/            该文前三轮数值试探的代码，见 docs/code/README.md
 CHANGELOG.md          更新记录、待办与已知问题
 vendor/d3.min.js      D3 v7.8.5（画图库，ISC 许可证见 vendor/d3-LICENSE）
 vendor/dagre.min.js   dagre 0.8.5（推广图的分层布局，MIT 许可证见 vendor/dagre-LICENSE）
