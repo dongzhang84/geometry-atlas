@@ -24,7 +24,8 @@ data/demos.json       专题页各标签 ↔ 目录定理编号的对应表
 explore/              专题页（可拖动的动态几何图），见下文「专题页」
 scripts/validate.py   数据检查脚本
 docs/                 长文（《九点圆定理系统》）与配图说明
-docs/code/            前四轮数值试探的代码，见 docs/code/README.md
+docs/code/九点圆/     《九点圆定理系统》四轮数值试探的代码
+docs/code/四面体/     《四面体中心库》的点库与扫描代码
 CHANGELOG.md          更新记录、待办与已知问题
 vendor/d3.min.js      D3 v7.8.5（画图库，ISC 许可证见 vendor/d3-LICENSE）
 vendor/dagre.min.js   dagre 0.8.5（推广图的分层布局，MIT 许可证见 vendor/dagre-LICENSE）
@@ -91,9 +92,9 @@ vendor/dagre.min.js   dagre 0.8.5（推广图的分层布局，MIT 许可证见 
 接着写的两篇在同一目录下：
 
 - `docs/九点圆定理系统第四轮：扩大搜索范围.md`：把点的范围从 35 个名点扩大到 ETC 的 753 个三角形中心，找到 623 个四点以上共圆，逐个判断能否由已知事实推出，并做文献检索。同样没有确认新定理。
-- `docs/四面体中心库.md`：仿照 ETC，为一般四面体生成的点库，分两层——1957 个「中心」（T1–T1957）和 52 组、228 个「轨道点」（L1–L52），作为下一步扫描共线、共面、共球的素材。
+- `docs/四面体中心库.md`：仿照 ETC，为一般四面体生成的点库，分两层——1957 个「中心」（T1–T1957）和 52 组、228 个「轨道点」（L1–L52），作为下一步扫描共线、共面、共球的素材；代码在 `docs/code/四面体/`。
 
-配图在 `pics/`，代码在 `docs/code/`（见该目录的 README）。
+配图在 `pics/`，代码在 `docs/code/九点圆/`。
 
 ## 专题页
 
