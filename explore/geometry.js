@@ -161,6 +161,16 @@
     return co;
   }
 
+  /** 过四点的等轴双曲线：在过这四点的二次曲线族里，渐近线互相垂直（a + c = 0）的恰有一条。
+   *  它的中心就是这四点的 Poncelet 点。四点中有三点共线时退化，返回的系数可能接近全 0。 */
+  function rectHyperbolaThrough(pts) {
+    const rows = pts.map((p) => [p.x * p.x, p.x * p.y, p.y * p.y, p.x, p.y, 1]);
+    rows.push([1, 0, 1, 0, 0, 0]);
+    const co = [];
+    for (let j = 0; j < 6; j++) co.push((j % 2 ? -1 : 1) * det5(rows.map((r) => r.filter((_, k) => k !== j))));
+    return co;
+  }
+
   /** 用 marching squares 在画布上描出 F(x, y) = 0；F 接收屏幕坐标 */
   function traceImplicit(ctx, F, width, height, step) {
     ctx.beginPath();
@@ -185,5 +195,5 @@
 
   window.GA = { sub, add, mul, mid, len, circumcircle, orthocenter, foot, ninePoints, triangleData,
     bary, nagelData, soddyData,
-    lineCoeffs, lineProduct, evalConic, conicCenter, asymptoteSlopes, intersect, conicThrough, traceImplicit };
+    lineCoeffs, lineProduct, evalConic, conicCenter, asymptoteSlopes, intersect, conicThrough, rectHyperbolaThrough, traceImplicit };
 })();

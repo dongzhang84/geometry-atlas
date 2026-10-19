@@ -19,7 +19,7 @@
 - [ ] 抽查严济慈部分的公式和字母（从扫描页读出）
 - [ ] 判断三组内容相近的条目是否重复：T047 / T058、T048 / T059、T082 / T107
 - [ ] 人工审核 `relations.json` 中 18 条 `confidence` 为「可能」的边（推广图里画成虚线；其中 5 条西摩松推广只按名称连线，`operation` 暂填「取特殊对象」）
-- [ ] 专题页「九点二次曲线」「Nagel 线」「Soddy 线」「Mandart 圆」四个标签在目录里没有对应定理
+- [ ] 专题页「九点二次曲线」「Nagel 线」「Soddy 线」「Mandart 圆」「Poncelet 点」五个标签在目录里没有对应定理
 - [ ] 把直接沿用原书文字的条目（尤其吉川的文言译文、矢野）改写成自己的表述，只保留出处
 
 ### 待决定
@@ -38,6 +38,8 @@
 ## 2026-10-19
 
 ### 新增
+- 专题页新增标签「Poncelet 点」（`#poncelet`），排在「Mandart 圆」之后：过 A、B、C、P 的等轴双曲线（含两条渐近线）及其中心 Po，同时画出 ABC、PBC、PCA、PAB 四个三角形的九点圆，实测 Po 到四个圆的相对误差。可拖动 P，按钮把 P 放到内心（Po 成为 Feuerbach 点）或垂心（双曲线不再唯一，中心铺满九点圆）。
+- `geometry.js` 新增 `rectHyperbolaThrough`：过四点且渐近线互相垂直的二次曲线，用于求 Poncelet 点。
 - `docs/code/`：前三轮数值试探的代码入库（round1、round2、round3，以及被替换掉的 round3_old），附 `docs/code/README.md` 说明每个脚本的作用、判据和阈值。
 - 长文新增插图：换尺子示意（ruler_stretch）、透视点（perspector）、Feuerbach 推广的椭圆情形（feuerbach_ellipse）。
 - README 增加「长文：九点圆定理系统」一节，文件清单补上 `docs/` 与 `docs/code/`。

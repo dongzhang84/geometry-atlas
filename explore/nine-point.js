@@ -1,9 +1,9 @@
 /* Geometry Atlas · 专题页「九点圆和其它相关定理」
  * 依赖 geometry.js（window.GA）。
- * 每个标签页有锚点：#orthocentric #euler #homothety #feuerbach #simson #conic #nagel #soddy #mandart */
+ * 每个标签页有锚点：#orthocentric #euler #homothety #feuerbach #simson #conic #nagel #soddy #mandart #poncelet */
 (function () {
   const { sub, add, mul, mid, len, foot, ninePoints, orthocenter, triangleData, circumcircle,
-    evalConic, conicCenter, asymptoteSlopes, intersect, conicThrough, traceImplicit, nagelData, soddyData } = window.GA;
+    evalConic, conicCenter, asymptoteSlopes, intersect, conicThrough, rectHyperbolaThrough, traceImplicit, nagelData, soddyData } = window.GA;
 
   const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
   /* 画布按容器实际宽度绘制（单位：CSS 像素）。K 是相对原设计宽度 680 的缩放，
@@ -31,7 +31,7 @@
   const TABS = [
     ['orthocentric', '九点圆'], ['euler', '欧拉线'], ['homothety', '缩小外接圆'],
     ['feuerbach', 'Feuerbach 相切'], ['simson', '西摩松线'], ['conic', '九点二次曲线'],
-    ['nagel', 'Nagel 线'], ['soddy', 'Soddy 线'], ['mandart', 'Mandart 圆'],
+    ['nagel', 'Nagel 线'], ['soddy', 'Soddy 线'], ['mandart', 'Mandart 圆'], ['poncelet', 'Poncelet 点'],
   ];
   const LEG = {
     euler: [[BL, '中垂线 → O'], [TE, '中线 → G'], [PK, '高 → H'], [CO, '欧拉线'], [PU, '九点圆']],
@@ -42,6 +42,7 @@
     nagel: [[AM, '内切圆、内心 I'], [PK, '顶点到旁切圆切点的连线 → Na'], [TE, '中线 → G'], [BL, 'Spieker 点 Sp'], [CO, 'Nagel 线']],
     soddy: [[GR, '以顶点为圆心的三个圆'], [TE, '顶点到切点的连线 → Ge'], [PU, '内 Soddy 圆'], [PK, '外 Soddy 圆'], [BL, 'de Longchamps 点 L'], [CO, 'Soddy 线']],
     mandart: [[TE, '内切圆、三个旁切圆'], [CO, '旁切点 Ua、Ub、Uc 与旁切点三角形'], [AM, 'Mandart 圆'], [PU, '九点圆'], [PK, 'Feuerbach 点 F']],
+    poncelet: [[PU, '过 A、B、C、P 的等轴双曲线'], [CO, '两条渐近线、中心 Po'], [TE, 'ABC 的九点圆'], [BL, 'PBC、PCA、PAB 的九点圆']],
     conic: [[TE, '6 条连线的中点'], [CO, '3 个对角点、渐近线'], [PU, '九点二次曲线'], ['rgba(29,158,117,.45)', '背景绿：P 在此处时是椭圆'], ['rgba(216,90,48,.4)', '背景橙：P 在此处时是双曲线']],
   };
 
@@ -379,6 +380,48 @@
         ops + (same ? '等边三角形中九点圆与内切圆重合，切点不唯一，所以不标 F。'
           : '实测：Mandart 圆半径 ' + fmt(M.r, 3) + '，圆心 M 到 F 的距离 ' + fmt(len(sub(F, M)), 3) + '，两者相等即 F 在圆上。'));
     },
+    poncelet(g) {
+      const sec = css('--muted'), ink = css('--ink'), R = g.R;
+      if (!state.P) state.P = { x: g.G.x + 0.45 * R, y: g.G.y - 0.3 * R };
+      const P = state.P, V = [g.A, g.B, g.C];
+      const nrm = (p) => ({ x: (p.x - g.O.x) / R, y: (p.y - g.O.y) / R });   // 归一化，避免数值问题
+      const un = (p) => ({ x: g.O.x + p.x * R, y: g.O.y + p.y * R });
+      sides(g, sec);
+      [g.A, g.B, g.C].forEach((X) => seg(X, P, sec, 0.9, [4, 3]));
+
+      const thm = 'Poncelet 点：过 A、B、C、P 的二次曲线有一整族，其中渐近线互相垂直的（等轴双曲线）恰有一条，' +
+        '它的中心就是这四点的 Poncelet 点 Po。等价的定义是：A、B、C、P 组成四个三角形 ABC、PBC、PCA、PAB，它们的四个九点圆交于一点，这个点也是 Po。';
+      const base = '在画面上拖动（顶点以外的地方）移动 P，也可以拖动顶点。紫色是那条等轴双曲线，橙色虚线是它的两条渐近线，交点就是中心 Po；绿色是 ABC 的九点圆，蓝色是另外三个三角形的九点圆。<br>';
+
+      // 四个三角形的九点圆
+      const tris = [[g.A, g.B, g.C], [P, g.B, g.C], [P, g.C, g.A], [P, g.A, g.B]];
+      const nps = tris.map(([X, Y, Z]) => {
+        const M = [mid(Y, Z), mid(Z, X), mid(X, Y)];
+        const d = (M[1].x - M[0].x) * (M[2].y - M[0].y) - (M[1].y - M[0].y) * (M[2].x - M[0].x);
+        return Math.abs(d) < 1e-12 * R * R ? null : circumcircle(M[0], M[1], M[2]);
+      });
+      if (nps.some((c) => !c)) { dot(P, ink, 6.5); lab(P, 'P', 9, -9); return info(thm, base + 'P 与一个顶点重合或落在一条边所在的直线上，有的三角形退化，九点圆不存在。把 P 拖开一点。'); }
+      nps.forEach((c, i) => circle({ x: c.x, y: c.y }, c.r, i ? BL : TE, i ? 1.4 : 2.2));
+
+      const co = rectHyperbolaThrough([g.A, g.B, g.C, P].map(nrm));
+      const big = Math.max(...co.map(Math.abs));
+      const Po = big > 1e-12 && co.every(isFinite) ? conicCenter(co) : null;
+      if (!Po) { dot(P, ink, 6.5); lab(P, 'P', 9, -9); return info(thm, base + 'P 落在垂心附近：过 A、B、C、H 的二次曲线全是等轴双曲线，中心铺满整个九点圆，Po 不再唯一。把 P 拖开一点。'); }
+
+      ctx.strokeStyle = PU; ctx.lineWidth = LW(2.4);
+      traceImplicit(ctx, (sx, sy) => evalConic(co, nrm(Wd({ x: sx, y: sy }))), W, H, 3);
+      const Pw = un(Po);
+      asymptoteSlopes(co).forEach((m) => lineInf(Pw, un(add(Po, { x: 1, y: m })), CO, 1.1, [7, 5]));
+      dot(P, ink, 6.5); dot(Pw, CO, 6.5);
+      labelPoints([[P, 'P'], [Pw, 'Po']], sub(P, Pw));
+
+      // 实测：Po 到四个九点圆心的距离应等于各自半径
+      const errs = nps.map((c) => Math.abs(len(sub(Pw, { x: c.x, y: c.y })) - c.r) / c.r);
+      const worst = Math.max(...errs);
+      return info(thm, base +
+        '实测：Po 到四个九点圆心的距离与各自半径之差，相对误差最大 ' + worst.toExponential(1) + '，即 Po 同时落在这四个圆上。' +
+        '<br>把 P 放到内心，Po 就是 Feuerbach 点；把 P 放到垂心，这条双曲线不再唯一。');
+    },
   };
 
   /* ---------- 九点二次曲线：背景分区（离屏画布缓存） ----------
@@ -469,6 +512,11 @@
     if (state.tab === 'orthocentric') {
       ['ABC', 'ABH', 'ACH', 'BCH'].forEach((n, i) => optsEl.appendChild(chip('三角形 ' + n, i === state.tri, () => { state.tri = i; renderOpts(); draw(); })));
     }
+    if (state.tab === 'poncelet') {
+      optsEl.append(
+        chip('把 P 放到内心', false, () => { const g = geo(); state.P = { x: g.I.x, y: g.I.y }; draw(); }),
+        chip('把 P 放到垂心', false, () => { const g = geo(); state.P = { x: g.H.x, y: g.H.y }; draw(); }));
+    }
     if (state.tab === 'conic') {
       optsEl.appendChild(chip('把 P 放到垂心', false, () => { state.onCircle = false; const g = geo(); state.P = { x: g.H.x, y: g.H.y }; renderOpts(); draw(); }));
       const l = document.createElement('label'); l.className = 'ck';
@@ -491,11 +539,12 @@
   /* ---------- 拖动 ---------- */
   let drag = null;
   const pos = (e) => { const r = cv.getBoundingClientRect(); return { x: (e.clientX - r.left) * W / r.width, y: (e.clientY - r.top) * H / r.height }; };
-  const draggablePoint = () => ['simson', 'homothety', 'conic'].includes(state.tab);
+  const draggablePoint = () => ['simson', 'homothety', 'conic', 'poncelet'].includes(state.tab);
   function movePoint(p) {
     const w = Wd(p), g = geo();
     if (state.tab === 'simson' || state.tab === 'homothety') state.theta = Math.atan2(w.y - g.O.y, w.x - g.O.x);
     else if (state.tab === 'conic') state.P = state.onCircle ? onCircumcircle(w, g) : w;
+    else if (state.tab === 'poncelet') state.P = w;
     draw();
   }
   cv.addEventListener('pointerdown', (e) => {
