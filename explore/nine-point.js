@@ -1,6 +1,6 @@
 /* Geometry Atlas · 专题页「九点圆和其它相关定理」
  * 依赖 geometry.js（window.GA）。
- * 每个标签页有锚点：#orthocentric #euler #homothety #feuerbach #simson #conic #nagel #soddy #mandart #poncelet */
+ * 每个标签页有锚点：#orthocentric #euler #homothety #feuerbach #simson #conic #nagel #soddy #mandart #poncelet #sevenpoint */
 (function () {
   const { sub, add, mul, mid, len, foot, ninePoints, orthocenter, triangleData, circumcircle,
     evalConic, conicCenter, asymptoteSlopes, intersect, conicThrough, rectHyperbolaThrough, traceImplicit, nagelData, soddyData } = window.GA;
@@ -32,6 +32,7 @@
     ['orthocentric', '九点圆'], ['euler', '欧拉线'], ['homothety', '缩小外接圆'],
     ['feuerbach', 'Feuerbach 相切'], ['simson', '西摩松线'], ['conic', '九点二次曲线'],
     ['nagel', 'Nagel 线'], ['soddy', 'Soddy 线'], ['mandart', 'Mandart 圆'], ['poncelet', 'Poncelet 点'],
+    ['sevenpoint', '七点球定理'],
   ];
   const LEG = {
     euler: [[BL, '中垂线 → O'], [TE, '中线 → G'], [PK, '高 → H'], [CO, '欧拉线'], [PU, '九点圆']],
@@ -42,6 +43,7 @@
     nagel: [[AM, '内切圆、内心 I'], [PK, '顶点到旁切圆切点的连线 → Na'], [TE, '中线 → G'], [BL, 'Spieker 点 Sp'], [CO, 'Nagel 线']],
     soddy: [[GR, '以顶点为圆心的三个圆'], [TE, '顶点到切点的连线 → Ge'], [PU, '内 Soddy 圆'], [PK, '外 Soddy 圆'], [BL, 'de Longchamps 点 L'], [CO, 'Soddy 线']],
     mandart: [[TE, '内切圆、三个旁切圆'], [CO, '旁切点 Ua、Ub、Uc 与旁切点三角形'], [AM, 'Mandart 圆'], [PU, '九点圆'], [PK, 'Feuerbach 点 F']],
+    sevenpoint: [[PU, '七点球'], [GR, '外接球'], [CO, '七个点'], [AM, 'V0、G、A、C 共线'], [TE, '欧拉线上的 O、G、E、4G−3O'], [BL, 'O、O′、B、4O′−3O 共线']],
     poncelet: [[PU, '过 A、B、C、P 的等轴双曲线'], [CO, '两条渐近线、中心 Po'], [TE, 'ABC 的九点圆'], [BL, 'PBC、PCA、PAB 的九点圆']],
     conic: [[TE, '6 条连线的中点'], [CO, '3 个对角点、渐近线'], [PU, '九点二次曲线'], ['rgba(29,158,117,.45)', '背景绿：P 在此处时是椭圆'], ['rgba(216,90,48,.4)', '背景橙：P 在此处时是双曲线']],
   };
@@ -51,6 +53,7 @@
     V: [{ x: -2.0, y: 1.2 }, { x: 2.2, y: 1.2 }, { x: -1.0, y: -1.5 }],
     show: { pb: true, md: true, al: true },
     k: 1, center: 'H', theta: -0.6, tri: 0, P: null, onCircle: false,
+    rot: { yaw: -0.6, pitch: -1.15 }, tet: null, v0: 0, showCircum: true,
   };
   let view = { s: 80, ox: W / 2, oy: H / 2 };
   const S = (p) => ({ x: p.x * view.s + view.ox, y: p.y * view.s + view.oy });
@@ -456,10 +459,177 @@
     return { x: g.O.x + g.R * Math.cos(m), y: g.O.y + g.R * Math.sin(m) };
   }
 
+
+  /* 七点球是三维的，绘制走 drawSeven（见下），不经过 DRAW 的二维流程；
+     这里登记一个空项，好让 setTab 的标签校验认得它。 */
+  DRAW.sevenpoint = () => '';
+
+  /* ---------- 七点球：一套只在这个标签里用的三维工具 ---------- */
+  const S3 = {
+    sub: (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]],
+    add: (a, b) => [a[0] + b[0], a[1] + b[1], a[2] + b[2]],
+    mul: (a, k) => [a[0] * k, a[1] * k, a[2] * k],
+    dot: (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2],
+    cross: (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]],
+    len: (a) => Math.hypot(a[0], a[1], a[2]),
+  };
+  /** 解 3×3 线性方程组（高斯消元，按列主元） */
+  function solve3(M, r) {
+    const A = M.map((row, i) => [...row, r[i]]);
+    for (let i = 0; i < 3; i++) {
+      let p = i;
+      for (let k = i + 1; k < 3; k++) if (Math.abs(A[k][i]) > Math.abs(A[p][i])) p = k;
+      if (Math.abs(A[p][i]) < 1e-14) return null;
+      [A[i], A[p]] = [A[p], A[i]];
+      const d = A[i][i];
+      for (let j = i; j < 4; j++) A[i][j] /= d;
+      for (let k = 0; k < 3; k++) if (k !== i && A[k][i]) { const f = A[k][i]; for (let j = i; j < 4; j++) A[k][j] -= f * A[i][j]; }
+    }
+    return [A[0][3], A[1][3], A[2][3]];
+  }
+  const sq = (a) => S3.dot(a, a);
+  /** 四面体外接球心 */
+  function circum4(V) {
+    return solve3([S3.mul(S3.sub(V[1], V[0]), 2), S3.mul(S3.sub(V[2], V[0]), 2), S3.mul(S3.sub(V[3], V[0]), 2)],
+      [sq(V[1]) - sq(V[0]), sq(V[2]) - sq(V[0]), sq(V[3]) - sq(V[0])]);
+  }
+  /** 空间中三角形的外心 */
+  function circum3d(P, Q, R) {
+    const n = S3.cross(S3.sub(Q, P), S3.sub(R, P));
+    return solve3([S3.mul(S3.sub(Q, P), 2), S3.mul(S3.sub(R, P), 2), n], [sq(Q) - sq(P), sq(R) - sq(P), S3.dot(n, P)]);
+  }
+  /** 空间中三角形的垂心 */
+  function ortho3d(P, Q, R) {
+    const n = S3.cross(S3.sub(Q, R), S3.sub(R, P));
+    return solve3([S3.sub(Q, R), S3.sub(R, P), n], [S3.dot(S3.sub(Q, R), P), S3.dot(S3.sub(R, P), Q), S3.dot(n, P)]);
+  }
+  /** 七点球：给定四面体与所选顶点下标，返回七个点、球心与半径 */
+  function sevenPoint(V, k) {
+    const O = circum4(V); if (!O) return null;
+    const R = S3.len(S3.sub(V[0], O));
+    const u = V.map((p) => S3.mul(S3.sub(p, O), 1 / R));          // 归一化：O 为原点、R = 1
+    const V0 = u[k], oth = [0, 1, 2, 3].filter((i) => i !== k).map((i) => u[i]);
+    const G = S3.mul(oth.concat([V0]).reduce(S3.add), 0.25);
+    const Op = circum3d(oth[0], oth[1], oth[2]); if (!Op) return null;
+    const Hp = ortho3d(oth[0], oth[1], oth[2]); if (!Hp) return null;
+    const c = solve3([S3.mul(G, 2), S3.mul(Op, 2), S3.mul(V0, 2)],
+      [4 * sq(G) + 1, 4 * sq(Op) + 1, 8 * S3.dot(G, V0) - 3]);
+    if (!c) return null;
+    const r2 = sq(c) - 4; if (!(r2 > 0)) return null;
+    const d = S3.sub(G, V0), t = 2 * (1 - S3.dot(G, V0)) / sq(d);
+    const A = S3.add(V0, S3.mul(d, t));
+    const B = solve3(oth, [1, 1, 1]); if (!B) return null;         // 三个切平面的交点
+    const C = S3.sub(S3.mul(G, 4), S3.mul(V0, 3));
+    const E = S3.mul(G, 1 / sq(G));
+    const un = (p) => S3.add(O, S3.mul(p, R));                     // 还原到原坐标
+    const pts = [[A, 'A'], [B, 'B'], [C, 'C'], [Hp, 'H′'], [E, 'E'], [S3.mul(G, 4), '4G−3O'], [S3.mul(Op, 4), '4O′−3O']];
+    const err = Math.max(...pts.map(([p]) => Math.abs(Math.sqrt(sq(S3.sub(p, c))) - Math.sqrt(r2)))) / Math.sqrt(r2);
+    return { O, R, G: un(G), Op: un(Op), c: un(c), rad: R * Math.sqrt(r2), err,
+      pts: pts.map(([p, n]) => [un(p), n]) };
+  }
+
+
+  /* ---------- 七点球：投影与绘制 ---------- */
+  /** 默认四面体（挑过形状：球不太大，七点都在画面里） */
+  /* 默认四面体：外接球归一化后挑出来的——四个顶点的七点球半径都在 2.3–4.4 R，
+     七个点连同顶点的包围盒只有 1.85 R，整张图不会被巨大的球撑开。 */
+  const TET0 = [[0.479, 0.858, 0.185], [0.118, -0.766, 0.632], [-0.987, -0.14, 0.082], [-0.354, 0.675, 0.647]];
+  function rot3(p) {
+    const { yaw, pitch } = state.rot;
+    const cy = Math.cos(yaw), sy = Math.sin(yaw), cp = Math.cos(pitch), sp = Math.sin(pitch);
+    const x = p[0] * cy - p[1] * sy, y = p[0] * sy + p[1] * cy;      // 绕 z 轴
+    return [x, y * cp - p[2] * sp, y * sp + p[2] * cp];              // 再绕 x 轴
+  }
+  let view3 = { s: 100, ox: 0, oy: 0 };
+  const P3 = (p) => { const q = rot3(p); return { x: view3.ox + q[0] * view3.s, y: view3.oy - q[2] * view3.s }; };
+  function fit3(pts) {
+    const q = pts.map(rot3), xs = q.map((p) => p[0]), zs = q.map((p) => p[2]);
+    const x0 = Math.min(...xs), x1 = Math.max(...xs), z0 = Math.min(...zs), z1 = Math.max(...zs);
+    const s = Math.min((W - 90 * K) / Math.max(x1 - x0, 1e-9), (H - 70 * K) / Math.max(z1 - z0, 1e-9));
+    view3 = { s, ox: W / 2 - s * (x0 + x1) / 2, oy: H / 2 + s * (z0 + z1) / 2 };
+  }
+  function seg3(a, b, col, w, dash) { const p = P3(a), q = P3(b); ctx.beginPath(); ctx.setLineDash(DASH(dash)); ctx.moveTo(p.x, p.y); ctx.lineTo(q.x, q.y); ctx.strokeStyle = col; ctx.lineWidth = LW(w); ctx.stroke(); ctx.setLineDash([]); }
+  function dot3(p, col, r) { const q = P3(p); ctx.beginPath(); ctx.arc(q.x, q.y, PR(r), 0, 7); ctx.fillStyle = col; ctx.fill(); }
+  /** 球的线框：正交投影下轮廓是正圆，再加三个大圆当网格 */
+  function sphere3(c, r, col, w, grid) {
+    const q = P3(c);
+    ctx.beginPath(); ctx.setLineDash([]); ctx.arc(q.x, q.y, r * view3.s, 0, 7);
+    ctx.strokeStyle = col; ctx.lineWidth = LW(w); ctx.stroke();
+    if (!grid) return;
+    ctx.globalAlpha = 0.45;
+    const rings = [[0, 1, 2], [1, 2, 0], [2, 0, 1]];
+    for (const [a, b] of rings) {
+      ctx.beginPath();
+      for (let i = 0; i <= 60; i++) {
+        const t = i / 60 * 2 * Math.PI, e = [0, 0, 0];
+        e[a] = Math.cos(t) * r; e[b] = Math.sin(t) * r;
+        const s = P3(S3.add(c, e));
+        i ? ctx.lineTo(s.x, s.y) : ctx.moveTo(s.x, s.y);
+      }
+      ctx.strokeStyle = col; ctx.lineWidth = LW(w * 0.5); ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+  }
+  /** 三维标注：在点周围试几个方位，避开已经放下的标签和点 */
+  let placed3 = [];
+  function lab3(p, txt, col) {
+    const q = P3(p), fs = FS(), dd = OFF(10);
+    ctx.font = '600 ' + fs + 'px sans-serif';
+    const w = ctx.measureText(txt).width;
+    const dirs = [[1, -1], [1, 1], [-1, -1], [-1, 1], [1, 0], [-1, 0], [0, -1], [0, 1]];
+    let best = null;
+    for (const m of [1, 1.9, 2.9]) {
+      for (const [ux, uy] of dirs) {
+        const L = Math.hypot(ux, uy), cx = q.x + ux / L * dd * m, cy = q.y + uy / L * dd * m;
+        const r = { x: ux > 0.35 ? cx : cx - w, y: (uy > 0.35 ? cy : cy - fs), w, h: fs };
+        if (r.x < 2 || r.x + w > W - 2 || r.y < 2 || r.y + fs > H - 2) continue;
+        if (placed3.some((o) => r.x < o.x + o.w + 4 && o.x < r.x + r.w + 4 && r.y < o.y + o.h + 4 && o.y < r.y + r.h + 4)) continue;
+        best = r; break;
+      }
+      if (best) break;
+    }
+    if (!best) best = { x: Math.min(Math.max(q.x + dd, 2), W - w - 2), y: Math.min(Math.max(q.y - dd - fs, 2), H - fs - 2), w, h: fs };
+    placed3.push(best);
+    ctx.fillStyle = col; ctx.fillText(txt, best.x, best.y + fs * 0.82);
+  }
+
+
+  /** 七点球标签的绘制；返回图下说明 */
+  function drawSeven(ink) {
+    if (!state.tet) state.tet = TET0.map((p) => p.slice());
+    const sec = css('--muted'), V = state.tet, k = state.v0;
+    const d = sevenPoint(V, k);
+    const thm = '<b>七点球定理</b>：取四面体 V0V1V2V3 与它的任一顶点（这里是 V' + k + '），记外接球心 O、半径 R，重心 G，对面的外心 O′、垂心 H′。' +
+      '则下面七点共球：A（直线 V0G 与外接球的第二个交点）、B（外接球在另三个顶点处切平面的交点，即对面的极点）、C = 4G − 3V0、H′、E（G 关于外接球的反演点）、4G − 3O、4O′ − 3O。四个顶点各给出一个这样的球。';
+    const ops = '<b>按住拖动可以转动整个图形</b>；用上面的按钮换一个顶点或换一个四面体。灰色是外接球，紫色是七点球，橙、绿、蓝三条虚线是定出球心的三组共线关系。<br>';
+    if (!d) return info(thm, ops + '这个四面体接近退化（O、G、O′、V0 几乎共面），七点球退化成平面，暂不绘制。换一个四面体。');
+    const all = d.pts.map(([p]) => p).concat(V, [d.O]);
+    fit3(all); placed3 = [];
+    // 外接球
+    if (state.showCircum) sphere3(d.O, d.R, GR, 1.1, true);
+    // 四面体
+    for (let i = 0; i < 4; i++) for (let j = i + 1; j < 4; j++) seg3(V[i], V[j], ink, 1.4);
+    // 七点球
+    sphere3(d.c, d.rad, PU, 2.2, true);
+    // 三组共线
+    const by = (n) => d.pts.find(([, t]) => t === n)[0];
+    seg3(V[k], by('C'), AM, 1.2, [7, 5]);
+    seg3(d.O, by('4G−3O'), TE, 1.2, [7, 5]);
+    seg3(d.O, by('4O′−3O'), BL, 1.2, [7, 5]);
+    // 点与标注
+    [[d.O, 'O', sec], [d.G, 'G', sec], [d.Op, 'O′', sec]].forEach(([p, t, c]) => { dot3(p, c, 4); lab3(p, t, sec); });
+    V.forEach((p, i) => { dot3(p, ink, 5); lab3(p, 'V' + i, ink); });
+    d.pts.forEach(([p, t]) => { dot3(p, CO, 6); lab3(p, t, CO); });
+    return info(thm, ops + '实测：七点到球心的距离与半径之差，相对误差最大 ' + d.err.toExponential(1) +
+      '；球半径 ' + fmt(d.rad / d.R, 2) + ' R。' +
+      '<br>证明与文献检索见仓库中的《一般四面体定理扫描》第八节。');
+  }
+
   /* ---------- 主绘制 ---------- */
   function draw() {
     ctx.clearRect(0, 0, W, H); placed = [];
     const ink = css('--ink');
+    if (state.tab === 'sevenpoint') { document.getElementById('info').innerHTML = drawSeven(ink); return; }
     if (degenerate()) {
       const [A, B, C] = state.V; tri(A, B, C, ink, 1.3);
       [[A, 'A'], [B, 'B'], [C, 'C']].forEach(([p, n]) => { dot(p, ink, 5.5); lab(p, n, -16, -9); });
@@ -512,6 +682,26 @@
     if (state.tab === 'orthocentric') {
       ['ABC', 'ABH', 'ACH', 'BCH'].forEach((n, i) => optsEl.appendChild(chip('三角形 ' + n, i === state.tri, () => { state.tri = i; renderOpts(); draw(); })));
     }
+    if (state.tab === 'sevenpoint') {
+      ['V0', 'V1', 'V2', 'V3'].forEach((n, i) => optsEl.appendChild(chip('顶点 ' + n, i === state.v0, () => { state.v0 = i; renderOpts(); draw(); })));
+      optsEl.appendChild(chip('换一个四面体', false, () => {
+        for (let tries = 0; tries < 200; tries++) {
+          const V = Array.from({ length: 4 }, () => Array.from({ length: 3 }, () => (Math.random() * 2 - 1) * 1.3));
+          const d0 = sevenPoint(V, state.v0);
+          if (!d0 || d0.rad / d0.R > 4.5) continue;                       // 球别太大
+          if (Math.abs(S3.dot(S3.sub(V[1], V[0]), S3.cross(S3.sub(V[2], V[0]), S3.sub(V[3], V[0])))) / 6 < 0.12 * Math.pow(d0.R, 3)) continue;  // 别太扁
+          const sp = Math.max(...d0.pts.map(([q]) => S3.len(S3.sub(q, d0.O)))) / d0.R;
+          if (sp > 3.2) continue;                                          // 七点别跑太远
+          state.tet = V; break;
+        }
+        draw();
+      }));
+      optsEl.appendChild(chip('回到默认', false, () => { state.tet = TET0.map((p) => p.slice()); state.rot = { yaw: -0.6, pitch: -1.15 }; draw(); }));
+      const l = document.createElement('label'); l.className = 'ck';
+      const c = document.createElement('input'); c.type = 'checkbox'; c.checked = state.showCircum;
+      c.onchange = () => { state.showCircum = c.checked; draw(); };
+      l.append(c, '显示外接球'); optsEl.appendChild(l);
+    }
     if (state.tab === 'poncelet') {
       optsEl.append(
         chip('把 P 放到内心', false, () => { const g = geo(); state.P = { x: g.I.x, y: g.I.y }; draw(); }),
@@ -548,7 +738,9 @@
     draw();
   }
   cv.addEventListener('pointerdown', (e) => {
-    const p = pos(e); let vi = -1;
+    const p = pos(e);
+    if (state.tab === 'sevenpoint') { drag = { rot: true, x: p.x, y: p.y }; cv.setPointerCapture(e.pointerId); return; }
+    let vi = -1;
     state.V.forEach((v, i) => { const s = S(v); if (Math.hypot(s.x - p.x, s.y - p.y) < HIT()) vi = i; });
     if (vi >= 0) drag = { v: vi };
     else if (draggablePoint()) { drag = { pt: true }; movePoint(p); }
@@ -557,6 +749,11 @@
   });
   cv.addEventListener('pointermove', (e) => {
     if (!drag) return; const p = pos(e);
+    if (drag.rot) {
+      state.rot.yaw += (p.x - drag.x) * 0.012;
+      state.rot.pitch = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, state.rot.pitch + (p.y - drag.y) * 0.012));
+      drag.x = p.x; drag.y = p.y; draw(); return;
+    }
     if (drag.pt) movePoint(p); else { state.V[drag.v] = Wd(p); draw(); }
   });
   cv.addEventListener('pointerup', () => { const wasVertex = drag && drag.v !== undefined; drag = null; if (wasVertex) { fit(); draw(); } });

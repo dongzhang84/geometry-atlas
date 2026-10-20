@@ -104,7 +104,7 @@ vendor/dagre.min.js   dagre 0.8.5（推广图的分层布局，MIT 许可证见 
 
 ```
 explore/nine-point.html   专题页「九点圆和其它相关定理」（配色与主页一致，支持深色模式）
-explore/nine-point.js     页面逻辑：十个标签页的绘制与交互
+explore/nine-point.js     页面逻辑：十一个标签页的绘制与交互
 explore/geometry.js       共用几何计算（外心、垂心、垂足、九点、重心坐标、Nagel 线与 Soddy 线上的点、直线交点、过五点的二次曲线、过四点的等轴双曲线、隐函数描线），以后的专题页可复用
 ```
 
@@ -122,6 +122,7 @@ explore/geometry.js       共用几何计算（外心、垂心、垂足、九点
 | `#soddy` | Soddy 线：以顶点为圆心的三个两两外切的圆，内、外 Soddy 圆的圆心连线过 I、Gergonne 点 Ge、de Longchamps 点 L | 拖动顶点 |
 | `#mandart` | Mandart 圆：三个旁切点 Ua、Ub、Uc 的外接圆，经过 Feuerbach 点 F | 拖动顶点 |
 | `#poncelet` | Poncelet 点：过 A、B、C、P 的等轴双曲线的中心，也是 ABC、PBC、PCA、PAB 四个九点圆的公共点 | 拖动顶点；拖动 P；按钮把 P 放到内心 / 垂心 |
+| `#sevenpoint` | 七点球定理：一般四面体上，每个顶点给出七个共球的点（三维，可转动） | 按住拖动转动；按钮换顶点 / 换四面体；勾选显示外接球 |
 
 `data/demos.json` 记录每个标签对应的目录定理编号（`theorem_ids`）。两边互相链接：
 
