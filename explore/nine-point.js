@@ -54,7 +54,9 @@
     show: { pb: true, md: true, al: true },
     k: 1, center: 'H', theta: -0.6, tri: 0, P: null, onCircle: false,
     rot: { yaw: -0.6, pitch: -1.15 }, tet: null, v0: 0, showCircum: true,
+    zoom: 1,   // 用户缩放倍数，所有标签共用（二维、三维都乘在自动取景的比例上）
   };
+  const ZMIN = 0.5, ZMAX = 8;
   let view = { s: 80, ox: W / 2, oy: H / 2 };
   const S = (p) => ({ x: p.x * view.s + view.ox, y: p.y * view.s + view.oy });
   const Wd = (p) => ({ x: (p.x - view.ox) / view.s, y: (p.y - view.oy) / view.s });
@@ -77,7 +79,7 @@
     const xs = pts.map((p) => p.x), ys = pts.map((p) => p.y);
     const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
     if (!(x1 - x0 > 1e-9 || y1 - y0 > 1e-9)) return;
-    const s = Math.min((W - 80 * K) / Math.max(x1 - x0, 1e-9), (H - 60 * K) / Math.max(y1 - y0, 1e-9));
+    const s = state.zoom * Math.min((W - 80 * K) / Math.max(x1 - x0, 1e-9), (H - 60 * K) / Math.max(y1 - y0, 1e-9));
     view = { s, ox: W / 2 - s * (x0 + x1) / 2, oy: H / 2 - s * (y0 + y1) / 2 };
   }
 
@@ -100,6 +102,7 @@
     return { x, y, w, h: fs };
   }
   function lab(P, txt, dx, dy) {
+    const q = S(P); if (!(q.x >= 0 && q.x <= W && q.y >= 0 && q.y <= H)) return;   // 点在画面外（比如放大后）就不标
     const r = labPos(P, txt, dx, dy);
     placed.push({ x: r.x, y: r.y - r.h, w: r.w, h: r.h });
     ctx.fillStyle = css('--ink'); ctx.fillText(txt, r.x, r.y);
@@ -542,11 +545,19 @@
   }
   let view3 = { s: 100, ox: 0, oy: 0 };
   const P3 = (p) => { const q = rot3(p); return { x: view3.ox + q[0] * view3.s, y: view3.oy - q[2] * view3.s }; };
+  /* 取景：比例只在换四面体、换顶点或画布尺寸变化时按当时的视角算一次，之后转动不再重算，
+   * 图形大小不随视角忽大忽小；画面中心固定对准这些点的三维包围盒中心。最后乘用户缩放倍数。 */
+  let base3 = { key: '', s: 1, c: [0, 0, 0] };
   function fit3(pts) {
-    const q = pts.map(rot3), xs = q.map((p) => p[0]), zs = q.map((p) => p[2]);
-    const x0 = Math.min(...xs), x1 = Math.max(...xs), z0 = Math.min(...zs), z1 = Math.max(...zs);
-    const s = Math.min((W - 90 * K) / Math.max(x1 - x0, 1e-9), (H - 70 * K) / Math.max(z1 - z0, 1e-9));
-    view3 = { s, ox: W / 2 - s * (x0 + x1) / 2, oy: H / 2 + s * (z0 + z1) / 2 };
+    const key = JSON.stringify([pts, W, H]);
+    if (key !== base3.key) {
+      const lo = [0, 1, 2].map((i) => Math.min(...pts.map((p) => p[i]))), hi = [0, 1, 2].map((i) => Math.max(...pts.map((p) => p[i])));
+      const c = lo.map((v, i) => (v + hi[i]) / 2), q = pts.map(rot3), qc = rot3(c);
+      const hx = Math.max(...q.map((p) => Math.abs(p[0] - qc[0]))), hz = Math.max(...q.map((p) => Math.abs(p[2] - qc[2])));
+      base3 = { key, c, s: Math.min((W - 90 * K) / 2 / Math.max(hx, 1e-9), (H - 70 * K) / 2 / Math.max(hz, 1e-9)) };
+    }
+    const s = state.zoom * base3.s, q = rot3(base3.c);
+    view3 = { s, ox: W / 2 - s * q[0], oy: H / 2 + s * q[2] };
   }
   function seg3(a, b, col, w, dash) { const p = P3(a), q = P3(b); ctx.beginPath(); ctx.setLineDash(DASH(dash)); ctx.moveTo(p.x, p.y); ctx.lineTo(q.x, q.y); ctx.strokeStyle = col; ctx.lineWidth = LW(w); ctx.stroke(); ctx.setLineDash([]); }
   function dot3(p, col, r) { const q = P3(p); ctx.beginPath(); ctx.arc(q.x, q.y, PR(r), 0, 7); ctx.fillStyle = col; ctx.fill(); }
@@ -574,6 +585,7 @@
   let placed3 = [];
   function lab3(p, txt, col) {
     const q = P3(p), fs = FS(), dd = OFF(10);
+    if (!(q.x >= 0 && q.x <= W && q.y >= 0 && q.y <= H)) return;   // 点在画面外（比如放大后）就不标
     ctx.font = '600 ' + fs + 'px sans-serif';
     const w = ctx.measureText(txt).width;
     const dirs = [[1, -1], [1, 1], [-1, -1], [-1, 1], [1, 0], [-1, 0], [0, -1], [0, 1]];
@@ -601,7 +613,7 @@
     const d = sevenPoint(V, k);
     const thm = '<b>七点球定理</b>：取四面体 V0V1V2V3 与它的任一顶点（这里是 V' + k + '），记外接球心 O、半径 R，重心 G，对面的外心 O′、垂心 H′。' +
       '则下面七点共球：A（直线 V0G 与外接球的第二个交点）、B（外接球在另三个顶点处切平面的交点，即对面的极点）、C = 4G − 3V0、H′、E（G 关于外接球的反演点）、4G − 3O、4O′ − 3O。四个顶点各给出一个这样的球。';
-    const ops = '<b>按住拖动可以转动整个图形</b>；用上面的按钮换一个顶点或换一个四面体。灰色是外接球，紫色是七点球，橙、绿、蓝三条虚线是定出球心的三组共线关系。<br>';
+    const ops = '<b>按住拖动可以转动整个图形</b>，双指捏合或 ⌘/Ctrl＋滚轮缩放；用上面的按钮换一个顶点或换一个四面体。灰色是外接球，紫色是七点球，橙、绿、蓝三条虚线是定出球心的三组共线关系。<br>';
     if (!d) return info(thm, ops + '这个四面体接近退化（O、G、O′、V0 几乎共面），七点球退化成平面，暂不绘制。换一个四面体。');
     const all = d.pts.map(([p]) => p).concat(V, [d.O]);
     fit3(all); placed3 = [];
@@ -696,7 +708,7 @@
         }
         draw();
       }));
-      optsEl.appendChild(chip('回到默认', false, () => { state.tet = TET0.map((p) => p.slice()); state.rot = { yaw: -0.6, pitch: -1.15 }; draw(); }));
+      optsEl.appendChild(chip('回到默认', false, () => { state.tet = TET0.map((p) => p.slice()); state.rot = { yaw: -0.6, pitch: -1.15 }; base3.key = ''; setZoom(1); }));
       const l = document.createElement('label'); l.className = 'ck';
       const c = document.createElement('input'); c.type = 'checkbox'; c.checked = state.showCircum;
       c.onchange = () => { state.showCircum = c.checked; draw(); };
@@ -737,8 +749,34 @@
     else if (state.tab === 'poncelet') state.P = w;
     draw();
   }
+  /* 缩放：以画布中心为中心，倍数夹在 ZMIN–ZMAX；点、线宽、文字保持像素大小不变 */
+  const zoomOut = document.getElementById('zoom-level');
+  function setZoom(z) {
+    state.zoom = Math.min(ZMAX, Math.max(ZMIN, z));
+    if (zoomOut) zoomOut.textContent = Math.round(state.zoom * 100) + '%';
+    fit(); draw();
+  }
+  document.getElementById('zoom-in').onclick = () => setZoom(state.zoom * 1.25);
+  document.getElementById('zoom-out').onclick = () => setZoom(state.zoom / 1.25);
+  document.getElementById('zoom-reset').onclick = () => setZoom(1);
+  // 触控板捏合（Chrome、Firefox 发出带 ctrlKey 的 wheel）和 ⌘/Ctrl＋滚轮；不按键的滚轮照常滚动页面
+  cv.addEventListener('wheel', (e) => {
+    if (!e.ctrlKey && !e.metaKey) return;
+    e.preventDefault();
+    setZoom(state.zoom * Math.exp(-Math.max(-40, Math.min(40, e.deltaY)) * 0.005));   // 鼠标滚一格约 ×1.22，和按钮一步相当
+  }, { passive: false });
+  // Safari 的触控板捏合走 gesture 事件
+  let gz = 1;
+  cv.addEventListener('gesturestart', (e) => { e.preventDefault(); gz = state.zoom; });
+  cv.addEventListener('gesturechange', (e) => { e.preventDefault(); setZoom(gz * e.scale); });
+  // 触屏：两根手指按下即进入捏合，松开任一根后结束，不再接着拖动
+  const touches = new Map();
+  const spread = () => { const [a, b] = [...touches.values()]; return Math.hypot(a.x - b.x, a.y - b.y); };
   cv.addEventListener('pointerdown', (e) => {
     const p = pos(e);
+    touches.set(e.pointerId, p);
+    if (touches.size === 2) { drag = { pinch: true, d0: Math.max(spread(), 1), z0: state.zoom }; cv.setPointerCapture(e.pointerId); return; }
+    if (touches.size > 2 || (drag && drag.pinch)) return;
     if (state.tab === 'sevenpoint') { drag = { rot: true, x: p.x, y: p.y }; cv.setPointerCapture(e.pointerId); return; }
     let vi = -1;
     state.V.forEach((v, i) => { const s = S(v); if (Math.hypot(s.x - p.x, s.y - p.y) < HIT()) vi = i; });
@@ -748,7 +786,9 @@
     cv.setPointerCapture(e.pointerId);
   });
   cv.addEventListener('pointermove', (e) => {
+    if (touches.has(e.pointerId)) touches.set(e.pointerId, pos(e));
     if (!drag) return; const p = pos(e);
+    if (drag.pinch) { if (touches.size >= 2) setZoom(drag.z0 * spread() / drag.d0); return; }
     if (drag.rot) {
       state.rot.yaw += (p.x - drag.x) * 0.012;
       state.rot.pitch = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, state.rot.pitch + (p.y - drag.y) * 0.012));
@@ -756,7 +796,9 @@
     }
     if (drag.pt) movePoint(p); else { state.V[drag.v] = Wd(p); draw(); }
   });
-  cv.addEventListener('pointerup', () => { const wasVertex = drag && drag.v !== undefined; drag = null; if (wasVertex) { fit(); draw(); } });
+  const endPointer = (e) => { touches.delete(e.pointerId); const wasVertex = drag && drag.v !== undefined; drag = null; if (wasVertex) { fit(); draw(); } };
+  cv.addEventListener('pointerup', endPointer);
+  cv.addEventListener('pointercancel', endPointer);
 
   /* ---------- 与目录中定理的链接（可选） ----------
    * 读取 ../data/demos.json 与 ../data/theorems.json；文件不存在时静默跳过。 */
