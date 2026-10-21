@@ -6,12 +6,6 @@ pics/round4_hyperbolas.mp4
 # 四面体共球扫描：新代码与中间结果，只留在本地
 code/四面体/spheres/
 
-# 垂心四面体扫描：中间结果、日志、备份，只留在本地（代码本身已在库里）
+# 垂心四面体扫描：新代码与中间结果，只留在本地（报告在 docs/）
+code/四面体/ortho_scan/
 code/四面体/ortho_scan_old/
-code/四面体/ortho_scan/__pycache__/
-code/四面体/ortho_scan/*.log
-code/四面体/ortho_scan/*.orig
-code/四面体/ortho_scan/*.pkg
-code/四面体/ortho_scan/*.v1
-code/四面体/ortho_scan/ospheres_raw_*.pkl
-code/四面体/ortho_scan/ospheres_cls_*.pkl
