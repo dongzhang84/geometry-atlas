@@ -44,7 +44,7 @@
     soddy: [[GR, '以顶点为圆心的三个圆'], [TE, '顶点到切点的连线 → Ge'], [PU, '内 Soddy 圆'], [PK, '外 Soddy 圆'], [BL, 'de Longchamps 点 L'], [CO, 'Soddy 线']],
     mandart: [[TE, '内切圆、三个旁切圆'], [CO, '旁切点 Ua、Ub、Uc 与旁切点三角形'], [AM, 'Mandart 圆'], [PU, '九点圆'], [PK, 'Feuerbach 点 F']],
     sevenpoint: [[PU, '七点球'], [GR, '外接球'], [CO, '七个点'], [AM, 'V0、G、A、C 共线'], [TE, '欧拉线上的 O、G、E、4G−3O'], [BL, 'O、O′、B、4O′−3O 共线']],
-    thirteen: [[PU, '十三点球 Σ'], [GR, '外接球'], [BL, '对面、它的九点圆和三条高'], [CO, '十三个点'], [AM, '直线 HG′ → P'], [TE, 'H 到对径点 → Q1'], [PK, '高线 V0H → Q2']],
+    thirteen: [[PU, '十三点球 Σ'], [GR, '外接球'], [BL, '对面、它的九点圆和三条高'], [CO, '十三个点'], [AM, '直线 HG′ → P'], [TE, 'HX → Q1'], [PK, '高线 V0H → Y → Q2']],
     poncelet: [[PU, '过 A、B、C、P 的等轴双曲线'], [CO, '两条渐近线、中心 Po'], [TE, 'ABC 的九点圆'], [BL, 'PBC、PCA、PAB 的九点圆']],
     conic: [[TE, '6 条连线的中点'], [CO, '3 个对角点、渐近线'], [PU, '九点二次曲线'], ['rgba(29,158,117,.45)', '背景绿：P 在此处时是椭圆'], ['rgba(216,90,48,.4)', '背景橙：P 在此处时是双曲线']],
   };
@@ -699,11 +699,11 @@
     const vk = 'V' + k, others = [0, 1, 2, 3].filter((i) => i !== k).map((i) => 'V' + i).join('');
     const thm = '<b>十三点球</b>：设 V0V1V2V3 是垂心四面体（三对对棱互相垂直，四条高交于垂心 H），取一个顶点（这里是 ' + vk + '），对面 ' + others + ' 的重心 G′、垂心 H′。' +
       '过 ' + vk + ' 和对面九点圆的球 Σ 总是唯一存在（任何四面体都如此，这是 Σ 的定义）。垂心四面体中，Σ 还经过另外三个点：' +
-      'P（G′ 关于极球的反演点）、Q1（H 与 ' + vk + ' 的外接球对径点的中点）、Q2（H 与高线 ' + vk + 'H 和外接球第二个交点的中点）；并且 <b>H 对 Σ 的幂恒为 (3/2)p</b>，与形状无关。' +
-      '<br>这里 p = HV<sub>i</sub> · HH<sub>i</sub>（H<sub>i</sub> 是 V<sub>i</sub> 的高足）对四个顶点相同，极球反演就是以 H 为中心、幂为 p 的反演。' +
+      'P（G′ 关于极球的反演点）、Q1（HX' + k + ' 的中点）、Q2（HY' + k + ' 的中点）；并且 <b>H 对 Σ 的幂恒为 (3/2)p</b>，与形状无关。' +
+      '<br>这里 X' + k + ' 是 ' + vk + ' 在外接球上的对径点，Y' + k + ' 是高线 ' + vk + 'H 与外接球的第二个交点；p = HV<sub>i</sub> · HH<sub>i</sub>（H<sub>i</sub> 是 V<sub>i</sub> 的高足）对四个顶点相同，极球反演就是以 H 为中心、幂为 p 的反演。' +
       '顶点、九点圆上的 9 个点（对面三边中点 M、三条高的垂足 F、三个欧拉点 E）再加 P、Q1、Q2，共 13 个点。';
     const ops = '<b>按住拖动可以转动整个图形</b>，双指捏合或 ⌘/Ctrl＋滚轮缩放；用上面的按钮换一个顶点或换一个垂心四面体。灰色是外接球，紫色是十三点球 Σ，浅蓝面是对面，蓝色粗圆是它的九点圆，蓝色细线是面内三条高（交于 H′）；' +
-      '棕、绿、粉三条虚线分别给出 P、Q1、Q2。<br>';
+      '棕、绿、粉三条虚线分别给出 P、Q1、Q2（绿线到 X' + k + '，粉线是高线，到 Y' + k + '）。<br>';
     if (!d) return info(thm, ops + '这个四面体接近退化，暂不绘制。换一个四面体。');
     const all = d.pts.map(([q]) => q).concat(V, [d.O, d.H, d.anti, d.X2]);
     fit3(all); placed3 = [];
@@ -715,7 +715,7 @@
     for (let i = 0; i < 4; i++) for (let j = i + 1; j < 4; j++) seg3(V[i], V[j], ink, 1.4);
     circle3(d.nine, d.nrm, d.r9, BL, 2.2);
     sphere3(d.c, d.rad, PU, 2.2, true);
-    // 辅助线：P、H、G′、Q1 和对径点其实在一条直线上（对径点 − H = 3(G′ − H)），按图例分两段上色
+    // 辅助线：P、H、G′、Q1、X 其实在一条直线上（X − H = 3(G′ − H)），按图例分两段上色
     const by = (n) => d.pts.find(([, t]) => t === n)[0];
     seg3(by('P'), d.Gd, AM, 1.2, [7, 5]);
     seg3(d.Gd, d.anti, TE, 1.2, [7, 5]);
@@ -723,7 +723,7 @@
     // 点与标注：先标十三个点，再标辅助点
     d.pts.forEach(([q, t], i) => { dot3(q, CO, i === 0 || i > 9 ? 6 : 4.5); lab3(q, t, CO); });
     V.forEach((q, i) => { if (i !== k) { dot3(q, ink, 5); lab3(q, 'V' + i, ink); } });
-    [[d.H, 'H'], [d.Hp, 'H′'], [d.Gd, 'G′'], [d.O, 'O'], [d.anti, vk + ' 的对径点'], [d.X2, '高线与外接球交点']].forEach(([q, t]) => { dot3(q, sec, 4); lab3(q, t, sec); });
+    [[d.H, 'H'], [d.Hp, 'H′'], [d.Gd, 'G′'], [d.O, 'O'], [d.anti, 'X' + k], [d.X2, 'Y' + k]].forEach(([q, t]) => { dot3(q, sec, 4); lab3(q, t, sec); });
     return info(thm, ops + '实测：十三个点到球心的距离与半径之差，相对误差最大 ' + d.err.toExponential(1) +
       '；H 对 Σ 的幂 ÷ p = ' + d.pow.toFixed(9) + '；球半径 ' + fmt(d.rad / d.R, 2) + ' R。' +
       '<br>证明与文献检索见仓库中的《垂心四面体六条定理》（docs/垂心四面体六条定理.md）第一节。');
