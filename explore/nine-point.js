@@ -1,6 +1,6 @@
 /* Geometry Atlas · 专题页「九点圆和其它相关定理」
  * 依赖 geometry.js（window.GA）。
- * 每个标签页有锚点：#orthocentric #euler #homothety #feuerbach #simson #conic #nagel #soddy #mandart #poncelet #sevenpoint #thirteen */
+ * 每个标签页有锚点：#orthocentric #euler #homothety #feuerbach #simson #conic #nagel #soddy #mandart #poncelet #sevenpoint #thirteen #eulerplane */
 (function () {
   const { sub, add, mul, mid, len, foot, ninePoints, orthocenter, triangleData, circumcircle,
     evalConic, conicCenter, asymptoteSlopes, intersect, conicThrough, rectHyperbolaThrough, traceImplicit, nagelData, soddyData } = window.GA;
@@ -32,7 +32,7 @@
     ['orthocentric', '九点圆'], ['euler', '欧拉线'], ['homothety', '缩小外接圆'],
     ['feuerbach', 'Feuerbach 相切'], ['simson', '西摩松线'], ['conic', '九点二次曲线'],
     ['nagel', 'Nagel 线'], ['soddy', 'Soddy 线'], ['mandart', 'Mandart 圆'], ['poncelet', 'Poncelet 点'],
-    ['sevenpoint', '七点球定理'], ['thirteen', '十三点球'],
+    ['sevenpoint', '七点球定理'], ['thirteen', '十三点球'], ['eulerplane', '欧拉线共轭平面'],
   ];
   const LEG = {
     euler: [[BL, '中垂线 → O'], [TE, '中线 → G'], [PK, '高 → H'], [CO, '欧拉线'], [PU, '九点圆']],
@@ -45,6 +45,7 @@
     mandart: [[TE, '内切圆、三个旁切圆'], [CO, '旁切点 Ua、Ub、Uc 与旁切点三角形'], [AM, 'Mandart 圆'], [PU, '九点圆'], [PK, 'Feuerbach 点 F']],
     sevenpoint: [[PU, '七点球'], [GR, '外接球'], [CO, '七个点'], [AM, 'V0、G、A、C 共线'], [TE, '欧拉线上的 O、G、E、4G−3O'], [BL, 'O、O′、B、4O′−3O 共线']],
     thirteen: [[PU, '十三点球 Σ'], [GR, '外接球'], [BL, '对面、它的九点圆和三条高'], [CO, '十三个点'], [AM, '直线 HG′ → P'], [TE, 'HX → Q1'], [PK, '高线 V0H → Y → Q2']],
+    eulerplane: [[BL, '欧拉线 H、G、O'], [TE, '欧拉线上的点 P'], [CO, '等角共轭 P*、等截共轭 Pᵗ'], [AM, '过欧拉线和 P*、Pᵗ 的平面'], [GR, '外接球']],
     poncelet: [[PU, '过 A、B、C、P 的等轴双曲线'], [CO, '两条渐近线、中心 Po'], [TE, 'ABC 的九点圆'], [BL, 'PBC、PCA、PAB 的九点圆']],
     conic: [[TE, '6 条连线的中点'], [CO, '3 个对角点、渐近线'], [PU, '九点二次曲线'], ['rgba(29,158,117,.45)', '背景绿：P 在此处时是椭圆'], ['rgba(216,90,48,.4)', '背景橙：P 在此处时是双曲线']],
   };
@@ -54,7 +55,7 @@
     V: [{ x: -2.0, y: 1.2 }, { x: 2.2, y: 1.2 }, { x: -1.0, y: -1.5 }],
     show: { pb: true, md: true, al: true },
     k: 1, center: 'H', theta: -0.6, tri: 0, P: null, onCircle: false,
-    rot: { yaw: -0.6, pitch: -1.15 }, rot13: { yaw: -2.09, pitch: -0.7 }, tet: null, tet13: null, v0: 0, showCircum: true,
+    rot: { yaw: -0.6, pitch: -1.15 }, rot13: { yaw: -2.09, pitch: -0.7 }, rotE: { yaw: -1.67, pitch: -0.19 }, tet: null, tet13: null, tetE: null, tE: 1, v0: 0, showCircum: true,
     zoom: 1,   // 用户缩放倍数，所有标签共用（二维、三维都乘在自动取景的比例上）
   };
   const ZMIN = 0.5, ZMAX = 8;
@@ -468,7 +469,8 @@
      这里登记一个空项，好让 setTab 的标签校验认得它。 */
   DRAW.sevenpoint = () => '';
   DRAW.thirteen = () => '';
-  const is3D = () => state.tab === 'sevenpoint' || state.tab === 'thirteen';
+  DRAW.eulerplane = () => '';
+  const is3D = () => ['sevenpoint', 'thirteen', 'eulerplane'].includes(state.tab);
 
   /* ---------- 七点球：一套只在这个标签里用的三维工具 ---------- */
   const S3 = {
@@ -541,7 +543,7 @@
      七个点连同顶点的包围盒只有 1.85 R，整张图不会被巨大的球撑开。 */
   const TET0 = [[0.479, 0.858, 0.185], [0.118, -0.766, 0.632], [-0.987, -0.14, 0.082], [-0.354, 0.675, 0.647]];
   /* 两个三维标签各记各的视角：十三点球的默认视角挑过，从侧面看，十三个点在屏幕上分得开 */
-  const curRot = () => (state.tab === 'thirteen' ? state.rot13 : state.rot);
+  const curRot = () => (state.tab === 'thirteen' ? state.rot13 : state.tab === 'eulerplane' ? state.rotE : state.rot);
   function rot3(p) {
     const { yaw, pitch } = curRot();
     const cy = Math.cos(yaw), sy = Math.sin(yaw), cp = Math.cos(pitch), sp = Math.sin(pitch);
@@ -729,12 +731,89 @@
       '<br>证明与文献检索见仓库中的《垂心四面体六条定理》（docs/垂心四面体六条定理.md）第一节。');
   }
 
+  /* ---------- 欧拉线共轭平面（垂心四面体） ---------- */
+  /* 默认四面体：挑过形状，P = O 时 V0–V3、O、G、H、P*、Pᵗ 两两相距至少 0.24 R，P* 和 Pᵗ 都在外接球附近 */
+  const TRIE = [[-0.755, 0.335], [0.941, 0.686], [0.821, -0.224]], HE = 1.735;
+  const areaT = (A, B, C) => S3.len(S3.cross(S3.sub(B, A), S3.sub(C, A))) / 2;
+  /** 重心坐标 → 点；权重和接近 0（点在无穷远）时返回 null */
+  function fromBary(V, w) {
+    const s = w.reduce((a, b) => a + b);
+    if (!isFinite(s) || Math.abs(s) < 1e-9 * Math.max(...w.map(Math.abs))) return null;
+    return V.reduce((acc, v, i) => S3.add(acc, S3.mul(v, w[i] / s)), [0, 0, 0]);
+  }
+  /** 欧拉线上的点 P = H + t(O − H) 与它的等角共轭 P*、等截共轭 Pᵗ，以及过欧拉线的那张平面 */
+  function eulerConj(V, t) {
+    const O = circum4(V); if (!O) return null;
+    const R = S3.len(S3.sub(V[0], O));
+    const e = [S3.sub(V[2], V[1]), S3.sub(V[3], V[1]), S3.sub(V[2], V[0])];
+    const H = solve3(e, [S3.dot(e[0], V[0]), S3.dot(e[1], V[0]), S3.dot(e[2], V[1])]); if (!H) return null;
+    const G = S3.mul(V.reduce(S3.add), 0.25), u = S3.sub(O, H);
+    if (S3.len(u) < 1e-6 * R) return null;                          // 正四面体：欧拉线退化成一点
+    const P = S3.add(H, S3.mul(u, t));
+    const l = solve3([0, 1, 2].map((i) => [V[1][i] - V[0][i], V[2][i] - V[0][i], V[3][i] - V[0][i]]), S3.sub(P, V[0])); if (!l) return null;
+    const x = [1 - l[0] - l[1] - l[2], ...l];                        // P 的重心坐标
+    const S = [0, 1, 2, 3].map((i) => areaT(...V.filter((_, j) => j !== i)));   // S_i：V_i 对面的面积
+    const Ps = fromBary(V, x.map((xi, i) => S[i] * S[i] / xi)), Pt = fromBary(V, x.map((xi) => 1 / xi));
+    // 两点到欧拉线的距离；用离得远的那个定平面，量另一个到平面的距离
+    const uu = S3.mul(u, 1 / S3.len(u));
+    const off = (q) => { if (!q) return null; const v = S3.sub(q, H); return S3.sub(v, S3.mul(uu, S3.dot(v, uu))); };
+    const os = off(Ps), ot = off(Pt), ls = os ? S3.len(os) : -1, lt = ot ? S3.len(ot) : -1;
+    const far = Math.max(ls, lt);
+    let w = null, res = null;
+    if (far > 1e-6 * R) {
+      w = S3.mul(ls >= lt ? os : ot, 1 / far);
+      const other = ls >= lt ? Pt : Ps;
+      if (other) { const n = S3.cross(uu, w); res = Math.abs(S3.dot(S3.sub(other, H), n)) / R; }
+    }
+    return { O, R, H, G, P, Ps, Pt, uu, w, res, trivial: ls >= 0 && ls < 1e-6 * R ? 'P*' : lt >= 0 && lt < 1e-6 * R ? 'Pᵗ' : '' };
+  }
+  /** 欧拉线共轭平面标签的绘制；返回图下说明 */
+  function drawEulerPlane(ink) {
+    if (!state.tetE) state.tetE = orthoTet(TRIE, HE);
+    const sec = css('--muted'), V = state.tetE;
+    const d = eulerConj(V, state.tE);
+    const thm = '<b>欧拉线共轭平面</b>：设 V0V1V2V3 是垂心四面体，欧拉线是过外心 O、重心 G、垂心 H 的直线（G 是 HO 的中点）。' +
+      '对欧拉线上任意一点 P，它的等角共轭 P*（重心坐标 x<sub>i</sub> → S<sub>i</sub>²/x<sub>i</sub>，S<sub>i</sub> 是 V<sub>i</sub> 对面的面积）和等截共轭 Pᵗ（x<sub>i</sub> → 1/x<sub>i</sub>）' +
+      '<b>与欧拉线在同一个平面上</b>。这张平面随 P 转动，不是固定的一张。';
+    const ops = '<b>按住拖动可以转动整个图形</b>，双指捏合或 ⌘/Ctrl＋滚轮缩放；拖滑块让 P 沿欧拉线移动，橙色平面跟着绕欧拉线转。' +
+      'P = G、P = H 时有一个共轭本身就在欧拉线上（Gᵗ = G，H* 是 H 的补点），「一条线加一个点」必然共面，是平凡情形；P = O 才是真正有内容的例子。<br>';
+    if (!d) return info(thm, ops + '这个四面体接近退化，暂不绘制。换一个四面体。');
+    const near = (q) => q && S3.len(S3.sub(q, d.O)) < 3 * d.R;     // 太远的共轭点不画
+    fit3(V.concat([d.O, d.H], [0, 1, 2].flatMap((i) => [-1, 1].map((s) => { const q = d.O.slice(); q[i] += s * d.R; return q; }))));
+    placed3 = [];
+    if (state.showCircum) sphere3(d.O, d.R, GR, 1.1, true);
+    // 平面：在 (欧拉线方向 uu, 垂直方向 w) 坐标里取一块刚好盖住四面体和两个共轭点的矩形
+    const pts = V.concat([d.O, d.H, d.P], [d.Ps, d.Pt].filter(near));
+    const at = (a, b) => S3.add(d.H, S3.add(S3.mul(d.uu, a), S3.mul(d.w || [0, 0, 0], b)));
+    let a0 = -0.3, a1 = 0.3, b0 = -0.3, b1 = 0.3;
+    pts.forEach((q) => { const v = S3.sub(q, d.H), a = S3.dot(v, d.uu); a0 = Math.min(a0, a); a1 = Math.max(a1, a); if (d.w) { const b = S3.dot(v, d.w); b0 = Math.min(b0, b); b1 = Math.max(b1, b); } });
+    a0 -= 0.25 * d.R; a1 += 0.25 * d.R; b0 -= 0.2 * d.R; b1 += 0.2 * d.R;
+    if (d.w) {
+      ctx.beginPath(); [[a0, b0], [a1, b0], [a1, b1], [a0, b1]].map(([a, b]) => P3(at(a, b))).forEach((q, i) => (i ? ctx.lineTo(q.x, q.y) : ctx.moveTo(q.x, q.y))); ctx.closePath();
+      ctx.fillStyle = 'rgba(186,117,23,0.16)'; ctx.fill(); ctx.strokeStyle = AM; ctx.lineWidth = LW(0.8); ctx.stroke();
+    }
+    for (let i = 0; i < 4; i++) for (let j = i + 1; j < 4; j++) seg3(V[i], V[j], ink, 1.4);
+    seg3(at(a0, 0), at(a1, 0), BL, 2.6);
+    // 点与标注
+    [[d.H, 'H'], [d.G, 'G'], [d.O, 'O']].forEach(([q, t]) => { dot3(q, BL, 4.5); lab3(q, t, BL); });
+    dot3(d.P, TE, 6.5); lab3(d.P, 'P', TE);
+    [[d.Ps, 'P*'], [d.Pt, 'Pᵗ']].forEach(([q, t]) => { if (near(q)) { dot3(q, CO, 6.5); lab3(q, t, CO); } });
+    V.forEach((q, i) => { dot3(q, ink, 5); lab3(q, 'V' + i, ink); });
+    let msg = 'P = H + t·(O − H)，t = ' + fmt(state.tE, 2) + '。';
+    const gone = [[d.Ps, 'P*'], [d.Pt, 'Pᵗ']].filter(([q]) => !near(q)).map(([, t]) => t);
+    if (gone.length) msg += gone.join('、') + ' 跑到了很远的地方，不在图里（P 靠近某个面所在的平面时，共轭点趋向无穷远）。';
+    if (d.trivial) msg += '这时 ' + d.trivial + ' 就在欧拉线上，是平凡情形。';
+    if (d.res !== null) msg += '实测：另一个共轭点到「欧拉线 + 远的那个共轭点」所定平面的距离 ' + d.res.toExponential(1) + ' R。';
+    return info(thm, ops + msg + '<br>证明与文献检索见仓库中的《垂心四面体六条定理》（docs/垂心四面体六条定理.md）第二节。');
+  }
+
   /* ---------- 主绘制 ---------- */
   function draw() {
     ctx.clearRect(0, 0, W, H); placed = [];
     const ink = css('--ink');
     if (state.tab === 'sevenpoint') { document.getElementById('info').innerHTML = drawSeven(ink); return; }
     if (state.tab === 'thirteen') { document.getElementById('info').innerHTML = drawThirteen(ink); return; }
+    if (state.tab === 'eulerplane') { document.getElementById('info').innerHTML = drawEulerPlane(ink); return; }
     if (degenerate()) {
       const [A, B, C] = state.V; tri(A, B, C, ink, 1.3);
       [[A, 'A'], [B, 'B'], [C, 'C']].forEach(([p, n]) => { dot(p, ink, 5.5); lab(p, n, -16, -9); });
@@ -827,6 +906,39 @@
       const c = document.createElement('input'); c.type = 'checkbox'; c.checked = state.showCircum;
       c.onchange = () => { state.showCircum = c.checked; draw(); };
       l.append(c, '显示外接球'); optsEl.appendChild(l);
+    }
+    if (state.tab === 'eulerplane') {
+      [['P = H', 0], ['P = G', 0.5], ['P = O', 1]].forEach(([n, t]) => optsEl.appendChild(chip(n, Math.abs(state.tE - t) < 1e-9, () => { state.tE = t; renderOpts(); draw(); })));
+      const l = document.createElement('label'); l.style.cssText = 'display:flex;align-items:center;gap:8px;flex:1;min-width:220px';
+      const s = document.createElement('input'); s.type = 'range'; s.min = -0.5; s.max = 2; s.step = 0.005; s.value = state.tE; s.style.flex = '1';
+      s.setAttribute('aria-label', 'P 在欧拉线上的位置 t');
+      const out = document.createElement('span'); out.style.minWidth = '64px'; out.textContent = 't = ' + fmt(state.tE, 2);
+      s.oninput = () => {
+        let t = +s.value; const tg = [0, 0.5, 1].find((v) => Math.abs(t - v) < 0.02);
+        if (tg !== undefined) { t = tg; s.value = tg; }
+        state.tE = t; out.textContent = 't = ' + fmt(t, 2);
+        optsEl.querySelectorAll('.chip').forEach((b, i) => { if (i < 3) b.setAttribute('aria-pressed', t === [0, 0.5, 1][i] ? 'true' : 'false'); });
+        draw();
+      };
+      l.append('P 的位置', s, out); optsEl.appendChild(l);
+      optsEl.appendChild(chip('换一个垂心四面体', false, () => {
+        for (let tries = 0; tries < 300; tries++) {
+          const tri = [0, 1, 2].map(() => [Math.random() * 2 - 1, Math.random() * 2 - 1]);
+          const V = orthoTet(tri, (0.3 + Math.random() * 1.7) * (Math.random() < 0.5 ? 1 : -1));
+          if (!V) continue;
+          if (Math.abs(S3.dot(S3.sub(V[1], V[0]), S3.cross(S3.sub(V[2], V[0]), S3.sub(V[3], V[0])))) / 6 < 0.15) continue;   // 别太扁（R = 1）
+          const d0 = eulerConj(V, 1);
+          if (!d0 || S3.len(S3.sub(d0.O, d0.H)) < 0.4) continue;                                    // 欧拉线别太短
+          if (!d0.Ps || !d0.Pt || S3.len(d0.Ps) > 1.6 || S3.len(d0.Pt) > 1.6) continue;             // P = O 时两个共轭点别跑太远
+          state.tetE = V; break;
+        }
+        draw();
+      }));
+      optsEl.appendChild(chip('回到默认', false, () => { state.tetE = orthoTet(TRIE, HE); state.tE = 1; state.rotE = { yaw: -1.67, pitch: -0.19 }; base3.key = ''; renderOpts(); setZoom(1); }));
+      const c = document.createElement('input'), lc = document.createElement('label'); lc.className = 'ck';
+      c.type = 'checkbox'; c.checked = state.showCircum;
+      c.onchange = () => { state.showCircum = c.checked; draw(); };
+      lc.append(c, '显示外接球'); optsEl.appendChild(lc);
     }
     if (state.tab === 'poncelet') {
       optsEl.append(
