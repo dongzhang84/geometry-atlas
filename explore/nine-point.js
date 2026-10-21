@@ -1,6 +1,6 @@
 /* Geometry Atlas · 专题页「九点圆和其它相关定理」
  * 依赖 geometry.js（window.GA）。
- * 每个标签页有锚点：#orthocentric #euler #homothety #feuerbach #simson #conic #nagel #soddy #mandart #poncelet #sevenpoint */
+ * 每个标签页有锚点：#orthocentric #euler #homothety #feuerbach #simson #conic #nagel #soddy #mandart #poncelet #sevenpoint #thirteen */
 (function () {
   const { sub, add, mul, mid, len, foot, ninePoints, orthocenter, triangleData, circumcircle,
     evalConic, conicCenter, asymptoteSlopes, intersect, conicThrough, rectHyperbolaThrough, traceImplicit, nagelData, soddyData } = window.GA;
@@ -32,7 +32,7 @@
     ['orthocentric', '九点圆'], ['euler', '欧拉线'], ['homothety', '缩小外接圆'],
     ['feuerbach', 'Feuerbach 相切'], ['simson', '西摩松线'], ['conic', '九点二次曲线'],
     ['nagel', 'Nagel 线'], ['soddy', 'Soddy 线'], ['mandart', 'Mandart 圆'], ['poncelet', 'Poncelet 点'],
-    ['sevenpoint', '七点球定理'],
+    ['sevenpoint', '七点球定理'], ['thirteen', '十三点球'],
   ];
   const LEG = {
     euler: [[BL, '中垂线 → O'], [TE, '中线 → G'], [PK, '高 → H'], [CO, '欧拉线'], [PU, '九点圆']],
@@ -44,6 +44,7 @@
     soddy: [[GR, '以顶点为圆心的三个圆'], [TE, '顶点到切点的连线 → Ge'], [PU, '内 Soddy 圆'], [PK, '外 Soddy 圆'], [BL, 'de Longchamps 点 L'], [CO, 'Soddy 线']],
     mandart: [[TE, '内切圆、三个旁切圆'], [CO, '旁切点 Ua、Ub、Uc 与旁切点三角形'], [AM, 'Mandart 圆'], [PU, '九点圆'], [PK, 'Feuerbach 点 F']],
     sevenpoint: [[PU, '七点球'], [GR, '外接球'], [CO, '七个点'], [AM, 'V0、G、A、C 共线'], [TE, '欧拉线上的 O、G、E、4G−3O'], [BL, 'O、O′、B、4O′−3O 共线']],
+    thirteen: [[PU, '十三点球 Σ'], [GR, '外接球'], [BL, '对面、它的九点圆和三条高'], [CO, '十三个点'], [AM, '直线 HG′ → P'], [TE, 'H 到对径点 → Q1'], [PK, '高线 V0H → Q2']],
     poncelet: [[PU, '过 A、B、C、P 的等轴双曲线'], [CO, '两条渐近线、中心 Po'], [TE, 'ABC 的九点圆'], [BL, 'PBC、PCA、PAB 的九点圆']],
     conic: [[TE, '6 条连线的中点'], [CO, '3 个对角点、渐近线'], [PU, '九点二次曲线'], ['rgba(29,158,117,.45)', '背景绿：P 在此处时是椭圆'], ['rgba(216,90,48,.4)', '背景橙：P 在此处时是双曲线']],
   };
@@ -53,7 +54,7 @@
     V: [{ x: -2.0, y: 1.2 }, { x: 2.2, y: 1.2 }, { x: -1.0, y: -1.5 }],
     show: { pb: true, md: true, al: true },
     k: 1, center: 'H', theta: -0.6, tri: 0, P: null, onCircle: false,
-    rot: { yaw: -0.6, pitch: -1.15 }, tet: null, v0: 0, showCircum: true,
+    rot: { yaw: -0.6, pitch: -1.15 }, rot13: { yaw: -2.09, pitch: -0.7 }, tet: null, tet13: null, v0: 0, showCircum: true,
     zoom: 1,   // 用户缩放倍数，所有标签共用（二维、三维都乘在自动取景的比例上）
   };
   const ZMIN = 0.5, ZMAX = 8;
@@ -466,6 +467,8 @@
   /* 七点球是三维的，绘制走 drawSeven（见下），不经过 DRAW 的二维流程；
      这里登记一个空项，好让 setTab 的标签校验认得它。 */
   DRAW.sevenpoint = () => '';
+  DRAW.thirteen = () => '';
+  const is3D = () => state.tab === 'sevenpoint' || state.tab === 'thirteen';
 
   /* ---------- 七点球：一套只在这个标签里用的三维工具 ---------- */
   const S3 = {
@@ -537,8 +540,10 @@
   /* 默认四面体：外接球归一化后挑出来的——四个顶点的七点球半径都在 2.3–4.4 R，
      七个点连同顶点的包围盒只有 1.85 R，整张图不会被巨大的球撑开。 */
   const TET0 = [[0.479, 0.858, 0.185], [0.118, -0.766, 0.632], [-0.987, -0.14, 0.082], [-0.354, 0.675, 0.647]];
+  /* 两个三维标签各记各的视角：十三点球的默认视角挑过，从侧面看，十三个点在屏幕上分得开 */
+  const curRot = () => (state.tab === 'thirteen' ? state.rot13 : state.rot);
   function rot3(p) {
-    const { yaw, pitch } = state.rot;
+    const { yaw, pitch } = curRot();
     const cy = Math.cos(yaw), sy = Math.sin(yaw), cp = Math.cos(pitch), sp = Math.sin(pitch);
     const x = p[0] * cy - p[1] * sy, y = p[0] * sy + p[1] * cy;      // 绕 z 轴
     return [x, y * cp - p[2] * sp, y * sp + p[2] * cp];              // 再绕 x 轴
@@ -637,11 +642,99 @@
       '<br>证明与文献检索见仓库中的《七点球定理》（docs/七点球定理.md）。');
   }
 
+  /* ---------- 十三点球（垂心四面体） ---------- */
+  /** 垂心四面体：底面三角形放在 z = 0，V0 放在它的垂心正上方 h 处（一个顶点的高足是对面垂心 ⇔ 垂心四面体）；
+   *  再平移缩放成外接球心在原点、R = 1 */
+  function orthoTet(tri, h) {
+    const T = tri.map(([x, y]) => [x, y, 0]), Hp = ortho3d(...T); if (!Hp) return null;
+    const V = [S3.add(Hp, [0, 0, h]), ...T], O = circum4(V); if (!O) return null;
+    const R = S3.len(S3.sub(V[0], O));
+    return V.map((p) => S3.mul(S3.sub(p, O), 1 / R));
+  }
+  /* 默认四面体：挑过形状，四个顶点的十三点球半径都在 0.6–0.86 R，十三个点彼此不太挤 */
+  const TRI13 = [[-0.81, 0.173], [0.173, 0.971], [0.326, 0.066]], H13 = 0.548;
+  /** 十三点球：给定垂心四面体与所选顶点下标，返回球、十三个点和几条辅助线的端点 */
+  function thirteenPoint(V, k) {
+    const O = circum4(V); if (!O) return null;
+    const R = S3.len(S3.sub(V[0], O));
+    // 垂心 H：过 V0 的高垂直于 V1V2、V1V3，过 V1 的高垂直于 V0V2
+    const e = [S3.sub(V[2], V[1]), S3.sub(V[3], V[1]), S3.sub(V[2], V[0])];
+    const H = solve3(e, [S3.dot(e[0], V[0]), S3.dot(e[1], V[0]), S3.dot(e[2], V[1])]); if (!H) return null;
+    const p = S3.dot(S3.sub(V[0], H), S3.sub(V[1], H));           // 极球的幂 HV_i · HH_i，对四个顶点相同
+    const Vd = V[k], oi = [0, 1, 2, 3].filter((i) => i !== k), T = oi.map((i) => V[i]);
+    const Hp = ortho3d(...T); if (!Hp) return null;
+    const M = T.map((_, j) => S3.mul(S3.add(T[(j + 1) % 3], T[(j + 2) % 3]), 0.5));
+    const F = T.map((X, j) => { const A = T[(j + 1) % 3], u = S3.sub(T[(j + 2) % 3], A); return S3.add(A, S3.mul(u, S3.dot(S3.sub(X, A), u) / sq(u))); });
+    const E = T.map((X) => S3.mul(S3.add(X, Hp), 0.5));
+    const c = circum4([Vd, ...M]); if (!c) return null;
+    const rad = S3.len(S3.sub(Vd, c));
+    const Gd = S3.mul(T.reduce(S3.add), 1 / 3), g = S3.sub(Gd, H);
+    if (sq(g) < 1e-20) return null;
+    const P = S3.add(H, S3.mul(g, p / sq(g)));                     // ψ(Gd)：以 H 为中心、幂 p 的反演
+    const anti = S3.sub(S3.mul(O, 2), Vd), Q1 = S3.mul(S3.add(H, anti), 0.5);
+    const u = S3.sub(H, Vd), X2 = S3.add(Vd, S3.mul(u, -2 * S3.dot(S3.sub(Vd, O), u) / sq(u))), Q2 = S3.mul(S3.add(H, X2), 0.5);
+    const nine = circum3d(...M), r9 = S3.len(S3.sub(M[0], nine)), nrm = S3.cross(S3.sub(T[1], T[0]), S3.sub(T[2], T[0]));
+    const pts = [[Vd, 'V' + k]].concat(M.map((q, j) => [q, 'M' + oi[j]]), F.map((q, j) => [q, 'F' + oi[j]]), E.map((q, j) => [q, 'E' + oi[j]]),
+      [[P, 'P'], [Q1, 'Q1'], [Q2, 'Q2']]);
+    const err = Math.max(...pts.map(([q]) => Math.abs(S3.len(S3.sub(q, c)) - rad))) / rad;
+    const pow = (sq(S3.sub(H, c)) - rad * rad) / p;
+    return { O, R, H, p, Hp, Gd, T, F, c, rad, err, pow, anti, X2, nine, r9, nrm, pts };
+  }
+  /** 空间中的圆：圆心 c、法向 n、半径 r */
+  function circle3(c, n, r, col, w) {
+    const a = Math.abs(n[0]) < 0.9 ? [1, 0, 0] : [0, 1, 0];
+    const e1 = S3.cross(n, a), e2 = S3.cross(n, e1), u1 = S3.mul(e1, r / S3.len(e1)), u2 = S3.mul(e2, r / S3.len(e2));
+    ctx.beginPath();
+    for (let i = 0; i <= 72; i++) {
+      const t = i / 72 * 2 * Math.PI, q = P3(S3.add(c, S3.add(S3.mul(u1, Math.cos(t)), S3.mul(u2, Math.sin(t)))));
+      i ? ctx.lineTo(q.x, q.y) : ctx.moveTo(q.x, q.y);
+    }
+    ctx.strokeStyle = col; ctx.lineWidth = LW(w); ctx.setLineDash([]); ctx.stroke();
+  }
+  /** 十三点球标签的绘制；返回图下说明 */
+  function drawThirteen(ink) {
+    if (!state.tet13) state.tet13 = orthoTet(TRI13, H13);
+    const sec = css('--muted'), V = state.tet13, k = state.v0;
+    const d = thirteenPoint(V, k);
+    const vk = 'V' + k, others = [0, 1, 2, 3].filter((i) => i !== k).map((i) => 'V' + i).join('');
+    const thm = '<b>十三点球</b>：设 V0V1V2V3 是垂心四面体（三对对棱互相垂直，四条高交于垂心 H），取一个顶点（这里是 ' + vk + '），对面 ' + others + ' 的重心 G′、垂心 H′。' +
+      '过 ' + vk + ' 和对面九点圆的球 Σ 总是唯一存在（任何四面体都如此，这是 Σ 的定义）。垂心四面体中，Σ 还经过另外三个点：' +
+      'P（G′ 关于极球的反演点）、Q1（H 与 ' + vk + ' 的外接球对径点的中点）、Q2（H 与高线 ' + vk + 'H 和外接球第二个交点的中点）；并且 <b>H 对 Σ 的幂恒为 (3/2)p</b>，与形状无关。' +
+      '<br>这里 p = HV<sub>i</sub> · HH<sub>i</sub>（H<sub>i</sub> 是 V<sub>i</sub> 的高足）对四个顶点相同，极球反演就是以 H 为中心、幂为 p 的反演。' +
+      '顶点、九点圆上的 9 个点（对面三边中点 M、三条高的垂足 F、三个欧拉点 E）再加 P、Q1、Q2，共 13 个点。';
+    const ops = '<b>按住拖动可以转动整个图形</b>，双指捏合或 ⌘/Ctrl＋滚轮缩放；用上面的按钮换一个顶点或换一个垂心四面体。灰色是外接球，紫色是十三点球 Σ，浅蓝面是对面，蓝色粗圆是它的九点圆，蓝色细线是面内三条高（交于 H′）；' +
+      '棕、绿、粉三条虚线分别给出 P、Q1、Q2。<br>';
+    if (!d) return info(thm, ops + '这个四面体接近退化，暂不绘制。换一个四面体。');
+    const all = d.pts.map(([q]) => q).concat(V, [d.O, d.H, d.anti, d.X2]);
+    fit3(all); placed3 = [];
+    if (state.showCircum) sphere3(d.O, d.R, GR, 1.1, true);
+    // 对面：浅蓝填充、九点圆、面内三条高
+    ctx.beginPath(); d.T.map(P3).forEach((q, i) => (i ? ctx.lineTo(q.x, q.y) : ctx.moveTo(q.x, q.y))); ctx.closePath();
+    ctx.fillStyle = 'rgba(55,138,221,0.13)'; ctx.fill();
+    d.T.forEach((X, j) => seg3(X, d.F[j], BL, 0.9));
+    for (let i = 0; i < 4; i++) for (let j = i + 1; j < 4; j++) seg3(V[i], V[j], ink, 1.4);
+    circle3(d.nine, d.nrm, d.r9, BL, 2.2);
+    sphere3(d.c, d.rad, PU, 2.2, true);
+    // 辅助线：P、H、G′、Q1 和对径点其实在一条直线上（对径点 − H = 3(G′ − H)），按图例分两段上色
+    const by = (n) => d.pts.find(([, t]) => t === n)[0];
+    seg3(by('P'), d.Gd, AM, 1.2, [7, 5]);
+    seg3(d.Gd, d.anti, TE, 1.2, [7, 5]);
+    seg3(V[k], d.X2, PK, 1.2, [7, 5]);
+    // 点与标注：先标十三个点，再标辅助点
+    d.pts.forEach(([q, t], i) => { dot3(q, CO, i === 0 || i > 9 ? 6 : 4.5); lab3(q, t, CO); });
+    V.forEach((q, i) => { if (i !== k) { dot3(q, ink, 5); lab3(q, 'V' + i, ink); } });
+    [[d.H, 'H'], [d.Hp, 'H′'], [d.Gd, 'G′'], [d.O, 'O'], [d.anti, vk + ' 的对径点'], [d.X2, '高线与外接球交点']].forEach(([q, t]) => { dot3(q, sec, 4); lab3(q, t, sec); });
+    return info(thm, ops + '实测：十三个点到球心的距离与半径之差，相对误差最大 ' + d.err.toExponential(1) +
+      '；H 对 Σ 的幂 ÷ p = ' + d.pow.toFixed(9) + '；球半径 ' + fmt(d.rad / d.R, 2) + ' R。' +
+      '<br>证明与文献检索见仓库中的《垂心四面体六条定理》（docs/垂心四面体六条定理.md）第一节。');
+  }
+
   /* ---------- 主绘制 ---------- */
   function draw() {
     ctx.clearRect(0, 0, W, H); placed = [];
     const ink = css('--ink');
     if (state.tab === 'sevenpoint') { document.getElementById('info').innerHTML = drawSeven(ink); return; }
+    if (state.tab === 'thirteen') { document.getElementById('info').innerHTML = drawThirteen(ink); return; }
     if (degenerate()) {
       const [A, B, C] = state.V; tri(A, B, C, ink, 1.3);
       [[A, 'A'], [B, 'B'], [C, 'C']].forEach(([p, n]) => { dot(p, ink, 5.5); lab(p, n, -16, -9); });
@@ -714,6 +807,27 @@
       c.onchange = () => { state.showCircum = c.checked; draw(); };
       l.append(c, '显示外接球'); optsEl.appendChild(l);
     }
+    if (state.tab === 'thirteen') {
+      ['V0', 'V1', 'V2', 'V3'].forEach((n, i) => optsEl.appendChild(chip('顶点 ' + n, i === state.v0, () => { state.v0 = i; renderOpts(); draw(); })));
+      optsEl.appendChild(chip('换一个垂心四面体', false, () => {
+        for (let tries = 0; tries < 300; tries++) {
+          const tri = [0, 1, 2].map(() => [Math.random() * 2 - 1, Math.random() * 2 - 1]);
+          const V = orthoTet(tri, (0.3 + Math.random() * 1.7) * (Math.random() < 0.5 ? 1 : -1));
+          if (!V) continue;
+          if (Math.abs(S3.dot(S3.sub(V[1], V[0]), S3.cross(S3.sub(V[2], V[0]), S3.sub(V[3], V[0])))) / 6 < 0.15) continue;   // 别太扁（R = 1）
+          const d0 = thirteenPoint(V, state.v0);
+          if (!d0 || d0.rad > 1.6) continue;                                                       // 球别太大
+          if (Math.max(...d0.pts.map(([q]) => S3.len(q)), S3.len(d0.H)) > 2) continue;              // 点别跑太远
+          state.tet13 = V; break;
+        }
+        draw();
+      }));
+      optsEl.appendChild(chip('回到默认', false, () => { state.tet13 = orthoTet(TRI13, H13); state.rot13 = { yaw: -2.09, pitch: -0.7 }; base3.key = ''; setZoom(1); }));
+      const l = document.createElement('label'); l.className = 'ck';
+      const c = document.createElement('input'); c.type = 'checkbox'; c.checked = state.showCircum;
+      c.onchange = () => { state.showCircum = c.checked; draw(); };
+      l.append(c, '显示外接球'); optsEl.appendChild(l);
+    }
     if (state.tab === 'poncelet') {
       optsEl.append(
         chip('把 P 放到内心', false, () => { const g = geo(); state.P = { x: g.I.x, y: g.I.y }; draw(); }),
@@ -777,7 +891,7 @@
     touches.set(e.pointerId, p);
     if (touches.size === 2) { drag = { pinch: true, d0: Math.max(spread(), 1), z0: state.zoom }; cv.setPointerCapture(e.pointerId); return; }
     if (touches.size > 2 || (drag && drag.pinch)) return;
-    if (state.tab === 'sevenpoint') { drag = { rot: true, x: p.x, y: p.y }; cv.setPointerCapture(e.pointerId); return; }
+    if (is3D()) { drag = { rot: true, x: p.x, y: p.y }; cv.setPointerCapture(e.pointerId); return; }
     let vi = -1;
     state.V.forEach((v, i) => { const s = S(v); if (Math.hypot(s.x - p.x, s.y - p.y) < HIT()) vi = i; });
     if (vi >= 0) drag = { v: vi };
@@ -790,8 +904,9 @@
     if (!drag) return; const p = pos(e);
     if (drag.pinch) { if (touches.size >= 2) setZoom(drag.z0 * spread() / drag.d0); return; }
     if (drag.rot) {
-      state.rot.yaw += (p.x - drag.x) * 0.012;
-      state.rot.pitch = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, state.rot.pitch + (p.y - drag.y) * 0.012));
+      const r = curRot();
+      r.yaw += (p.x - drag.x) * 0.012;
+      r.pitch = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, r.pitch + (p.y - drag.y) * 0.012));
       drag.x = p.x; drag.y = p.y; draw(); return;
     }
     if (drag.pt) movePoint(p); else { state.V[drag.v] = Wd(p); draw(); }
