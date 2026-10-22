@@ -23,7 +23,8 @@ data/relations.json   定理之间的推广、对偶、逆命题关系
 data/demos.json       专题页各标签 ↔ 目录定理编号的对应表
 explore/              专题页（可拖动的动态几何图），见下文「专题页」
 scripts/validate.py   数据检查脚本
-docs/                 长文（九点圆系列与四面体系列）
+docs/                 长文（九点圆系列、四面体系列、变换群观点）
+pics/                 长文的配图，按主题分文件夹（见下文）
 code/九点圆/          《九点圆定理系统》四轮数值试探的代码
 code/四面体/          四面体的点库与扫描代码
 CHANGELOG.md          更新记录、待办与已知问题
@@ -97,9 +98,21 @@ vendor/dagre.min.js   dagre 0.8.5（推广图的分层布局，MIT 许可证见 
 - `docs/垂心四面体特殊点库.md`：在上面那个点库的基础上，为垂心四面体（三对对棱互相垂直，四条高交于一点）整理的特殊点。1957 个中心里有 56 个在这里重合、另新增 75 个，轨道族 52 → 46 另加 12，扫描用点集 1096 → 1167。
 - `docs/垂心四面体定理扫描.md`：用垂心四面体点库（1167 个点，共球 1166 个）做的扫描，共线、共面、共圆、共球四层。先去掉从一般四面体继承来的关系，再用筛子和逐类复查化归，最后挑出 <b>6 条定理</b>（都已证明，新颖性待查）：欧拉线共轭平面、OO* 上的共轭共线、Fermat 点直线、面类似重心在过高的平面上、七线共点、十三点球。
 - `docs/垂心四面体六条定理.md`：把上面那篇筛出来的 6 条定理单独拉出来，逐条写完整的陈述、证明、验证和文献核查，每条带中英文标题。已写完五条：<b>十三点球</b>（The Thirteen-Point Sphere）、<b>欧拉线共轭平面</b>（The Euler-Line Conjugate Plane）、<b>第二欧拉线上的共轭共线</b>（Conjugate Collinearity on the Second Euler Line）、<b>七线共点</b>（Seven Concurrent Lines）、<b>过 Fermat 点的一条共线</b>（A Collinearity Through the Fermat Point）；第四条（面类似重心在过高的平面上）还在扫描报告里。
+- `docs/变换群观点下的几何定理.md`：从克莱因的 Erlangen 纲领出发，把欧拉线、九点圆（含 Feuerbach 相切）、西姆松线放到相似、仿射、射影、反演各层变换群和球面几何里，看每个定理真正属于哪一层，放宽群以后还剩下什么（九点二次曲线、十一点二次曲线、Hart 定理、Carnot 的定角推广）。
 - `docs/四面体特殊点库.md`：仿照 ETC，为一般四面体生成的点库，分两层——1957 个「中心」（T1–T1957）和 52 组、228 个「轨道点」（L1–L52），作为下一步扫描共线、共面、共球的素材；代码在 `code/四面体/`。
 
-配图在 `pics/`，代码在 `code/九点圆/`。
+配图在 `pics/`，按主题分文件夹，同一条定理的图放在同一个子文件夹里：
+
+```
+pics/nine_point/              九点圆系列的配图，以及第四轮的 round4_circles/、round4_hyperbolas/
+pics/orthocentric/            垂心四面体：点库示意图，以及每条定理一个子文件夹
+                              （conjugates/、thirteen_point_sphere/、euler_conjugate_plane/、
+                               oostar_collinear/、seven_lines/、fermat/）
+pics/seven_point_sphere/      七点球
+pics/transformation_groups/   变换群观点
+```
+
+新图片放进对应主题的文件夹；新主题就新建一个文件夹。代码在 `code/九点圆/`、`code/四面体/`。
 
 ## 专题页
 
