@@ -1,7 +1,7 @@
 .DS_Store
 theorems.orig.json
-pics/round4_circles.mp4
-pics/round4_hyperbolas.mp4
+pics/nine_point/round4_circles.mp4
+pics/nine_point/round4_hyperbolas.mp4
 
 # 四面体共球扫描：新代码与中间结果，只留在本地
 code/四面体/spheres/

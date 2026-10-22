@@ -62,6 +62,6 @@ cd round1 && python3 probe.py
 | stage2/ | 第二阶段（13 个圆） | 正交圆、反演点对、对角线交点、符号验证 |
 | stage3/ | 第三阶段（753 个点） | ETC 文本解析与坐标公式库、交叉验证、大扫描与复核、六道筛子、文献检索 |
 | hyperbola/ | 双曲线推广 | 换尺子后的度量下重算全部中心并检验 623 个圆 |
-| figures/ | 示意图 | 正文插图，以及 `pics/round4_circles/`、`pics/round4_hyperbolas/` 两套 100 张图 |
+| figures/ | 示意图 | 正文插图，以及 `pics/nine_point/round4_circles/`、`pics/nine_point/round4_hyperbolas/` 两套 100 张图 |
 
 运行 stage3 需自备 ETC Part 1、Part 2 的纯文本（版权原因未附带）；`stage3/db_expr.json` 已附带，可跳过解析步骤。
