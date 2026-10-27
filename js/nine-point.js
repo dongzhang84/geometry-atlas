@@ -32,6 +32,7 @@
         C_ORG = '#ef7a3a',   // 欧拉线、关键点
         C_PUR = '#b07ae8',   // 九点圆、欧拉点
         C_AMB = '#e0b061',   // 第二组辅助对象
+        C_WHT = '#f2f4f6',   // 主对象：欧拉线、九点圆（视频里就是白）
         C_FOT = '#58a6f0',   // 垂足（视频里垂足用的是另一种蓝）
         C_GRY = '#8a8f99';   // 外接圆这类陪衬
   const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim() || '#888';
@@ -42,11 +43,11 @@
     ['nagel', 'Nagel 线'], ['soddy', 'Soddy 线'], ['mandart', 'Mandart 圆'], ['poncelet', 'Poncelet 点'],
   ];
   const LEG = {
-    euler: [[C_GRN, '中垂线 → O'], [C_BLU, '中线 → G'], [C_RED, '高 → H'], [C_ORG, '欧拉线'], [C_PUR, '九点圆']],
+    euler: [[C_GRN, '中垂线 → O'], [C_BLU, '中线 → G'], [C_RED, '高 → H'], [C_WHT, '欧拉线 · 九点圆'], [C_ORG, 'O、G、H']],
     homothety: [[C_GRY, '外接圆与样点'], [C_AMB, '缩放后的圆'], [C_PUR, '九点圆']],
     feuerbach: [[C_BLU, '角平分线、内切圆、旁切圆'], [C_ORG, '直线 NI 与切点'], [C_PUR, '九点圆']],
     simson: [[C_BLU, '西摩松线'], [C_RED, '三条高 → 垂心 H'], [C_AMB, '线段 PH'], [C_PUR, '九点圆']],
-    orthocentric: [[C_BLU, '当前三角形'], [C_RED, '它的三条高'], [C_ORG, '三边中点'], [C_FOT, '三个垂足'], [C_PUR, '三个欧拉点 · 九点圆']],
+    orthocentric: [[C_BLU, '当前三角形'], [C_RED, '它的三条高'], [C_ORG, '三边中点'], [C_FOT, '三个垂足'], [C_PUR, '三个欧拉点'], [C_WHT, '九点圆']],
     nagel: [[C_AMB, '内切圆、内心 I'], [C_RED, '顶点到旁切圆切点的连线 → Na'], [C_BLU, '中线 → G'], [C_GRN, 'Spieker 点 Sp'], [C_ORG, 'Nagel 线']],
     soddy: [[C_GRY, '以顶点为圆心的三个圆'], [C_BLU, '顶点到切点的连线 → Ge'], [C_PUR, '内 Soddy 圆'], [C_RED, '外 Soddy 圆'], [C_GRN, 'de Longchamps 点 L'], [C_ORG, 'Soddy 线']],
     mandart: [[C_BLU, '内切圆、三个旁切圆'], [C_ORG, '旁切点 Ua、Ub、Uc 与旁切点三角形'], [C_AMB, 'Mandart 圆'], [C_PUR, '九点圆'], [C_RED, 'Feuerbach 点 F']],
@@ -172,13 +173,13 @@
       if (state.show.pb) M.forEach((m) => seg(m, g.O, C_GRN, 1.1, [4, 3]));
       if (state.show.md) M.forEach((m, i) => seg(vs[i], m, C_BLU, 1.1));
       if (state.show.al) F.forEach((f, i) => { seg(vs[i], f, C_RED, 1.1); if (len(sub(g.H, f)) > len(sub(vs[i], f))) seg(f, g.H, C_RED, 0.8, [3, 3]); else seg(vs[i], g.H, C_RED, 0.8, [3, 3]); });
-      circle(g.N, g.r9, C_PUR, 2.6); lineInf(g.O, g.H, C_ORG, 1.2, [7, 4]); seg(g.O, g.H, C_ORG, 2.2);
-      ninePoints(g.A, g.B, g.C).forEach((p) => dot(p, C_PUR, 3.5));
+      circle(g.N, g.r9, C_WHT, 2.6); lineInf(g.O, g.H, C_WHT, 1.2, [7, 4]); seg(g.O, g.H, C_WHT, 2.2);
+      ninePoints(g.A, g.B, g.C).forEach((p, i) => dot(p, i < 3 ? C_ORG : i < 6 ? C_FOT : C_PUR, 3.5));
       const dir = sub(g.H, g.O), same = near(g.O, g.G, g);
       if (same) { dot(g.O, C_ORG, 5.5); lab(g.O, 'O = G = H = N', 9, -9); }
-      else [[g.O, 'O', C_GRN, 1], [g.G, 'G', C_BLU, -1], [g.N, 'N', C_PUR, 1], [g.H, 'H', C_RED, -1]].forEach(([p, n, c, sd]) => { dot(p, c, 5.5); labPerp(p, n, dir, sd); });
+      else [[g.O, 'O', C_ORG, 1], [g.G, 'G', C_ORG, -1], [g.N, 'N', C_WHT, 1], [g.H, 'H', C_ORG, -1]].forEach(([p, n, c, sd]) => { dot(p, c, 5.5); labPerp(p, n, dir, sd); });
       return info('三条中垂线交于外心 O，三条中线交于重心 G，三条高交于垂心 H。O、G、H 在一条直线上，叫做欧拉线，并且 OG : GH = 1 : 2。九点圆的圆心 N 是 OH 的中点。',
-        '拖动顶点 A、B、C 改变三角形；用上面的复选框显示或隐藏中垂线（蓝）、中线（绿）、高（粉）。橙色粗线是欧拉线，紫色是九点圆。<br>' +
+        '拖动顶点 A、B、C 改变三角形；用上面的复选框显示或隐藏中垂线（绿）、中线（蓝）、高（红）。白色粗线是欧拉线，白圈是九点圆，橙点是 O、G、H。<br>' +
         (same ? '三角形接近等边：O、G、H、N 几乎重合，欧拉线不再确定。' :
           '实测：ON = ' + fmt(len(sub(g.N, g.O))) + '，NH = ' + fmt(len(sub(g.H, g.N))) + '；OG : GH = 1 : ' + fmt(len(sub(g.H, g.G)) / len(sub(g.G, g.O))) + '。'));
     },
@@ -241,7 +242,7 @@
     },
     orthocentric(g) {
       const sec = css('--muted');
-      circle(g.N, g.r9, C_PUR, 2.6);
+      circle(g.N, g.r9, C_WHT, 2.6);
       const four = [[g.A, g.B, g.C], [g.A, g.B, g.H], [g.A, g.C, g.H], [g.B, g.C, g.H]];
       four.forEach((T) => tri(T[0], T[1], T[2], sec, 0.7));
       const T = four[state.tri]; tri(T[0], T[1], T[2], C_BLU, 2.2);
