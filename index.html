@@ -26,7 +26,7 @@
 html{scroll-behavior:smooth}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
   font-size:15px;line-height:1.65;-webkit-text-size-adjust:100%}
-.wrap{max-width:1180px;margin:0 auto;padding:32px 18px 70px}
+.wrap{max-width:1560px;margin:0 auto;padding:32px 24px 70px}
 
 header{margin-bottom:22px}
 h1{font-size:26px;line-height:1.3;margin:0 0 8px;letter-spacing:.5px}
@@ -41,7 +41,7 @@ h1::after{content:"";display:block;height:2px;width:72px;margin-top:10px;
 .chip.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 .chips .lbl{font-family:var(--mono);font-size:11px;color:var(--faint);margin-right:2px}
 
-.cols{display:grid;grid-template-columns:minmax(340px,40%) 1fr;gap:28px;align-items:start}
+.cols{display:grid;grid-template-columns:minmax(420px,46%) 1fr;gap:34px;align-items:start}
 .left{position:sticky;top:20px}
 #sun{display:block;width:100%;height:auto}
 .arc{cursor:pointer;transition:fill-opacity .18s,stroke .18s}
@@ -54,7 +54,7 @@ h1::after{content:"";display:block;height:2px;width:72px;margin-top:10px;
 .fam h2 .sw{width:10px;height:10px;border-radius:3px;flex:none;display:inline-block}
 .fam h2 .n{font-family:var(--mono);font-size:11px;color:var(--faint);font-weight:400}
 .fam p.intro{color:var(--faint);font-size:13.5px;margin:0 0 14px}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(232px,1fr));gap:10px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
 
 .card{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--fc,var(--line));
   border-radius:10px;padding:12px 14px;cursor:pointer;scroll-margin-top:20px;
@@ -253,7 +253,7 @@ footer a{color:var(--faint)}
   }) };
   var root = d3.hierarchy(data).sum(function (d) { return d.id ? 1 : 0; });
   d3.partition().size([2 * Math.PI, root.height + 1])(root);
-  var R = 232 / 3;
+  var R = 242 / 3;
   var arc = d3.arc().startAngle(function (d) { return d.x0; }).endAngle(function (d) { return d.x1; })
     .padAngle(function (d) { return Math.min((d.x1 - d.x0) / 2, .006); }).padRadius(R * 1.5)
     .innerRadius(function (d) { return d.y0 * R; })
@@ -275,15 +275,15 @@ footer a{color:var(--faint)}
 
   g.append('g').attr('text-anchor', 'middle').attr('pointer-events', 'none')
     .selectAll('text').data(nodes).join('text')
-    .attr('dy', '.35em').attr('font-size', function (d) { return d.depth === 1 ? 11.5 : 7.6; })
+    .attr('dy', '.35em').attr('font-size', function (d) { return d.depth === 1 ? 13.5 : 9.6; })
     .attr('font-weight', function (d) { return d.depth === 1 ? 700 : 500; })
     .attr('fill', function (d) { return d.depth === 1 ? '#fff' : css('--ink'); })
-    .attr('fill-opacity', function (d) { return (d.x1 - d.x0) * (d.y1 - d.y0) > .028 ? 1 : 0; })
+    .attr('fill-opacity', function (d) { return (d.x1 - d.x0) * (d.y1 - d.y0) > .022 ? 1 : 0; })
     .attr('transform', function (d) {
       var x = (d.x0 + d.x1) / 2 * 180 / Math.PI, y = (d.y0 + d.y1) / 2 * R;
       return 'rotate(' + (x - 90) + ') translate(' + y + ',0) rotate(' + (x < 180 ? 0 : 180) + ')';
     })
-    .text(function (d) { var n = d.data.name; return n.length > 8 ? n.slice(0, 7) + '…' : n; });
+    .text(function (d) { var n = d.data.name; return n.length > 10 ? n.slice(0, 9) + '…' : n; });
 
   var cNum = g.append('text').attr('text-anchor', 'middle').attr('dy', '-.05em')
     .attr('font-size', 26).attr('font-weight', 700).attr('fill', css('--ink')).text(A.theorems.length);
