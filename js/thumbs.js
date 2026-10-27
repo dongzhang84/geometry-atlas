@@ -69,15 +69,32 @@
   const DRAW = {
     // 欧拉线：O、G、H 共线
     N01: (g) => {
-      const [p, q] = long(g.T.O, g.T.H);
-      return [tri(g.A, g.B, g.C), circle(g.circum, 'aux'),
-              line(p, q, 'ln'),
-              dot(g.T.O, 'key'), dot(g.T.G, 'key'), dot(g.T.H, 'key')];
+      const { A, B, C, T } = g;
+      const out = [circle(g.circum, 'aux')];
+      // 三条中线 → G
+      [[A, mid(B, C)], [B, mid(C, A)], [C, mid(A, B)]].forEach(([p, m]) => out.push(line(p, m, 'med')));
+      // 三条中垂线 → O（过 O，所以在外接圆里截出的是一条直径）
+      [[mid(B, C), B, C], [mid(C, A), C, A], [mid(A, B), A, B]].forEach(([m, p, r]) => {
+        const d = sub(r, p), L = len(d) || 1, n = { x: -d.y / L, y: d.x / L };
+        out.push(line(sub(g.circum, mul(n, g.circum.r)), add(g.circum, mul(n, g.circum.r)), 'pbi'));
+      });
+      // 三条高 → H
+      [[A, B, C], [B, C, A], [C, A, B]].forEach(([p, r, w]) => out.push(line(p, foot(p, r, w), 'alt2')));
+      const [p0, q0] = long(T.O, T.H);
+      return out.concat([tri(A, B, C), line(p0, q0, 'ln'),
+                         dot(T.O, 'key'), dot(T.G, 'key'), dot(T.H, 'key')]);
     },
     // 九点圆：三组来历不同的点落在同一个圆上
     N02: (g) => {
+      const { A, B, C, T } = g;
+      const out = [];
+      // 三条高：垂足和 H 从这里来
+      [[A, B, C], [B, C, A], [C, A, B]].forEach(([p, r, w]) => out.push(line(p, foot(p, r, w), 'alt2')));
+      // 顶点到 H 的连线：欧拉点是它们的中点
+      [A, B, C].forEach((p) => out.push(line(p, T.H, 'eulline')));
       const grp = ['key', 'key', 'key', 'foot', 'foot', 'foot', 'eul', 'eul', 'eul'];
-      return [tri(g.A, g.B, g.C), circle(g.nine, 'ln'), ...g.NP.map((p, i) => dot(p, grp[i]))];
+      return out.concat([tri(A, B, C), circle(g.nine, 'ln'), dot(T.H, 'hpt')],
+                        g.NP.map((p, i) => dot(p, grp[i])));
     },
     // 位似：外接圆被送到九点圆
     N03: (g) => [tri(g.A, g.B, g.C), circle(g.circum, 'aux'), circle(g.nine, 'hi'),
