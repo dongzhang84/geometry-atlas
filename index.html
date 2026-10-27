@@ -259,11 +259,11 @@ footer a{color:var(--faint)}
     .innerRadius(function (d) { return d.y0 * R; })
     .outerRadius(function (d) { return Math.max(d.y0 * R, d.y1 * R - 1.2); });
 
-  var svg = d3.select('#sun'), g = svg.append('g');
+  var svg = d3.select('#sun'), g = svg.append('g'), rot = g.append('g');
   var css = function (v) { return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); };
   var nodes = root.descendants().slice(1);
 
-  var path = g.append('g').selectAll('path').data(nodes).join('path')
+  var path = rot.append('g').selectAll('path').data(nodes).join('path')
     .attr('class', 'arc').attr('d', arc)
     .attr('fill', function (d) {
       var base = d3.color(HUE[d.data.fid] || '#888');
@@ -273,15 +273,15 @@ footer a{color:var(--faint)}
     .attr('stroke', css('--bg')).attr('stroke-width', .8);
   path.append('title').text(function (d) { return d.data.name; });
 
-  g.append('g').attr('text-anchor', 'middle').attr('pointer-events', 'none')
+  var label = rot.append('g').attr('text-anchor', 'middle').attr('pointer-events', 'none')
     .selectAll('text').data(nodes).join('text')
     .attr('dy', '.35em').attr('font-size', function (d) { return d.depth === 1 ? 13.5 : 9.6; })
     .attr('font-weight', function (d) { return d.depth === 1 ? 700 : 500; })
     .attr('fill', function (d) { return d.depth === 1 ? '#fff' : css('--ink'); })
     .attr('fill-opacity', function (d) { return (d.x1 - d.x0) * (d.y1 - d.y0) > .022 ? 1 : 0; })
-    .attr('transform', function (d) {
-      var x = (d.x0 + d.x1) / 2 * 180 / Math.PI, y = (d.y0 + d.y1) / 2 * R;
-      return 'rotate(' + (x - 90) + ') translate(' + y + ',0) rotate(' + (x < 180 ? 0 : 180) + ')';
+    .each(function (d) {
+      d._a = (d.x0 + d.x1) / 2 * 180 / Math.PI;      // 基准角度
+      d._r = (d.y0 + d.y1) / 2 * R;
     })
     .text(function (d) { var n = d.data.name; return n.length > 10 ? n.slice(0, 9) + '…' : n; });
 
@@ -304,6 +304,31 @@ footer a{color:var(--faint)}
         setTimeout(function () { c.classList.remove('flash'); }, 1200);
       }
     });
+
+  /* 缓慢自转：十分钟一圈。鼠标放上去就停，方便看字；标签过了水平线自己翻面 */
+  var spin = 0, spinning = true, last = 0;
+  function placeLabels() {
+    label.attr('transform', function (d) {
+      var x = d._a + spin, flip = ((x % 360) + 360) % 360 < 180 ? 0 : 180;
+      return 'rotate(' + (x - 90) + ') translate(' + d._r + ',0) rotate(' + flip + ')';
+    });
+  }
+  function tick(ts) {
+    if (!last) last = ts;
+    var dt = ts - last; last = ts;
+    if (spinning && !document.hidden) {
+      spin += dt * 0.006;                            // 度/毫秒 → 一圈约 10 分钟
+      rot.attr('transform', 'rotate(' + spin + ')');
+      placeLabels();
+    }
+    requestAnimationFrame(tick);
+  }
+  placeLabels();
+  if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    svg.on('mouseenter', function () { spinning = false; })
+       .on('mouseleave', function () { spinning = true; last = 0; });
+    requestAnimationFrame(tick);
+  }
 
   function setActive(fid) {
     path.classed('active', function (d) { return d.depth === 1 && d.data.fid === fid; });
