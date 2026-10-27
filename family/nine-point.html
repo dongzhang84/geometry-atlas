@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>九点圆家族 · 几何图谱</title>
+<meta name="description" content="可拖动的动态几何图：九点圆与欧拉线、外接圆、Feuerbach 定理、西摩松线、垂心组、九点二次曲线之间的联系。">
+<style>
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+:root{
+  --paper:#f6f7f9; --panel:#ffffff; --ink:#1b2333; --muted:#5d6678; --rule:#dde1e8;
+  --proj:#2f5aa8; --aff:#b07a1e; --euc:#2f8a73; --hi:#d9e3f5;
+  --serif:"Songti SC","SimSun","Noto Serif CJK SC",serif;
+  --sans:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans CJK SC",sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#12161e; --panel:#1a2029; --ink:#e6e9ef; --muted:#9aa3b4; --rule:#2c3440;
+  --proj:#7aa2ea; --aff:#e0b061; --euc:#5fc4a8; --hi:#24324a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#12161e; --panel:#1a2029; --ink:#e6e9ef; --muted:#9aa3b4; --rule:#2c3440;
+  --proj:#7aa2ea; --aff:#e0b061; --euc:#5fc4a8; --hi:#24324a; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px 40px}
+.wrap{max-width:980px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+.back{font-size:13px;color:var(--proj);text-decoration:none}
+.back:hover{text-decoration:underline}
+header h1{font-family:var(--serif);font-weight:700;font-size:clamp(24px,3.4vw,32px);margin:4px 0 0;letter-spacing:.02em;text-wrap:balance}
+header p{margin:6px 0 0;color:var(--muted);max-width:70ch}
+.tabs,.opts{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.opts{gap:12px;min-height:32px;font-size:13px;color:var(--muted)}
+button.chip{font:inherit;font-size:13px;border:1px solid var(--rule);background:var(--panel);color:var(--ink);padding:5px 12px;border-radius:999px;cursor:pointer}
+button.chip[aria-pressed="true"]{border-color:var(--ink);background:var(--ink);color:var(--paper)}
+button.chip:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--proj);outline-offset:2px}
+.ck{display:flex;align-items:center;gap:5px;cursor:pointer}
+.stage{position:relative;background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:8px}
+.zoom{position:absolute;top:14px;right:14px;display:flex;align-items:center;gap:4px}
+.zoom button{font:inherit;font-size:15px;line-height:1;min-width:32px;height:32px;padding:0 8px;border:1px solid var(--rule);background:var(--panel);color:var(--ink);border-radius:6px;cursor:pointer}
+.zoom button:hover{border-color:var(--muted)}
+.zoom button:focus-visible{outline:2px solid var(--proj);outline-offset:2px}
+.zoom #zoom-reset{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:52px}
+canvas{width:100%;height:auto;display:block;touch-action:none}
+#info{color:var(--ink);max-width:76ch;line-height:1.75}
+#info .note{color:var(--muted)}
+#info p{margin:0 0 8px}
+#info .thm{font-size:16px;line-height:1.8}
+#info .ops{color:var(--muted);font-size:14px;border-top:1px solid var(--rule);padding-top:8px}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:13px;color:var(--muted)}
+.legend i{display:inline-block;width:16px;height:3px;vertical-align:middle;margin-right:6px;border-radius:2px}
+.related{font-size:14px;color:var(--muted)}
+.related a{color:var(--proj)}
+footer{border-top:1px solid var(--rule);padding-top:14px;font-size:13px;color:var(--muted);max-width:76ch}
+footer h2{font-family:var(--serif);font-size:17px;color:var(--ink);margin:0 0 6px}
+footer ul{margin:0;padding-left:18px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a class="back" href="../index.html#nine-point">← 返回几何图谱</a>
+    <h1>九点圆家族</h1>
+    <p>九点圆不是一条孤立的定理：它和欧拉线、外接圆、Feuerbach 定理、西摩松线、垂心组都有实质的联系，而且本身是「九点二次曲线」的特例。每一页都可以拖动三角形的顶点 A、B、C，看这些关系始终成立。所有图都可以用双指捏合、⌘/Ctrl＋滚轮或图右上角的按钮缩放。</p>
+  </header>
+
+  <nav class="tabs" id="tabs" aria-label="选择一条联系"></nav>
+  <div class="opts" id="opts"></div>
+  <div class="stage"><canvas id="cv" aria-label="动态几何图"></canvas>
+    <div class="zoom" role="group" aria-label="缩放">
+      <button type="button" id="zoom-out" aria-label="缩小" title="缩小">−</button>
+      <button type="button" id="zoom-reset" aria-label="恢复原始大小" title="恢复原始大小"><span id="zoom-level">100%</span></button>
+      <button type="button" id="zoom-in" aria-label="放大" title="放大">＋</button>
+    </div>
+  </div>
+  <div id="info" aria-live="polite"></div>
+  <div class="legend" id="legend"></div>
+  <div class="related" id="related" hidden></div>
+
+  <footer>
+    <h2>来源</h2>
+    <ul>
+      <li>九点圆：Brianchon 与 Poncelet，1821 年；Feuerbach 1822 年独立得到。</li>
+      <li>欧拉线：Euler，1765 年。</li>
+      <li>Feuerbach 定理（九点圆与内切圆、旁切圆相切）：Feuerbach，1822 年。</li>
+      <li>西摩松线：以 Robert Simson 命名，最早由 William Wallace 于 1797 年发表。</li>
+      <li>九点二次曲线（四点的 6 条连线中点与 3 个对角点共二次曲线）：Bôcher，1892 年。</li>
+      <li>Mandart 圆（旁切点三角形的外接圆，过 Feuerbach 点）：以 H. Mandart 命名。</li>
+    </ul>
+  </footer>
+</div>
+<script src="../data/atlas.js"></script>
+<script src="../js/geometry.js"></script>
+<script src="../js/nine-point.js"></script>
+</body>
+</html>

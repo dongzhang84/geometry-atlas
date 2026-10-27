@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="auto">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>几何图谱 · 有名定理的家族与关系</title>
+<meta name="description" content="四十多条有名的平面几何定理，按家族分组，标出它们之间的推广、特例与对偶关系，其中十几条可以拖动顶点看动态图。">
+<style>
+/* 字体一律用系统字体：不引外部资源，大陆也能正常打开 */
+:root{
+  --bg:#f7f8f9; --card:#fff; --ink:#16181a; --dim:#4a5056; --faint:#8b949c;
+  --line:#e3e6e9; --accent:#bc4c00; --accent-soft:#fdf0e8;
+  --sans:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB",
+         "Microsoft YaHei","Noto Sans CJK SC",sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Noto Sans Mono CJK SC",monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#16181a; --card:#1e2124; --ink:#e8eaec; --dim:#aeb4ba; --faint:#767d84;
+    --line:#2b2f33; --accent:#ff8a4c; --accent-soft:#2a1d15;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#16181a; --card:#1e2124; --ink:#e8eaec; --dim:#aeb4ba; --faint:#767d84;
+  --line:#2b2f33; --accent:#ff8a4c; --accent-soft:#2a1d15;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+  font-size:15px;line-height:1.65;-webkit-text-size-adjust:100%}
+.wrap{max-width:1040px;margin:0 auto;padding:36px 16px 72px}
+
+header{margin-bottom:28px}
+h1{font-size:26px;line-height:1.3;margin:0 0 8px;letter-spacing:.5px}
+.lede{color:var(--dim);margin:0 0 14px;max-width:46em}
+.meta{font-family:var(--mono);font-size:12px;color:var(--faint)}
+.meta a{color:var(--faint)}
+
+.fam{margin:30px 0 0;padding-top:20px;border-top:1px solid var(--line)}
+.fam h2{font-size:17px;margin:0 0 3px;letter-spacing:.4px}
+.fam h2 .n{font-family:var(--mono);font-size:11px;color:var(--faint);
+  font-weight:400;margin-left:8px}
+.fam p.intro{color:var(--faint);font-size:13.5px;margin:0 0 14px}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(248px,1fr));gap:10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;
+  padding:12px 14px;cursor:pointer;transition:border-color .15s,transform .15s}
+.card:hover{border-color:var(--accent);transform:translateY(-1px)}
+.card .id{font-family:var(--mono);font-size:10.5px;color:var(--faint);letter-spacing:.5px}
+.card .nm{font-weight:600;font-size:15px;margin:1px 0 4px}
+.card .one{color:var(--dim);font-size:13px;line-height:1.55}
+.card .flag{display:inline-block;margin-top:8px;font-family:var(--mono);font-size:10.5px;
+  color:var(--accent);background:var(--accent-soft);border-radius:5px;padding:2px 7px}
+
+.card .more{display:none;margin-top:11px;padding-top:11px;border-top:1px dashed var(--line)}
+.card.open .more{display:block}
+.card.open{cursor:default}
+.more dt{font-family:var(--mono);font-size:10.5px;color:var(--faint);
+  letter-spacing:.5px;margin-top:9px}
+.more dt:first-child{margin-top:0}
+.more dd{margin:2px 0 0;font-size:13px;color:var(--dim);line-height:1.6}
+.more .rel{font-size:12.5px}
+.more .rel b{color:var(--ink);font-weight:600}
+.more a.go{display:inline-block;margin-top:10px;font-size:13px;color:var(--accent);
+  text-decoration:none;font-weight:600}
+.more a.go:hover{text-decoration:underline}
+
+footer{margin-top:46px;padding-top:18px;border-top:1px solid var(--line);
+  font-family:var(--mono);font-size:11.5px;color:var(--faint)}
+footer a{color:var(--faint)}
+
+@media (max-width:520px){
+  .wrap{padding:24px 14px 56px}
+  h1{font-size:22px}
+  .grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>几何图谱</h1>
+  <p class="lede">四十多条有名的平面几何定理，按家族分组，标出它们之间的推广、特例与对偶关系。
+     点开任意一条看陈述和出处；带「动态图」标记的可以拖动顶点自己试。</p>
+  <p class="meta"><span id="stat"></span></p>
+</header>
+
+<main id="main"></main>
+
+<footer>
+  纯静态页面，不依赖任何外部资源 ·
+  代码 MIT，数据 CC BY 4.0 ·
+  <a href="about.html">关于</a>
+</footer>
+
+</div>
+
+<script src="data/atlas.js"></script>
+<script>
+(function () {
+  var A = window.ATLAS, byId = {};
+  A.theorems.forEach(function (t) { byId[t.id] = t; });
+
+  // 每条定理的上下游关系，画卡片时直接取用
+  var up = {}, down = {}, dual = {};
+  A.relations.forEach(function (r) {
+    if (r.type === 'dual') {
+      (dual[r.from] = dual[r.from] || []).push({ id: r.to, note: r.note });
+      (dual[r.to] = dual[r.to] || []).push({ id: r.from, note: r.note });
+    } else {
+      (down[r.from] = down[r.from] || []).push({ id: r.to, note: r.note });
+      (up[r.to] = up[r.to] || []).push({ id: r.from, note: r.note });
+    }
+  });
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+    });
+  }
+
+  function relLine(list) {
+    return list.map(function (x) {
+      var t = byId[x.id];
+      return '<b>' + esc(t ? t.name : x.id) + '</b>' + (x.note ? '（' + esc(x.note) + '）' : '');
+    }).join('、');
+  }
+
+  function cardHTML(t) {
+    var h = '<article class="card" data-id="' + t.id + '">'
+          + '<div class="id">' + t.id + '</div>'
+          + '<div class="nm">' + esc(t.name) + '</div>'
+          + '<div class="one">' + esc(t.statement) + '</div>';
+    if (t.demo) h += '<span class="flag">动态图</span>';
+    h += '<div class="more"><dl>';
+    if (t.why)    h += '<dt>为什么有名</dt><dd>' + esc(t.why) + '</dd>';
+    if (t.source) h += '<dt>出处</dt><dd>' + esc(t.source) + '</dd>';
+    if (up[t.id])   h += '<dt>它是谁的推广</dt><dd class="rel">推广自 ' + relLine(up[t.id]) + '</dd>';
+    if (down[t.id]) h += '<dt>由它可以得到</dt><dd class="rel">' + relLine(down[t.id]) + '</dd>';
+    if (dual[t.id]) h += '<dt>对偶</dt><dd class="rel">' + relLine(dual[t.id]) + '</dd>';
+    h += '</dl>';
+    if (t.demo) h += '<a class="go" href="' + t.demo + '">拖动顶点看动态图 →</a>';
+    return h + '</div></article>';
+  }
+
+  var html = '';
+  A.families.forEach(function (f) {
+    var list = A.theorems.filter(function (t) { return t.family === f.id; });
+    if (!list.length) return;
+    html += '<section class="fam" id="' + f.id + '">'
+          + '<h2>' + esc(f.name) + '<span class="n">' + list.length + ' 条</span></h2>'
+          + '<p class="intro">' + esc(f.intro) + '</p>'
+          + '<div class="grid">' + list.map(cardHTML).join('') + '</div></section>';
+  });
+  document.getElementById('main').innerHTML = html;
+
+  var nDemo = A.theorems.filter(function (t) { return t.demo; }).length;
+  document.getElementById('stat').textContent =
+    A.theorems.length + ' 条定理 · ' + A.families.length + ' 个家族 · '
+    + A.relations.length + ' 条关系 · ' + nDemo + ' 个动态图';
+
+  document.addEventListener('click', function (e) {
+    if (e.target.closest('.more a')) return;          // 点链接就走，不要收起卡片
+    var c = e.target.closest('.card');
+    if (!c) return;
+    c.classList.toggle('open');
+  });
+})();
+</script>
+</body>
+</html>

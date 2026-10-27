@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>关于 · 几何图谱</title>
+<meta name="description" content="几何图谱：这个项目是什么、数据从哪里来、许可证。">
+<style>
+:root{
+  --bg:#f7f8f9; --card:#fff; --ink:#16181a; --dim:#4a5056; --faint:#8b949c;
+  --line:#e3e6e9; --accent:#bc4c00;
+  --sans:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB",
+         "Microsoft YaHei","Noto Sans CJK SC",sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Noto Sans Mono CJK SC",monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#16181a; --card:#1e2124; --ink:#e8eaec; --dim:#aeb4ba; --faint:#767d84;
+    --line:#2b2f33; --accent:#ff8a4c; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#16181a; --card:#1e2124; --ink:#e8eaec; --dim:#aeb4ba; --faint:#767d84;
+  --line:#2b2f33; --accent:#ff8a4c; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+  font-size:15px;line-height:1.7;-webkit-text-size-adjust:100%}
+.wrap{max-width:680px;margin:0 auto;padding:36px 16px 72px}
+a{color:var(--accent)}
+.back{font-size:13px;text-decoration:none}
+.back:hover{text-decoration:underline}
+h1{font-size:24px;margin:14px 0 18px;letter-spacing:.5px}
+h2{font-size:16px;margin:28px 0 8px;letter-spacing:.4px}
+p{color:var(--dim);margin:0 0 12px}
+ul{color:var(--dim);padding-left:1.2em;margin:0 0 12px}
+li{margin-bottom:5px}
+code{font-family:var(--mono);font-size:13px;background:var(--card);
+  border:1px solid var(--line);border-radius:4px;padding:1px 5px}
+footer{margin-top:40px;padding-top:16px;border-top:1px solid var(--line);
+  font-family:var(--mono);font-size:11.5px;color:var(--faint)}
+@media (max-width:520px){ .wrap{padding:24px 14px 56px} h1{font-size:21px} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<a class="back" href="index.html">← 返回几何图谱</a>
+<h1>关于</h1>
+
+<p>这是一张有名平面几何定理的关系图。它不是定理手册，也不是用来发现新定理的工具，
+它想回答的是：<strong>这些定理之间是什么关系？</strong>哪一条是哪一条的推广，
+哪两条互为对偶，哪一条只是另一条的退化情形。</p>
+
+<h2>怎么用</h2>
+<ul>
+  <li>首页按家族分块，每条定理一张卡片，<strong>点一下展开</strong>看陈述、为什么有名、出处，
+      以及它的上下游关系。</li>
+  <li>带「动态图」标记的，可以进到家族页<strong>拖动三角形的顶点</strong>，看关系始终成立。</li>
+  <li>图可以双指捏合、⌘/Ctrl＋滚轮，或用图右上角的按钮缩放。</li>
+</ul>
+
+<h2>关系怎么收的</h2>
+<p>只收公认的数学事实，例如：托勒密定理用在矩形上就是勾股定理；Brahmagupta 公式
+一条边趋于零就是海伦公式；Pascal 定理在圆锥曲线退化成两条直线时就是 Pappus 定理；
+Brianchon 定理是 Pascal 定理的对偶。拿不准的一律不收。</p>
+<p>关系只有三种：<code>generalizes</code>（推广）、<code>dual</code>（对偶）、
+<code>converse</code>（逆命题）。</p>
+
+<h2>内容与版权</h2>
+<ul>
+  <li>定理本身是数学事实，不受版权保护。所有陈述都是<strong>用自己的话写的</strong>，没有抄任何书的原文。</li>
+  <li>出处只写历史来源（谁、哪一年），不写任何书的页码，也不引用原文。</li>
+  <li>代码 MIT，数据（<code>data/atlas.js</code>）CC BY 4.0。</li>
+</ul>
+
+<h2>技术</h2>
+<p>纯静态页面，没有构建步骤，<strong>不引用任何外部资源</strong>——没有 CDN、没有网络字体、
+没有统计脚本。断网也能完整打开。数据用 <code>&lt;script src&gt;</code> 加载而不是
+<code>fetch</code>，所以直接双击文件、或部署在任何子路径下都能工作。</p>
+
+<footer>几何图谱 · 数据版本 <span id="ver"></span></footer>
+
+</div>
+<script src="data/atlas.js"></script>
+<script>
+document.getElementById('ver').textContent =
+  (window.ATLAS && window.ATLAS.version) || '—';
+</script>
+</body>
+</html>
