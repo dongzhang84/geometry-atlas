@@ -16,6 +16,9 @@
 改完数据跑一下 `python3 scripts/validate.py`，它会检查编号、关系、动态图锚点，
 以及所有页面都没有引用外部资源。
 
+画图的配色、线型、构型、动画和已知的坑，统一写在 [CONVENTIONS.md](CONVENTIONS.md)。
+加新定理之前先看那份。
+
 ## 文件
 
 ```
@@ -25,6 +28,7 @@ data/atlas.js           全部数据（定理、家族、关系），用 <script
 js/geometry.js          平面几何计算，纯函数，挂在 window.GA 上
 js/nine-point.js        九点圆家族的作图与交互
 scripts/validate.py     数据与外部依赖检查
+CONVENTIONS.md          画图规范：配色、线型、构型、动画、已知的坑
 ```
 
 ## 设计上的三条硬约束
