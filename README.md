@@ -3,30 +3,18 @@
 四十多条有名的平面几何定理，按家族分组，标出它们之间的推广、特例与对偶关系；
 其中十来条可以拖动三角形的顶点，看关系始终成立。
 
-**[打开首页 →](index.html)**　·　**[九点圆家族 →](family/nine-point.html)**
+**[在线打开 → dongzhang84.github.io/geometry-atlas](https://dongzhang84.github.io/geometry-atlas/)**
 
 这不是一本定理手册，也不是发现新定理的工具。它想回答的是一个问题：
 **这些定理之间是什么关系？** 哪一条是哪一条的推广，哪两条互为对偶，
 哪一条只是另一条的退化情形。
 
-## 怎么在本地打开
+## 在本地看
 
-不需要安装任何东西，也不需要编译：**双击 `index.html`** 就能看。
+双击 `index.html` 就能看，不需要安装、也不需要编译。
 
-想用本地服务器也可以：
-
-```sh
-python3 -m http.server 8000     # 然后打开 http://localhost:8000/
-```
-
-检查数据是否自洽：
-
-```sh
-python3 scripts/validate.py
-```
-
-它会检查编号唯一、关系两端存在、`generalizes` 没有成环、`demo` 指向的页面和锚点
-真的存在，以及**所有页面都没有引用外部资源**。
+改完数据跑一下 `python3 scripts/validate.py`，它会检查编号、关系、动态图锚点，
+以及所有页面都没有引用外部资源。
 
 ## 文件
 
