@@ -200,10 +200,10 @@ footer a{color:var(--faint)}
   <div class="bar"><b id="stageTitle"></b><button id="stageClose">关闭 Esc</button></div>
 </div>
 
-<script src="data/atlas.js?v=20261027f"></script>
-<script src="js/geometry.js?v=20261027f"></script>
-<script src="js/thumbs.js?v=20261027f"></script>
-<script src="vendor/d3.min.js?v=20261027f"></script>
+<script src="data/atlas.js?v=20261027g"></script>
+<script src="js/geometry.js?v=20261027g"></script>
+<script src="js/thumbs.js?v=20261027g"></script>
+<script src="vendor/d3.min.js?v=20261027g"></script>
 <script>
 (function () {
   var A = window.ATLAS, byId = {}, famOf = {};
@@ -254,9 +254,9 @@ footer a{color:var(--faint)}
     h += '<div class="more"><dl>';
     if (t.why)    h += '<dt>为什么有名</dt><dd>' + esc(t.why) + '</dd>';
     if (t.source) h += '<dt>出处</dt><dd>' + esc(t.source) + '</dd>';
-    if (up[t.id])   h += '<dt>它是谁的推广</dt><dd class="rel">推广自 ' + relLine(up[t.id]) + '</dd>';
-    if (down[t.id]) h += '<dt>由它可以得到</dt><dd class="rel">' + relLine(down[t.id]) + '</dd>';
-    if (dual[t.id]) h += '<dt>对偶</dt><dd class="rel">' + relLine(dual[t.id]) + '</dd>';
+    // 关系块暂时不显示：data 里 from 是「更一般的那一条」，卡片上却写成了「推广自」，
+    // 方向整个反了（九点二次曲线推广了九点圆，不是九点圆推广自它）。数据保留，
+    // 等关系的方向和措辞定清楚再开回来。
     return h + '</dl></div></article>';
   }
 
