@@ -63,11 +63,18 @@ h1::after{content:"";display:block;height:2px;width:72px;margin-top:10px;
 .card.faded{opacity:.25}
 .card.flash{box-shadow:0 0 0 2px var(--accent)}
 .card .fig{margin:-12px -14px 10px;border-radius:7px 7px 0 0;overflow:hidden;
-  background:var(--ink0);position:relative;cursor:zoom-in}
-.card .fig::after{content:"展开 →";position:absolute;right:7px;bottom:6px;font-family:var(--mono);
-  font-size:10px;color:#cfd6dd;background:rgba(0,0,0,.45);border-radius:5px;padding:2px 7px;
-  opacity:0;transition:opacity .15s}
-.card .fig:hover::after{opacity:1}
+  background:var(--ink0);position:relative;cursor:pointer}
+/* 常驻的放大角标：不悬停也看得见，告诉人这张图点得开 */
+.card .fig::after{content:"⤢";position:absolute;top:6px;right:7px;width:20px;height:20px;
+  display:grid;place-items:center;font-size:12px;line-height:1;color:#dfe5ea;
+  background:rgba(0,0,0,.45);border-radius:6px;opacity:.65;transition:opacity .15s}
+/* 悬停时底部浮出一行，说清楚点开能得到什么 */
+.card .fig::before{content:"点开放大 · 可拖动顶点";position:absolute;left:0;right:0;bottom:0;
+  padding:16px 10px 7px;font-family:var(--mono);font-size:10.5px;letter-spacing:.3px;
+  color:#eef1f4;text-align:center;background:linear-gradient(transparent,rgba(0,0,0,.72));
+  opacity:0;transition:opacity .18s;pointer-events:none;z-index:1}
+.card .fig:hover::before{opacity:1}
+.card .fig:hover::after{opacity:0}
 .card .id{font-family:var(--mono);font-size:10.5px;color:var(--faint);letter-spacing:.5px}
 .card .nm{font-weight:600;font-size:15px;margin:1px 0 4px}
 .card .one{color:var(--dim);font-size:13px;line-height:1.55}
@@ -110,7 +117,7 @@ svg.thumb.go .pt{opacity:1;transform:scale(1)}
 svg.thumb.anim *{transition:none !important}
 svg.thumb.anim .pt{opacity:1 !important;transform:none !important}
 svg.thumb.anim line,svg.thumb.anim path,svg.thumb.anim circle:not(.pt),svg.thumb.anim ellipse{
-  stroke-dasharray:none !important;stroke-dashoffset:0 !important}
+  stroke-dashoffset:0 !important}   /* 只补全描边，不要动 dasharray：辅助线本来就是虚线 */
 
 #veil{position:fixed;inset:0;background:rgba(10,12,15,.72);
   opacity:0;pointer-events:none;transition:opacity .28s ease;z-index:40}
