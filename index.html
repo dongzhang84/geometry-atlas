@@ -92,8 +92,8 @@ svg.thumb *{fill:none;stroke-linecap:round;stroke-linejoin:round}
 .tri{stroke:var(--s-tri);stroke-width:calc(1.5 / var(--k,1))}
 .tri.dim{stroke:var(--s-aux);stroke-width:calc(1 / var(--k,1))}
 .tri.hi2{stroke:var(--s-hi);stroke-width:calc(1.2 / var(--k,1));stroke-dasharray:3 3}
-.aux{stroke:var(--s-aux);stroke-width:calc(1 / var(--k,1))}
-.thin{stroke:#8d99a6;stroke-width:calc(.9 / var(--k,1));stroke-dasharray:3 3}
+.aux{stroke:var(--s-aux);stroke-width:calc(1.25 / var(--k,1))}
+.thin{stroke:#8d99a6;stroke-width:calc(1.2 / var(--k,1));stroke-dasharray:3.5 3}
 .alt{stroke:var(--s-alt);stroke-width:calc(1.4 / var(--k,1))}
 .hi{stroke:var(--s-hi);stroke-width:calc(1.8 / var(--k,1))}
 .pt{fill:var(--s-pt);stroke:none;r:calc(2.6 / var(--k,1))}
@@ -101,10 +101,10 @@ svg.thumb *{fill:none;stroke-linecap:round;stroke-linejoin:round}
 .pt.foot{fill:#58a6f0}
 .pt.eul{fill:#b07ae8}
 .pt.hpt{fill:#e0616a}
-.med{stroke:#7fb2ee;stroke-width:calc(.9 / var(--k,1));stroke-dasharray:4 4;opacity:.45}
-.pbi{stroke:#2fbf8a;stroke-width:calc(.9 / var(--k,1));stroke-dasharray:4 4;opacity:.4}
-.alt2{stroke:#e0616a;stroke-width:calc(.9 / var(--k,1));stroke-dasharray:4 4;opacity:.45}
-.eulline{stroke:#b07ae8;stroke-width:calc(.8 / var(--k,1));stroke-dasharray:3 3;opacity:.4}
+.med{stroke:#7fb2ee;stroke-width:calc(1.3 / var(--k,1));stroke-dasharray:4.5 3.5;opacity:.6}
+.pbi{stroke:#2fbf8a;stroke-width:calc(1.3 / var(--k,1));stroke-dasharray:4.5 3.5;opacity:.55}
+.alt2{stroke:#e0616a;stroke-width:calc(1.3 / var(--k,1));stroke-dasharray:4.5 3.5;opacity:.6}
+.eulline{stroke:#b07ae8;stroke-width:calc(1.2 / var(--k,1));stroke-dasharray:4 3;opacity:.55}
 .ln{stroke:var(--s-tri);stroke-width:calc(2 / var(--k,1))}
 svg.thumb line,svg.thumb path,svg.thumb circle:not(.pt),svg.thumb ellipse{
   transition:stroke-dashoffset .85s cubic-bezier(.4,0,.2,1);transition-delay:calc(var(--i,0) * 70ms)}
@@ -200,10 +200,10 @@ footer a{color:var(--faint)}
   <div class="bar"><b id="stageTitle"></b><button id="stageClose">关闭 Esc</button></div>
 </div>
 
-<script src="data/atlas.js?v=20261027g"></script>
-<script src="js/geometry.js?v=20261027g"></script>
-<script src="js/thumbs.js?v=20261027g"></script>
-<script src="vendor/d3.min.js?v=20261027g"></script>
+<script src="data/atlas.js?v=20261027h"></script>
+<script src="js/geometry.js?v=20261027h"></script>
+<script src="js/thumbs.js?v=20261027h"></script>
+<script src="vendor/d3.min.js?v=20261027h"></script>
 <script>
 (function () {
   var A = window.ATLAS, byId = {}, famOf = {};
