@@ -80,8 +80,14 @@ h1::after{content:"";display:block;height:2px;width:72px;margin-top:10px;
 .card .one{color:var(--dim);font-size:13px;line-height:1.55}
 .card .flag{display:inline-block;margin-top:8px;font-family:var(--mono);font-size:10.5px;
   color:var(--accent);background:var(--accent-soft);border-radius:5px;padding:2px 7px}
-.card .more{display:none;margin-top:11px;padding-top:11px;border-top:1px dashed var(--line)}
-.card.open .more{display:block}
+/* 展开要「长高」，不是「闪现」。高度由 JS 量出来再过渡 —— 纯 CSS 的 max-height
+   方案要么猜一个上限，要么和层叠打架，直接量最可靠。 */
+.card .more{height:0;overflow:hidden;opacity:0;margin-top:0;padding-top:0;
+  border-top:1px dashed transparent;
+  transition:height .32s cubic-bezier(.2,.7,.2,1),opacity .22s ease,
+             margin-top .32s cubic-bezier(.2,.7,.2,1),padding-top .32s cubic-bezier(.2,.7,.2,1),
+             border-top-color .2s ease}
+.card.open .more{opacity:1;margin-top:11px;padding-top:11px;border-top-color:var(--line)}
 .more dt{font-family:var(--mono);font-size:10.5px;color:var(--faint);letter-spacing:.5px;margin-top:9px}
 .more dt:first-child{margin-top:0}
 .more dd{margin:2px 0 0;font-size:13px;color:var(--dim);line-height:1.6}
@@ -200,10 +206,10 @@ footer a{color:var(--faint)}
   <div class="bar"><b id="stageTitle"></b><button id="stageClose">关闭 Esc</button></div>
 </div>
 
-<script src="data/atlas.js?v=20261027h"></script>
-<script src="js/geometry.js?v=20261027h"></script>
-<script src="js/thumbs.js?v=20261027h"></script>
-<script src="vendor/d3.min.js?v=20261027h"></script>
+<script src="data/atlas.js?v=20261027j"></script>
+<script src="js/geometry.js?v=20261027j"></script>
+<script src="js/thumbs.js?v=20261027j"></script>
+<script src="vendor/d3.min.js?v=20261027j"></script>
 <script>
 (function () {
   var A = window.ATLAS, byId = {}, famOf = {};
@@ -473,11 +479,42 @@ footer a{color:var(--faint)}
   veil.onclick = closeStage;
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeStage(); });
 
+  /* 同一行的卡片一起开合。
+     卡片在网格里会被拉成等高：单独展开一张，同行的另一张被动变高却没有内容，
+     下面就空出一块。一起开合，两边各自显示自己的内容，行高也就对齐了。 */
+  function rowMates(card) {
+    var grid = card.parentElement;
+    if (!grid) return [card];
+    var top = card.offsetTop;
+    return [].slice.call(grid.children).filter(function (x) {
+      return Math.abs(x.offsetTop - top) < 2;
+    });
+  }
+  function setOpen(card, on) {
+    var more = card.querySelector('.more');
+    card.classList.toggle('open', on);
+    if (!more) return;
+    clearTimeout(more._t);
+    if (on) {
+      more.style.height = more.scrollHeight + 'px';
+      // 展开完把高度交还给内容，窗口变窄导致文字折行时才不会被截断
+      more._t = setTimeout(function () {
+        if (card.classList.contains('open')) more.style.height = 'auto';
+      }, 340);
+    } else {
+      more.style.height = more.scrollHeight + 'px';   // 先定住当前高度，才能过渡回 0
+      void more.offsetHeight;
+      more.style.height = '0px';
+    }
+  }
+
   document.addEventListener('click', function (e) {
     var fig = e.target.closest('.fig');
     if (fig) { openStage(fig); return; }
     var c = e.target.closest('.card');
-    if (c) c.classList.toggle('open');
+    if (!c) return;
+    var on = !c.classList.contains('open');
+    rowMates(c).forEach(function (x) { setOpen(x, on); });
   });
 })();
 </script>
