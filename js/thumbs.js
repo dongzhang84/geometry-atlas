@@ -8,7 +8,8 @@
           conicThrough, conicCenter, intersect } = GA;
 
   const W = 200, H = 140;                      // 缩略图坐标系
-  const A = { x: 26, y: 116 }, B = { x: 176, y: 116 }, C = { x: 116, y: 26 };
+  // 和视频同一个构型（底边水平、顶点偏左），这样卡片和视频是同一个东西的两种尺寸
+  const A = { x: 48, y: 10 }, B = { x: 15, y: 130 }, C = { x: 185, y: 130 };
 
   /* ---------- SVG 片段 ---------- */
   const f = (n) => (Math.round(n * 100) / 100);
@@ -60,13 +61,16 @@
     N01: () => {
       const [p, q] = long(T.O, T.H, 115);
       return [tri(A, B, C), circle(circum, 'aux'),
-              line(p, q, 'hi'),
-              dot(T.O), dot(T.G), dot(T.H, 'key')];
+              line(p, q, 'ln'),                      // 欧拉线用白，和视频一致
+              dot(T.O, 'key'), dot(T.G, 'key'), dot(T.H, 'key')];
     },
 
     // 九点圆：九个点共圆
-    N02: () => [tri(A, B, C), circle(nine, 'hi'),
-                ...NP.map((p) => dot(p, 'key'))],
+    N02: () => {
+      // ninePoints 的顺序：三个中点、三个垂足、三个欧拉点
+      const grp = ['key', 'key', 'key', 'foot', 'foot', 'foot', 'eul', 'eul', 'eul'];
+      return [tri(A, B, C), circle(nine, 'ln'), ...NP.map((p, i) => dot(p, grp[i]))];
+    },
 
     // 位似：外接圆被送到九点圆
     N03: () => [tri(A, B, C), circle(circum, 'aux'), circle(nine, 'hi'),
