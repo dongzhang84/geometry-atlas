@@ -101,6 +101,11 @@ svg.thumb .pt{opacity:0;transform:scale(.2);transform-origin:center;transform-bo
   transition:opacity .3s ease,transform .3s cubic-bezier(.34,1.56,.64,1);
   transition-delay:calc(var(--i,0) * 70ms + 420ms)}
 svg.thumb.go .pt{opacity:1;transform:scale(1)}
+/* 悬停循环期间：每帧都是新画的元素，入场过渡必须关掉，否则点永远在淡入 */
+svg.thumb.anim *{transition:none !important}
+svg.thumb.anim .pt{opacity:1 !important;transform:none !important}
+svg.thumb.anim line,svg.thumb.anim path,svg.thumb.anim circle:not(.pt),svg.thumb.anim ellipse{
+  stroke-dasharray:none !important;stroke-dashoffset:0 !important}
 
 #veil{position:fixed;inset:0;background:rgba(10,12,15,.72);
   opacity:0;pointer-events:none;transition:opacity .28s ease;z-index:40}
@@ -388,11 +393,13 @@ footer a{color:var(--faint)}
       var tio = new IntersectionObserver(function (es) {
         es.forEach(function (en) {
           if (!en.isIntersecting) return;
-          en.target.classList.add('go'); tio.unobserve(en.target);
+          var sv = en.target;
+          sv.classList.add('go'); tio.unobserve(sv);
+          setTimeout(function () { THUMBS.live(sv); }, 1500);   // 等自己画完再挂循环
         });
       }, { rootMargin: '0px 0px -6% 0px', threshold: .12 });
       svgs.forEach(function (x) { tio.observe(x); });
-    } else { svgs.forEach(function (x) { x.classList.add('go'); }); }
+    } else { svgs.forEach(function (x) { x.classList.add('go'); THUMBS.live(x); }); }
   }
 
   /* 动图浮层：从那张小图原地长大 */
