@@ -45,6 +45,7 @@ h1{font-size:26px;line-height:1.3;margin:0 0 8px;letter-spacing:.5px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:10px;
   padding:12px 14px;cursor:pointer;transition:border-color .15s,transform .15s}
 .card:hover{border-color:var(--accent);transform:translateY(-1px)}
+.card .fig{margin:-12px -14px 10px;border-radius:9px 9px 0 0}
 .card .id{font-family:var(--mono);font-size:10.5px;color:var(--faint);letter-spacing:.5px}
 .card .nm{font-weight:600;font-size:15px;margin:1px 0 4px}
 .card .one{color:var(--dim);font-size:13px;line-height:1.55}
@@ -64,6 +65,86 @@ h1{font-size:26px;line-height:1.3;margin:0 0 8px;letter-spacing:.5px}
   text-decoration:none;font-weight:600}
 .more a.go:hover{text-decoration:underline}
 
+/* ---------- 深色画布：页面是浅的，图是黑的（3Blue1Brown 的做法） ---------- */
+:root{
+  --ink0:#0f1115;                      /* 画布底，不用纯黑：OLED 上线条边缘会发光晕 */
+  --s-tri:#e8eaec; --s-aux:#5a6470; --s-hi:#ff8a4c; --s-alt:#7b9cff; --s-pt:#f2f4f6;
+}
+.fig{background:var(--ink0);border-radius:10px;overflow:hidden;display:block}
+svg.thumb{display:block;width:100%;height:auto;background:var(--ink0)}
+svg.thumb *,svg.hero *{fill:none;stroke-linecap:round;stroke-linejoin:round}
+svg.thumb{--k:1}
+.tri{stroke:var(--s-tri);stroke-width:calc(1.5 / var(--k,1))}
+.tri.dim{stroke:var(--s-aux);stroke-width:calc(1 / var(--k,1))}
+.tri.hi2{stroke:var(--s-hi);stroke-width:calc(1.2 / var(--k,1));stroke-dasharray:3 3}
+.aux{stroke:var(--s-aux);stroke-width:calc(1 / var(--k,1))}
+.thin{stroke:#8d99a6;stroke-width:calc(.9 / var(--k,1));stroke-dasharray:3 3}
+.alt{stroke:var(--s-alt);stroke-width:calc(1.4 / var(--k,1))}
+.hi{stroke:var(--s-hi);stroke-width:calc(1.8 / var(--k,1))}
+.pt{fill:var(--s-pt);stroke:none;r:calc(2.6 / var(--k,1))}
+.pt.key{fill:var(--s-hi)}
+
+/* 线条自己画出来：先 armed（dashoffset = 全长），加 .go 后归零 */
+svg.thumb line,svg.thumb path,svg.thumb circle:not(.pt),svg.thumb ellipse,
+svg.hero g line,svg.hero g path,svg.hero g circle:not(.pt),svg.hero g ellipse{
+  transition:stroke-dashoffset .85s cubic-bezier(.4,0,.2,1);
+  transition-delay:calc(var(--i,0) * 70ms);
+}
+svg.thumb.go line,svg.thumb.go path,svg.thumb.go circle:not(.pt),svg.thumb.go ellipse,
+svg.hero g.go line,svg.hero g.go path,svg.hero g.go circle:not(.pt),svg.hero g.go ellipse{
+  stroke-dashoffset:0 !important;
+}
+svg.thumb .pt,svg.hero g .pt{opacity:0;transform:scale(.2);transform-origin:center;transform-box:fill-box;
+  transition:opacity .3s ease,transform .3s cubic-bezier(.34,1.56,.64,1);
+  transition-delay:calc(var(--i,0) * 70ms + 420ms)}
+svg.thumb.go .pt,svg.hero g.go .pt{opacity:1;transform:scale(1)}
+@media (prefers-reduced-motion:reduce){
+  svg.thumb *,svg.hero g *{transition:none !important;stroke-dashoffset:0 !important;
+    opacity:1 !important;transform:none !important}
+}
+
+/* ---------- 首屏大图 ---------- */
+.hero{background:var(--ink0);border-radius:14px;padding:16px 16px 12px;margin:22px auto 8px;max-width:600px}
+svg.hero{display:block;width:100%;height:auto}
+.herocap{font-family:var(--mono);font-size:12px;color:#8b949c;margin-top:10px;
+  min-height:1.4em;opacity:0;transition:opacity .4s ease}
+.herocap.in{opacity:1}
+
+/* ---------- 打开页面的出场 ---------- */
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes wipe{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes glow{0%{opacity:0}60%{opacity:.5}100%{opacity:0}}
+
+h1,.lede,.hero,.meta{opacity:0;animation:rise .7s cubic-bezier(.2,.7,.2,1) forwards}
+h1{animation-delay:.05s}
+.lede{animation-delay:.18s}
+.hero{animation-delay:.30s}
+.meta{animation-delay:1.1s}
+
+/* 标题下面那道线扫过去 */
+h1::after{content:"";display:block;height:2px;width:72px;margin-top:10px;
+  background:var(--accent);transform-origin:left;animation:wipe .6s cubic-bezier(.2,.7,.2,1) .55s both}
+
+/* 首屏画布点亮的一瞬 */
+.hero{position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:14px;
+  background:radial-gradient(60% 70% at 50% 45%,rgba(255,138,76,.22),transparent 70%);
+  animation:glow 1.6s ease-out .45s both}
+
+/* 分区与卡片：滚到哪里，哪里升起来 */
+.fam{opacity:0}
+.fam.in{animation:rise .6s cubic-bezier(.2,.7,.2,1) forwards}
+.fam.in .card{opacity:0;animation:rise .5s cubic-bezier(.2,.7,.2,1) forwards;
+  animation-delay:calc(var(--n,0) * 45ms + 120ms)}
+.card{transition:border-color .15s,transform .15s,box-shadow .15s}
+.card:hover{box-shadow:0 6px 18px rgba(16,22,30,.07)}
+
+@media (prefers-reduced-motion:reduce){
+  h1,.lede,.hero,.meta,.fam,.fam.in .card{opacity:1 !important;animation:none !important}
+  h1::after{animation:none;transform:none}
+  .hero::after{display:none}
+}
+
 footer{margin-top:46px;padding-top:18px;border-top:1px solid var(--line);
   font-family:var(--mono);font-size:11.5px;color:var(--faint)}
 footer a{color:var(--faint)}
@@ -82,6 +163,10 @@ footer a{color:var(--faint)}
   <h1>几何图谱</h1>
   <p class="lede">四十多条有名的平面几何定理，按家族分组，标出它们之间的推广、特例与对偶关系。
      点开任意一条看陈述和出处；带「动态图」标记的可以拖动顶点自己试。</p>
+  <div class="hero">
+    <svg class="hero" id="hero" viewBox="0 0 440 260" aria-label="三角形、欧拉线、九点圆与 Feuerbach 相切"></svg>
+    <div class="herocap" id="herocap"></div>
+  </div>
   <p class="meta"><span id="stat"></span></p>
 </header>
 
@@ -96,6 +181,8 @@ footer a{color:var(--faint)}
 </div>
 
 <script src="data/atlas.js"></script>
+<script src="js/geometry.js"></script>
+<script src="js/thumbs.js"></script>
 <script>
 (function () {
   var A = window.ATLAS, byId = {};
@@ -128,6 +215,7 @@ footer a{color:var(--faint)}
 
   function cardHTML(t) {
     var h = '<article class="card" data-id="' + t.id + '">'
+          + (window.THUMBS && THUMBS.has(t.id) ? '<div class="fig">' + THUMBS.svg(t.id) + '</div>' : '')
           + '<div class="id">' + t.id + '</div>'
           + '<div class="nm">' + esc(t.name) + '</div>'
           + '<div class="one">' + esc(t.statement) + '</div>';
@@ -150,7 +238,9 @@ footer a{color:var(--faint)}
     html += '<section class="fam" id="' + f.id + '">'
           + '<h2>' + esc(f.name) + '<span class="n">' + list.length + ' 条</span></h2>'
           + '<p class="intro">' + esc(f.intro) + '</p>'
-          + '<div class="grid">' + list.map(cardHTML).join('') + '</div></section>';
+          + '<div class="grid">' + list.map(function (t, i) {
+              return cardHTML(t).replace('<article class="card"', '<article style="--n:' + i + '" class="card"');
+            }).join('') + '</div></section>';
   });
   document.getElementById('main').innerHTML = html;
 
@@ -158,6 +248,40 @@ footer a{color:var(--faint)}
   document.getElementById('stat').textContent =
     A.theorems.length + ' 条定理 · ' + A.families.length + ' 个家族 · '
     + A.relations.length + ' 条关系 · ' + nDemo + ' 个动态图';
+
+  // 分区滚到视野里再升起来
+  var fams = [].slice.call(document.querySelectorAll('.fam'));
+  if (window.IntersectionObserver) {
+    var fio = new IntersectionObserver(function (es) {
+      es.forEach(function (en) {
+        if (!en.isIntersecting) return;
+        en.target.classList.add('in');
+        fio.unobserve(en.target);
+      });
+    }, { rootMargin: '0px 0px -12% 0px', threshold: 0.05 });
+    fams.forEach(function (x) { fio.observe(x); });
+  } else {
+    fams.forEach(function (x) { x.classList.add('in'); });
+  }
+
+  // 线条滚到视野里再开始画，一次性
+  if (window.THUMBS) {
+    var svgs = [].slice.call(document.querySelectorAll('svg.thumb'));
+    svgs.forEach(function (x) { THUMBS.fit(x); THUMBS.arm(x); });
+    if (window.IntersectionObserver) {
+      var io = new IntersectionObserver(function (es) {
+        es.forEach(function (en) {
+          if (!en.isIntersecting) return;
+          en.target.classList.add('go');
+          io.unobserve(en.target);
+        });
+      }, { rootMargin: '0px 0px -8% 0px', threshold: 0.15 });
+      svgs.forEach(function (x) { io.observe(x); });
+    } else {
+      svgs.forEach(function (x) { x.classList.add('go'); });
+    }
+    THUMBS.hero(document.getElementById('hero'));
+  }
 
   document.addEventListener('click', function (e) {
     if (e.target.closest('.more a')) return;          // 点链接就走，不要收起卡片
