@@ -24,8 +24,16 @@
   const DASH = (d) => (d || []).map((x) => x * Math.max(K, 0.75));
   const HIT = () => Math.max(24, 20 * K);                     // 拖动判定半径 ≥ 24px
 
-  /* 线条配色：两种主题下都清楚的固定色 */
-  const PU = '#7F77DD', TE = '#1D9E75', CO = '#D85A30', AM = '#BA7517', BL = '#378ADD', PK = '#D4537E', GR = '#888780';
+  /* 配色和视频、卡片缩略图统一：颜色编码的是角色，跨定理一致。
+     中线蓝 · 中垂线绿 · 高红 · 欧拉线和关键点橙 · 九点圆与欧拉点紫 · 灰是陪衬。 */
+  const C_BLU = '#7fb2ee',   // 中线
+        C_GRN = '#2fbf8a',   // 中垂线、内切圆
+        C_RED = '#e0616a',   // 高、垂足
+        C_ORG = '#ef7a3a',   // 欧拉线、关键点
+        C_PUR = '#b07ae8',   // 九点圆、欧拉点
+        C_AMB = '#e0b061',   // 第二组辅助对象
+        C_FOT = '#58a6f0',   // 垂足（视频里垂足用的是另一种蓝）
+        C_GRY = '#8a8f99';   // 外接圆这类陪衬
   const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim() || '#888';
 
   const TABS = [
@@ -34,19 +42,19 @@
     ['nagel', 'Nagel 线'], ['soddy', 'Soddy 线'], ['mandart', 'Mandart 圆'], ['poncelet', 'Poncelet 点'],
   ];
   const LEG = {
-    euler: [[BL, '中垂线 → O'], [TE, '中线 → G'], [PK, '高 → H'], [CO, '欧拉线'], [PU, '九点圆']],
-    homothety: [[GR, '外接圆与样点'], [AM, '缩放后的圆'], [PU, '九点圆']],
-    feuerbach: [[TE, '角平分线、内切圆、旁切圆'], [CO, '直线 NI 与切点'], [PU, '九点圆']],
-    simson: [[TE, '西摩松线'], [PK, '三条高 → 垂心 H'], [AM, '线段 PH'], [PU, '九点圆']],
-    orthocentric: [[TE, '当前三角形'], [PK, '它的三条高'], [CO, '它的 9 个点'], [PU, '九点圆']],
-    nagel: [[AM, '内切圆、内心 I'], [PK, '顶点到旁切圆切点的连线 → Na'], [TE, '中线 → G'], [BL, 'Spieker 点 Sp'], [CO, 'Nagel 线']],
-    soddy: [[GR, '以顶点为圆心的三个圆'], [TE, '顶点到切点的连线 → Ge'], [PU, '内 Soddy 圆'], [PK, '外 Soddy 圆'], [BL, 'de Longchamps 点 L'], [CO, 'Soddy 线']],
-    mandart: [[TE, '内切圆、三个旁切圆'], [CO, '旁切点 Ua、Ub、Uc 与旁切点三角形'], [AM, 'Mandart 圆'], [PU, '九点圆'], [PK, 'Feuerbach 点 F']],
-    sevenpoint: [[PU, '七点球'], [GR, '外接球'], [CO, '七个点'], [AM, 'V0、G、A、C 共线'], [TE, '欧拉线上的 O、G、E、4G−3O'], [BL, 'O、O′、B、4O′−3O 共线']],
-    thirteen: [[PU, '十三点球 Σ'], [GR, '外接球'], [BL, '对面、它的九点圆和三条高'], [CO, '十三个点'], [AM, '直线 HG′ → P'], [TE, 'HX → Q1'], [PK, '高线 V0H → Y → Q2']],
-    eulerplane: [[BL, '欧拉线 H、G、O'], [TE, '欧拉线上的点 P'], [CO, '等角共轭 P*、等截共轭 Pᵗ'], [AM, '过欧拉线和 P*、Pᵗ 的平面'], [GR, '外接球']],
-    poncelet: [[PU, '过 A、B、C、P 的等轴双曲线'], [CO, '两条渐近线、中心 Po'], [TE, 'ABC 的九点圆'], [BL, 'PBC、PCA、PAB 的九点圆']],
-    conic: [[TE, '6 条连线的中点'], [CO, '3 个对角点、渐近线'], [PU, '九点二次曲线'], ['rgba(29,158,117,.45)', '背景绿：P 在此处时是椭圆'], ['rgba(216,90,48,.4)', '背景橙：P 在此处时是双曲线']],
+    euler: [[C_GRN, '中垂线 → O'], [C_BLU, '中线 → G'], [C_RED, '高 → H'], [C_ORG, '欧拉线'], [C_PUR, '九点圆']],
+    homothety: [[C_GRY, '外接圆与样点'], [C_AMB, '缩放后的圆'], [C_PUR, '九点圆']],
+    feuerbach: [[C_BLU, '角平分线、内切圆、旁切圆'], [C_ORG, '直线 NI 与切点'], [C_PUR, '九点圆']],
+    simson: [[C_BLU, '西摩松线'], [C_RED, '三条高 → 垂心 H'], [C_AMB, '线段 PH'], [C_PUR, '九点圆']],
+    orthocentric: [[C_BLU, '当前三角形'], [C_RED, '它的三条高'], [C_ORG, '三边中点'], [C_FOT, '三个垂足'], [C_PUR, '三个欧拉点 · 九点圆']],
+    nagel: [[C_AMB, '内切圆、内心 I'], [C_RED, '顶点到旁切圆切点的连线 → Na'], [C_BLU, '中线 → G'], [C_GRN, 'Spieker 点 Sp'], [C_ORG, 'Nagel 线']],
+    soddy: [[C_GRY, '以顶点为圆心的三个圆'], [C_BLU, '顶点到切点的连线 → Ge'], [C_PUR, '内 Soddy 圆'], [C_RED, '外 Soddy 圆'], [C_GRN, 'de Longchamps 点 L'], [C_ORG, 'Soddy 线']],
+    mandart: [[C_BLU, '内切圆、三个旁切圆'], [C_ORG, '旁切点 Ua、Ub、Uc 与旁切点三角形'], [C_AMB, 'Mandart 圆'], [C_PUR, '九点圆'], [C_RED, 'Feuerbach 点 F']],
+    sevenpoint: [[C_PUR, '七点球'], [C_GRY, '外接球'], [C_ORG, '七个点'], [C_AMB, 'V0、G、A、C 共线'], [C_BLU, '欧拉线上的 O、G、E、4G−3O'], [C_GRN, 'O、O′、B、4O′−3O 共线']],
+    thirteen: [[C_PUR, '十三点球 Σ'], [C_GRY, '外接球'], [C_GRN, '对面、它的九点圆和三条高'], [C_ORG, '十三个点'], [C_AMB, '直线 HG′ → P'], [C_BLU, 'HX → Q1'], [C_RED, '高线 V0H → Y → Q2']],
+    eulerplane: [[C_GRN, '欧拉线 H、G、O'], [C_BLU, '欧拉线上的点 P'], [C_ORG, '等角共轭 P*、等截共轭 Pᵗ'], [C_AMB, '过欧拉线和 P*、Pᵗ 的平面'], [C_GRY, '外接球']],
+    poncelet: [[C_PUR, '过 A、B、C、P 的等轴双曲线'], [C_ORG, '两条渐近线、中心 Po'], [C_BLU, 'ABC 的九点圆'], [C_GRN, 'PBC、PCA、PAB 的九点圆']],
+    conic: [[C_BLU, '6 条连线的中点'], [C_ORG, '3 个对角点、渐近线'], [C_PUR, '九点二次曲线'], ['rgba(29,158,117,.45)', '背景绿：P 在此处时是椭圆'], ['rgba(216,90,48,.4)', '背景橙：P 在此处时是双曲线']],
   };
 
   const state = {
@@ -161,14 +169,14 @@
       const M = [mid(g.B, g.C), mid(g.C, g.A), mid(g.A, g.B)];
       const F = [foot(g.A, g.B, g.C), foot(g.B, g.C, g.A), foot(g.C, g.A, g.B)];
       const vs = [g.A, g.B, g.C];
-      if (state.show.pb) M.forEach((m) => seg(m, g.O, BL, 1.1, [4, 3]));
-      if (state.show.md) M.forEach((m, i) => seg(vs[i], m, TE, 1.1));
-      if (state.show.al) F.forEach((f, i) => { seg(vs[i], f, PK, 1.1); if (len(sub(g.H, f)) > len(sub(vs[i], f))) seg(f, g.H, PK, 0.8, [3, 3]); else seg(vs[i], g.H, PK, 0.8, [3, 3]); });
-      circle(g.N, g.r9, PU, 2.6); lineInf(g.O, g.H, CO, 1.2, [7, 4]); seg(g.O, g.H, CO, 2.2);
-      ninePoints(g.A, g.B, g.C).forEach((p) => dot(p, PU, 3.5));
+      if (state.show.pb) M.forEach((m) => seg(m, g.O, C_GRN, 1.1, [4, 3]));
+      if (state.show.md) M.forEach((m, i) => seg(vs[i], m, C_BLU, 1.1));
+      if (state.show.al) F.forEach((f, i) => { seg(vs[i], f, C_RED, 1.1); if (len(sub(g.H, f)) > len(sub(vs[i], f))) seg(f, g.H, C_RED, 0.8, [3, 3]); else seg(vs[i], g.H, C_RED, 0.8, [3, 3]); });
+      circle(g.N, g.r9, C_PUR, 2.6); lineInf(g.O, g.H, C_ORG, 1.2, [7, 4]); seg(g.O, g.H, C_ORG, 2.2);
+      ninePoints(g.A, g.B, g.C).forEach((p) => dot(p, C_PUR, 3.5));
       const dir = sub(g.H, g.O), same = near(g.O, g.G, g);
-      if (same) { dot(g.O, CO, 5.5); lab(g.O, 'O = G = H = N', 9, -9); }
-      else [[g.O, 'O', BL, 1], [g.G, 'G', TE, -1], [g.N, 'N', PU, 1], [g.H, 'H', PK, -1]].forEach(([p, n, c, sd]) => { dot(p, c, 5.5); labPerp(p, n, dir, sd); });
+      if (same) { dot(g.O, C_ORG, 5.5); lab(g.O, 'O = G = H = N', 9, -9); }
+      else [[g.O, 'O', C_GRN, 1], [g.G, 'G', C_BLU, -1], [g.N, 'N', C_PUR, 1], [g.H, 'H', C_RED, -1]].forEach(([p, n, c, sd]) => { dot(p, c, 5.5); labPerp(p, n, dir, sd); });
       return info('三条中垂线交于外心 O，三条中线交于重心 G，三条高交于垂心 H。O、G、H 在一条直线上，叫做欧拉线，并且 OG : GH = 1 : 2。九点圆的圆心 N 是 OH 的中点。',
         '拖动顶点 A、B、C 改变三角形；用上面的复选框显示或隐藏中垂线（蓝）、中线（绿）、高（粉）。橙色粗线是欧拉线，紫色是九点圆。<br>' +
         (same ? '三角形接近等边：O、G、H、N 几乎重合，欧拉线不再确定。' :
@@ -176,36 +184,36 @@
     },
     homothety(g) {
       const Cn = state.center === 'H' ? g.H : g.G, cn = state.center, k = state.k, target = cn === 'H' ? 0.5 : -0.5;
-      circle(g.O, g.R, GR, 1.2, [5, 4]); circle(g.N, g.r9, PU, 2.2);
+      circle(g.O, g.R, C_GRY, 1.2, [5, 4]); circle(g.N, g.r9, C_PUR, 2.2);
       const img = (X) => add(Cn, mul(sub(X, Cn), k));
       for (let i = 0; i < 16; i++) {
         const t = i / 16 * 2 * Math.PI, X = { x: g.O.x + g.R * Math.cos(t), y: g.O.y + g.R * Math.sin(t) };
-        dot(X, GR, 2.5); dot(img(X), AM, 3);
+        dot(X, C_GRY, 2.5); dot(img(X), C_AMB, 3);
       }
-      [g.A, g.B, g.C].forEach((X) => { seg(Cn, X, GR, 0.9); dot(img(X), AM, 4.5); });
+      [g.A, g.B, g.C].forEach((X) => { seg(Cn, X, C_GRY, 0.9); dot(img(X), C_AMB, 4.5); });
       const P = { x: g.O.x + g.R * Math.cos(state.theta), y: g.O.y + g.R * Math.sin(state.theta) }, Pi = img(P);
-      seg(Cn, P, AM, 1.4); dot(P, AM, 6.5); lab(P, 'P', 9, -9); dot(Pi, CO, 6.5); lab(Pi, 'P′', 9, 14);
-      const Oi = img(g.O); circle(Oi, g.R * k, AM, 2); seg(Cn, g.O, BL, 1, [3, 3]); dot(g.O, BL, 5); lab(g.O, 'O', 8, -8); dot(Oi, AM, 4.5);
-      dot(Cn, PK, 6); lab(Cn, cn, 8, -8);
+      seg(Cn, P, C_AMB, 1.4); dot(P, C_AMB, 6.5); lab(P, 'P', 9, -9); dot(Pi, C_ORG, 6.5); lab(Pi, 'P′', 9, 14);
+      const Oi = img(g.O); circle(Oi, g.R * k, C_AMB, 2); seg(Cn, g.O, C_GRN, 1, [3, 3]); dot(g.O, C_GRN, 5); lab(g.O, 'O', 8, -8); dot(Oi, C_AMB, 4.5);
+      dot(Cn, C_RED, 6); lab(Cn, cn, 8, -8);
       const hit = Math.abs(k - target) < 0.006;
-      if (hit) { dot(g.N, PU, 5); lab(g.N, 'N', 8, 14); }
+      if (hit) { dot(g.N, C_PUR, 5); lab(g.N, 'N', 8, 14); }
       const ops = '缩放的意思：以一个点为中心，每个点 X 沿着从中心出发、经过 X 的射线移动，新位置 X′ 到中心的距离 = k × 原来的距离（k 为负时，X′ 跑到中心的另一侧）。' +
         '<br>用上面的按钮选择以 H 还是 G 为中心，拖动滑块改变 k；在画面上拖动（顶点以外的地方）让 P 沿外接圆移动，也可以拖动顶点。灰色是外接圆上 16 个样点，棕色是它们缩放后的位置，连起来就是缩放后的圆。' +
         '<br>现在中心是 ' + cn + '，k = ' + fmt(k) + '：' + cn + 'P = ' + fmt(len(sub(P, Cn))) + '，' + cn + 'P′ = ' + fmt(len(sub(Pi, Cn))) + '。' +
-        (hit ? '<b style="color:' + PU + '">此时缩放后的圆和九点圆重合：圆心 O 被送到 N，半径从 R 变成 R/2；' +
+        (hit ? '<b style="color:' + C_PUR + '">此时缩放后的圆和九点圆重合：圆心 O 被送到 N，半径从 R 变成 R/2；' +
           (cn === 'H' ? 'A、B、C 的像是 AH、BH、CH 的中点，P 的像就是 PH 的中点。' : 'A、B、C 的像是三边的中点。') + '</b>'
           : '把滑块拖到 k = ' + target + '，看缩放后的圆会变成什么。');
       return info('以垂心 H 为中心，把外接圆缩小到一半（k = 1/2），得到的正是九点圆；以重心 G 为中心、按 k = −1/2 缩放，也得到九点圆。所以九点圆的半径是外接圆半径的一半，圆心 N 是 OH 的中点。', ops);
     },
     feuerbach(g) {
       const sec = css('--muted');
-      sides(g, sec); [g.A, g.B, g.C].forEach((P) => seg(P, g.I, TE, 0.9, [4, 3]));
-      circle(g.I, g.r, TE, 1.6); seg(g.I, foot(g.I, g.A, g.B), TE, 0.8);
-      g.excircles.forEach((e) => circle(e, e.r, TE, 1, [4, 3])); circle(g.N, g.r9, PU, 2.6);
+      sides(g, sec); [g.A, g.B, g.C].forEach((P) => seg(P, g.I, C_BLU, 0.9, [4, 3]));
+      circle(g.I, g.r, C_BLU, 1.6); seg(g.I, foot(g.I, g.A, g.B), C_BLU, 0.8);
+      g.excircles.forEach((e) => circle(e, e.r, C_BLU, 1, [4, 3])); circle(g.N, g.r9, C_PUR, 2.6);
       const tp = (c) => add(g.N, mul(sub(c, g.N), g.r9 / len(sub(c, g.N)))), same = near(g.N, g.I, g);
-      if (!same) { const T = tp(g.I); lineInf(g.N, g.I, CO, 1, [6, 4]); seg(g.N, T, CO, 1.8); dot(T, CO, 6); lab(T, 'T', 8, 14); }
-      g.excircles.forEach((e) => { const q = tp(e); seg(g.N, q, CO, 0.8, [3, 3]); dot(q, CO, 4.5); });
-      dot(g.N, PU, 5); dot(g.I, TE, 5);
+      if (!same) { const T = tp(g.I); lineInf(g.N, g.I, C_ORG, 1, [6, 4]); seg(g.N, T, C_ORG, 1.8); dot(T, C_ORG, 6); lab(T, 'T', 8, 14); }
+      g.excircles.forEach((e) => { const q = tp(e); seg(g.N, q, C_ORG, 0.8, [3, 3]); dot(q, C_ORG, 4.5); });
+      dot(g.N, C_PUR, 5); dot(g.I, C_BLU, 5);
       if (same) lab(g.N, 'N = I', 8, -8); else { lab(g.N, 'N', 8, -8); lab(g.I, 'I', 8, -8); }
       return info('费尔巴哈定理：三角形的九点圆与内切圆相切，也与三个旁切圆相切。设 R 为外接圆半径、r 为内切圆半径、I 为内心，则九点圆圆心 N 到内心的距离 NI = R/2 − r，九点圆与内切圆的切点 T 在直线 NI 上。',
         '拖动顶点 A、B、C 改变三角形。绿色虚线是三条角平分线（交于内心 I），绿色实线圆是内切圆，绿色虚线圆是三个旁切圆（可能伸出画面），紫色是九点圆，橙色点是四个切点。<br>' +
@@ -214,36 +222,39 @@
     },
     simson(g) {
       const sec = css('--muted');
-      sides(g, sec); circle(g.O, g.R, sec, 1, [5, 4]); circle(g.N, g.r9, PU, 2.6);
+      sides(g, sec); circle(g.O, g.R, sec, 1, [5, 4]); circle(g.N, g.r9, C_PUR, 2.6);
       // 三条高（粉色虚线）交于垂心 H；H 在三角形外时延长到 H
       [[g.A, g.B, g.C], [g.B, g.C, g.A], [g.C, g.A, g.B]].forEach(([X, U, V]) => {
-        const F = foot(X, U, V); seg(X, F, PK, 0.9, [4, 3]);
-        if (len(sub(g.H, F)) > len(sub(X, F)) || len(sub(g.H, X)) > len(sub(F, X))) seg(len(sub(g.H, F)) < len(sub(g.H, X)) ? F : X, g.H, PK, 0.9, [4, 3]);
+        const F = foot(X, U, V); seg(X, F, C_RED, 0.9, [4, 3]);
+        if (len(sub(g.H, F)) > len(sub(X, F)) || len(sub(g.H, X)) > len(sub(F, X))) seg(len(sub(g.H, F)) < len(sub(g.H, X)) ? F : X, g.H, C_RED, 0.9, [4, 3]);
       });
       const P = { x: g.O.x + g.R * Math.cos(state.theta), y: g.O.y + g.R * Math.sin(state.theta) };
       const f = [foot(P, g.B, g.C), foot(P, g.C, g.A), foot(P, g.A, g.B)];
-      f.forEach((q) => { seg(P, q, sec, 0.8); dot(q, TE, 4.5); });
+      f.forEach((q) => { seg(P, q, sec, 0.8); dot(q, C_BLU, 4.5); });
       const pr = [[0, 1], [1, 2], [0, 2]].reduce((b, ij) => len(sub(f[ij[0]], f[ij[1]])) > len(sub(f[b[0]], f[b[1]])) ? ij : b);
-      lineInf(f[pr[0]], f[pr[1]], TE, 1.8);
-      seg(P, g.H, AM, 1.6); const M = mid(P, g.H);
-      dot(M, CO, 6.5); dot(P, AM, 7); dot(g.H, PK, 5); lab(P, 'P', 9, -9); lab(g.H, 'H', 8, -8); lab(M, 'M', 8, 14);
+      lineInf(f[pr[0]], f[pr[1]], C_BLU, 1.8);
+      seg(P, g.H, C_AMB, 1.6); const M = mid(P, g.H);
+      dot(M, C_ORG, 6.5); dot(P, C_AMB, 7); dot(g.H, C_RED, 5); lab(P, 'P', 9, -9); lab(g.H, 'H', 8, -8); lab(M, 'M', 8, 14);
       return info('西摩松定理：P 是三角形外接圆上任意一点，从 P 向三边（或其延长线）作垂线，三个垂足在一条直线上，这条直线叫做 P 的西摩松线。西摩松线平分 P 与垂心 H 的连线 PH，PH 的中点 M 在九点圆上。',
         '在画面上拖动（顶点以外的地方），P 沿外接圆移动；也可以拖动顶点。粉色虚线是三角形的三条高，交于垂心 H；灰线是 P 到三边的垂线，绿色点是三个垂足，绿色直线是西摩松线，棕色线段是 PH，橙色点是它的中点 M。' +
         '<br>M 为什么在九点圆上：以 H 为中心把外接圆缩小一半就是九点圆（见「缩小外接圆」），P 被送到 PH 的中点 M。');
     },
     orthocentric(g) {
       const sec = css('--muted');
-      circle(g.N, g.r9, PU, 2.6);
+      circle(g.N, g.r9, C_PUR, 2.6);
       const four = [[g.A, g.B, g.C], [g.A, g.B, g.H], [g.A, g.C, g.H], [g.B, g.C, g.H]];
       four.forEach((T) => tri(T[0], T[1], T[2], sec, 0.7));
-      const T = four[state.tri]; tri(T[0], T[1], T[2], TE, 2.2);
+      const T = four[state.tri]; tri(T[0], T[1], T[2], C_BLU, 2.2);
       const m = Math.max(len(sub(T[1], T[0])), len(sub(T[2], T[0])), len(sub(T[2], T[1])));
       const flat = Math.abs((T[1].x - T[0].x) * (T[2].y - T[0].y) - (T[1].y - T[0].y) * (T[2].x - T[0].x)) < 1e-6 * m * m;
       if (!flat) {
-        T.forEach((P) => seg(P, foot(P, ...T.filter((x) => x !== P)), PK, 0.9, [3, 3]));
-        ninePoints(T[0], T[1], T[2]).forEach((p) => dot(p, CO, 4.5));
+        T.forEach((P) => seg(P, foot(P, ...T.filter((x) => x !== P)), C_RED, 0.9, [3, 3]));
+        // 三组点三种颜色：中点橙、垂足蓝、欧拉点紫 —— 和视频、卡片缩略图一致
+        ninePoints(T[0], T[1], T[2]).forEach((p, i) => {
+          dot(p, i < 3 ? C_ORG : i < 6 ? C_FOT : C_PUR, 4.5);
+        });
       }
-      dot(g.H, PK, 5); lab(g.H, 'H', 8, -8);
+      dot(g.H, C_RED, 5); lab(g.H, 'H', 8, -8);
       return info('三角形三边的中点、三条高的垂足、三个顶点到垂心连线的中点，这九个点在同一个圆上，叫做九点圆。' +
         '<br>进一步：A、B、C 和垂心 H 这四个点中任取三点，组成四个三角形，每个三角形的垂心正好是剩下的那个点；这四个三角形共用同一个九点圆。',
         '拖动顶点 A、B、C 改变三角形；用上面的按钮在四个三角形之间切换。绿色是当前三角形，粉色虚线是它的三条高，橙色是它的九个点，紫色是九点圆。' +
@@ -287,12 +298,12 @@
         finishP(); setKind('—');
         return info(thm, ops0 + '这个位置上九个点退化，确定不了二次曲线。把 P 拖开一点。');
       }
-      ctx.strokeStyle = PU; ctx.lineWidth = LW(2.4);
+      ctx.strokeStyle = C_PUR; ctx.lineWidth = LW(2.4);
       traceImplicit(ctx, (sx, sy) => evalConic(co, nrm(Wd({ x: sx, y: sy }))), W, H, 3);
 
       const [a, b, c] = co, sc = Math.abs(a) + Math.abs(c) + 1e-300, disc = b * b - 4 * a * c;
       let kind, note = '';
-      if (Math.abs(a - c) / sc < 0.03 && Math.abs(b) / sc < 0.03) { kind = '圆'; note = '<b style="color:' + PU + '">这就是九点圆</b>：P 落在垂心时，九点二次曲线变成圆，9 个点正是三边中点、三条高的垂足和顶点到垂心连线的中点。'; }
+      if (Math.abs(a - c) / sc < 0.03 && Math.abs(b) / sc < 0.03) { kind = '圆'; note = '<b style="color:' + C_PUR + '">这就是九点圆</b>：P 落在垂心时，九点二次曲线变成圆，9 个点正是三边中点、三条高的垂足和顶点到垂心连线的中点。'; }
       else if (Math.abs(disc) / (sc * sc) < 1e-4) kind = '抛物线';
       else if (disc < 0) kind = '椭圆';
       else {
@@ -301,28 +312,28 @@
         if (cn && isFinite(cn.x) && isFinite(cn.y)) {
           const cen = { x: g.O.x + cn.x * R, y: g.O.y + cn.y * R };
           const ms = asymptoteSlopes(co), dirs = ms.length ? ms.map((m) => ({ x: 1, y: m })) : [{ x: 0, y: 1 }, { x: 1, y: -a / b }];
-          dirs.forEach((d) => lineInf(cen, add(cen, d), CO, 1.2, [7, 5]));
+          dirs.forEach((d) => lineInf(cen, add(cen, d), C_ORG, 1.2, [7, 5]));
           const cosT = Math.abs(dirs[0].x * dirs[1].x + dirs[0].y * dirs[1].y) / (len(dirs[0]) * len(dirs[1]));
           note = '两条渐近线（橙色虚线）夹角约 ' + fmt(Math.acos(Math.min(1, cosT)) * 180 / Math.PI, 1) + '°' + (rect ? '，互相垂直。' : '。');
         }
       }
       setKind(kind);
-      mids.forEach((p) => dot(p, TE, 4.5));
+      mids.forEach((p) => dot(p, C_BLU, 4.5));
       const far = diag.filter((p) => !p).length;
-      diag.forEach((p) => { if (p) { const q = S(p); if (q.x > -W && q.x < 2 * W && q.y > -H && q.y < 2 * H) dot(p, CO, 5); } });
+      diag.forEach((p) => { if (p) { const q = S(p); if (q.x > -W && q.x < 2 * W && q.y > -H && q.y < 2 * H) dot(p, C_ORG, 5); } });
       finishP();
       return info(thm, ops0 + '现在曲线是<b>' + kind + '</b>。' + note +
         (far ? '有 ' + far + ' 个对角点在无穷远处（P 与某个顶点的连线平行于对边）。' : ''));
     },
     nagel(g) {
       const sec = css('--muted'), n = nagelData(g.A, g.B, g.C), V = [g.A, g.B, g.C], U = [n.Ua, n.Ub, n.Uc];
-      sides(g, sec); circle(g.I, g.r, AM, 1.3);
-      U.forEach((u, i) => seg(V[i], u, PK, 1.1));
-      [mid(g.B, g.C), mid(g.C, g.A), mid(g.A, g.B)].forEach((m, i) => seg(V[i], m, TE, 1.1));
+      sides(g, sec); circle(g.I, g.r, C_AMB, 1.3);
+      U.forEach((u, i) => seg(V[i], u, C_RED, 1.1));
+      [mid(g.B, g.C), mid(g.C, g.A), mid(g.A, g.B)].forEach((m, i) => seg(V[i], m, C_BLU, 1.1));
       const same = len(sub(n.Na, n.I)) < g.R * 1e-6;
-      if (!same) { lineInf(n.I, n.Na, CO, 1.2, [7, 4]); seg(n.I, n.Na, CO, 2.2); }
-      U.forEach((u) => dot(u, PK, 4));
-      [[n.I, AM], [n.G, TE], [n.Sp, BL], [n.Na, PK]].forEach(([P, c]) => dot(P, c, 5.5));
+      if (!same) { lineInf(n.I, n.Na, C_ORG, 1.2, [7, 4]); seg(n.I, n.Na, C_ORG, 2.2); }
+      U.forEach((u) => dot(u, C_RED, 4));
+      [[n.I, C_AMB], [n.G, C_BLU], [n.Sp, C_GRN], [n.Na, C_RED]].forEach(([P, c]) => dot(P, c, 5.5));
       labelPoints(same ? [[n.I, 'I = G = Sp = Na'], [n.Ua, 'Ua'], [n.Ub, 'Ub'], [n.Uc, 'Uc']]
         : [[n.I, 'I'], [n.G, 'G'], [n.Sp, 'Sp'], [n.Na, 'Na'], [n.Ua, 'Ua'], [n.Ub, 'Ub'], [n.Uc, 'Uc']], sub(n.Na, n.I));
       const ig = len(sub(n.G, n.I)), gn = len(sub(n.Na, n.G));
@@ -337,17 +348,17 @@
       const sec = css('--muted'), d = soddyData(g.A, g.B, g.C), V = [g.A, g.B, g.C], T = [d.Ta, d.Tb, d.Tc];
       const outer = d.S2 && d.r2 > 0 && d.r2 < 100 * g.R;   // 外 Soddy 圆太大时看作已退化成直线
       sides(g, sec);
-      V.forEach((X, i) => circle(X, d.radii[i], GR, 1.3));
-      T.forEach((t, i) => seg(V[i], t, TE, 1.1));
-      if (d.S1) circle(d.S1, d.r1, PU, 2);
-      if (outer) circle(d.S2, d.r2, PK, 1.8);
-      const pts = [[d.I, 'I', AM], [d.Ge, 'Ge', TE], [d.L, 'L', BL], [d.S1, 'S₁', PU]].concat(outer ? [[d.S2, 'S₂', PK]] : []).filter(([P]) => P);
+      V.forEach((X, i) => circle(X, d.radii[i], C_GRY, 1.3));
+      T.forEach((t, i) => seg(V[i], t, C_BLU, 1.1));
+      if (d.S1) circle(d.S1, d.r1, C_PUR, 2);
+      if (outer) circle(d.S2, d.r2, C_RED, 1.8);
+      const pts = [[d.I, 'I', C_AMB], [d.Ge, 'Ge', C_BLU], [d.L, 'L', C_GRN], [d.S1, 'S₁', C_PUR]].concat(outer ? [[d.S2, 'S₂', C_RED]] : []).filter(([P]) => P);
       // Soddy 线：取这些点里相距最远的两个连线
       let far = [pts[0][0], pts[0][0]], fd = 0;
       pts.forEach(([P]) => pts.forEach(([Q]) => { const x = len(sub(P, Q)); if (x > fd) { fd = x; far = [P, Q]; } }));
       const same = fd < g.R * 1e-6;
-      if (!same) { lineInf(far[0], far[1], CO, 1.2, [7, 4]); seg(far[0], far[1], CO, 2.2); }
-      T.forEach((t) => dot(t, TE, 4));
+      if (!same) { lineInf(far[0], far[1], C_ORG, 1.2, [7, 4]); seg(far[0], far[1], C_ORG, 2.2); }
+      T.forEach((t) => dot(t, C_BLU, 4));
       pts.forEach(([P, , c]) => dot(P, c, 5.5));
       labelPoints((same ? [[d.I, 'I = Ge = L = S₁ = S₂']] : pts.map(([P, t]) => [P, t])).concat([[d.Ta, 'Ta'], [d.Tb, 'Tb'], [d.Tc, 'Tc']]), sub(far[1], far[0]));
       const offscreen = pts.filter(([P]) => { const q = S(P); return !(q.x >= 0 && q.x <= W && q.y >= 0 && q.y <= H); }).map(([, t]) => t);
@@ -362,22 +373,22 @@
     mandart(g) {
       const sec = css('--muted'), d = nagelData(g.A, g.B, g.C);
       sides(g, sec);
-      g.excircles.forEach((e) => circle(e, e.r, TE, 1, [4, 3]));
-      circle(g.I, g.r, TE, 1.6);
+      g.excircles.forEach((e) => circle(e, e.r, C_BLU, 1, [4, 3]));
+      circle(g.I, g.r, C_BLU, 1.6);
       const U = [d.Ua, d.Ub, d.Uc];
-      tri(U[0], U[1], U[2], CO, 1.1);
+      tri(U[0], U[1], U[2], C_ORG, 1.1);
       const M = circumcircle(U[0], U[1], U[2]);
-      circle(M, M.r, AM, 2.4);
-      circle(g.N, g.r9, PU, 2.6);
-      U.forEach((u) => dot(u, CO, 5));
+      circle(M, M.r, C_AMB, 2.4);
+      circle(g.N, g.r9, C_PUR, 2.6);
+      U.forEach((u) => dot(u, C_ORG, 5));
       // Feuerbach 点：九点圆与内切圆的切点，在直线 NI 上
       const same = near(g.N, g.I, g);
       let F = null;
       if (!same) {
         F = add(g.N, mul(sub(g.I, g.N), g.r9 / len(sub(g.I, g.N))));
-        seg(g.N, g.I, CO, 0.8, [3, 3]); dot(F, PK, 6.5);
+        seg(g.N, g.I, C_ORG, 0.8, [3, 3]); dot(F, C_RED, 6.5);
       }
-      dot(g.N, PU, 5); dot(g.I, TE, 5); dot(M, AM, 4.5);
+      dot(g.N, C_PUR, 5); dot(g.I, C_BLU, 5); dot(M, C_AMB, 4.5);
       labelPoints([[U[0], 'Ua'], [U[1], 'Ub'], [U[2], 'Uc'], [g.N, 'N'], [g.I, 'I'], [M, 'M']]
         .concat(F ? [[F, 'F']] : []), sub(g.I, g.N));
       const ops = '拖动顶点 A、B、C 改变三角形。绿色虚线圆是三个旁切圆（可能伸出画面），绿色实线圆是内切圆；' +
@@ -408,18 +419,18 @@
         return Math.abs(d) < 1e-12 * R * R ? null : circumcircle(M[0], M[1], M[2]);
       });
       if (nps.some((c) => !c)) { dot(P, ink, 6.5); lab(P, 'P', 9, -9); return info(thm, base + 'P 与一个顶点重合或落在一条边所在的直线上，有的三角形退化，九点圆不存在。把 P 拖开一点。'); }
-      nps.forEach((c, i) => circle({ x: c.x, y: c.y }, c.r, i ? BL : TE, i ? 1.4 : 2.2));
+      nps.forEach((c, i) => circle({ x: c.x, y: c.y }, c.r, i ? C_GRN : C_BLU, i ? 1.4 : 2.2));
 
       const co = rectHyperbolaThrough([g.A, g.B, g.C, P].map(nrm));
       const big = Math.max(...co.map(Math.abs));
       const Po = big > 1e-12 && co.every(isFinite) ? conicCenter(co) : null;
       if (!Po) { dot(P, ink, 6.5); lab(P, 'P', 9, -9); return info(thm, base + 'P 落在垂心附近：过 A、B、C、H 的二次曲线全是等轴双曲线，中心铺满整个九点圆，Po 不再唯一。把 P 拖开一点。'); }
 
-      ctx.strokeStyle = PU; ctx.lineWidth = LW(2.4);
+      ctx.strokeStyle = C_PUR; ctx.lineWidth = LW(2.4);
       traceImplicit(ctx, (sx, sy) => evalConic(co, nrm(Wd({ x: sx, y: sy }))), W, H, 3);
       const Pw = un(Po);
-      asymptoteSlopes(co).forEach((m) => lineInf(Pw, un(add(Po, { x: 1, y: m })), CO, 1.1, [7, 5]));
-      dot(P, ink, 6.5); dot(Pw, CO, 6.5);
+      asymptoteSlopes(co).forEach((m) => lineInf(Pw, un(add(Po, { x: 1, y: m })), C_ORG, 1.1, [7, 5]));
+      dot(P, ink, 6.5); dot(Pw, C_ORG, 6.5);
       labelPoints([[P, 'P'], [Pw, 'Po']], sub(P, Pw));
 
       // 实测：Po 到四个九点圆心的距离应等于各自半径
@@ -624,20 +635,20 @@
     const all = d.pts.map(([p]) => p).concat(V, [d.O]);
     fit3(all); placed3 = [];
     // 外接球
-    if (state.showCircum) sphere3(d.O, d.R, GR, 1.1, true);
+    if (state.showCircum) sphere3(d.O, d.R, C_GRY, 1.1, true);
     // 四面体
     for (let i = 0; i < 4; i++) for (let j = i + 1; j < 4; j++) seg3(V[i], V[j], ink, 1.4);
     // 七点球
-    sphere3(d.c, d.rad, PU, 2.2, true);
+    sphere3(d.c, d.rad, C_PUR, 2.2, true);
     // 三组共线
     const by = (n) => d.pts.find(([, t]) => t === n)[0];
-    seg3(V[k], by('C'), AM, 1.2, [7, 5]);
-    seg3(d.O, by('4G−3O'), TE, 1.2, [7, 5]);
-    seg3(d.O, by('4O′−3O'), BL, 1.2, [7, 5]);
+    seg3(V[k], by('C'), C_AMB, 1.2, [7, 5]);
+    seg3(d.O, by('4G−3O'), C_BLU, 1.2, [7, 5]);
+    seg3(d.O, by('4O′−3O'), C_GRN, 1.2, [7, 5]);
     // 点与标注
     [[d.O, 'O', sec], [d.G, 'G', sec], [d.Op, 'O′', sec]].forEach(([p, t, c]) => { dot3(p, c, 4); lab3(p, t, sec); });
     V.forEach((p, i) => { dot3(p, ink, 5); lab3(p, 'V' + i, ink); });
-    d.pts.forEach(([p, t]) => { dot3(p, CO, 6); lab3(p, t, CO); });
+    d.pts.forEach(([p, t]) => { dot3(p, C_ORG, 6); lab3(p, t, C_ORG); });
     return info(thm, ops + '实测：七点到球心的距离与半径之差，相对误差最大 ' + d.err.toExponential(1) +
       '；球半径 ' + fmt(d.rad / d.R, 2) + ' R。' +
       '<br>证明与文献检索见仓库中的《七点球定理》（docs/七点球定理.md）。');
@@ -708,21 +719,21 @@
     if (!d) return info(thm, ops + '这个四面体接近退化，暂不绘制。换一个四面体。');
     const all = d.pts.map(([q]) => q).concat(V, [d.O, d.H, d.anti, d.X2]);
     fit3(all); placed3 = [];
-    if (state.showCircum) sphere3(d.O, d.R, GR, 1.1, true);
+    if (state.showCircum) sphere3(d.O, d.R, C_GRY, 1.1, true);
     // 对面：浅蓝填充、九点圆、面内三条高
     ctx.beginPath(); d.T.map(P3).forEach((q, i) => (i ? ctx.lineTo(q.x, q.y) : ctx.moveTo(q.x, q.y))); ctx.closePath();
     ctx.fillStyle = 'rgba(55,138,221,0.13)'; ctx.fill();
-    d.T.forEach((X, j) => seg3(X, d.F[j], BL, 0.9));
+    d.T.forEach((X, j) => seg3(X, d.F[j], C_GRN, 0.9));
     for (let i = 0; i < 4; i++) for (let j = i + 1; j < 4; j++) seg3(V[i], V[j], ink, 1.4);
-    circle3(d.nine, d.nrm, d.r9, BL, 2.2);
-    sphere3(d.c, d.rad, PU, 2.2, true);
+    circle3(d.nine, d.nrm, d.r9, C_GRN, 2.2);
+    sphere3(d.c, d.rad, C_PUR, 2.2, true);
     // 辅助线：P、H、G′、Q1、X 其实在一条直线上（X − H = 3(G′ − H)），按图例分两段上色
     const by = (n) => d.pts.find(([, t]) => t === n)[0];
-    seg3(by('P'), d.Gd, AM, 1.2, [7, 5]);
-    seg3(d.Gd, d.anti, TE, 1.2, [7, 5]);
-    seg3(V[k], d.X2, PK, 1.2, [7, 5]);
+    seg3(by('P'), d.Gd, C_AMB, 1.2, [7, 5]);
+    seg3(d.Gd, d.anti, C_BLU, 1.2, [7, 5]);
+    seg3(V[k], d.X2, C_RED, 1.2, [7, 5]);
     // 点与标注：先标十三个点，再标辅助点
-    d.pts.forEach(([q, t], i) => { dot3(q, CO, i === 0 || i > 9 ? 6 : 4.5); lab3(q, t, CO); });
+    d.pts.forEach(([q, t], i) => { dot3(q, C_ORG, i === 0 || i > 9 ? 6 : 4.5); lab3(q, t, C_ORG); });
     V.forEach((q, i) => { if (i !== k) { dot3(q, ink, 5); lab3(q, 'V' + i, ink); } });
     [[d.H, 'H'], [d.Hp, 'H′'], [d.Gd, 'G′'], [d.O, 'O'], [d.anti, 'X' + k], [d.X2, 'Y' + k]].forEach(([q, t]) => { dot3(q, sec, 4); lab3(q, t, sec); });
     return info(thm, ops + '实测：十三个点到球心的距离与半径之差，相对误差最大 ' + d.err.toExponential(1) +
@@ -780,7 +791,7 @@
     const near = (q) => q && S3.len(S3.sub(q, d.O)) < 3 * d.R;     // 太远的共轭点不画
     fit3(V.concat([d.O, d.H], [0, 1, 2].flatMap((i) => [-1, 1].map((s) => { const q = d.O.slice(); q[i] += s * d.R; return q; }))));
     placed3 = [];
-    if (state.showCircum) sphere3(d.O, d.R, GR, 1.1, true);
+    if (state.showCircum) sphere3(d.O, d.R, C_GRY, 1.1, true);
     // 平面：在 (欧拉线方向 uu, 垂直方向 w) 坐标里取一块刚好盖住四面体和两个共轭点的矩形
     const pts = V.concat([d.O, d.H, d.P], [d.Ps, d.Pt].filter(near));
     const at = (a, b) => S3.add(d.H, S3.add(S3.mul(d.uu, a), S3.mul(d.w || [0, 0, 0], b)));
@@ -789,14 +800,14 @@
     a0 -= 0.25 * d.R; a1 += 0.25 * d.R; b0 -= 0.2 * d.R; b1 += 0.2 * d.R;
     if (d.w) {
       ctx.beginPath(); [[a0, b0], [a1, b0], [a1, b1], [a0, b1]].map(([a, b]) => P3(at(a, b))).forEach((q, i) => (i ? ctx.lineTo(q.x, q.y) : ctx.moveTo(q.x, q.y))); ctx.closePath();
-      ctx.fillStyle = 'rgba(186,117,23,0.16)'; ctx.fill(); ctx.strokeStyle = AM; ctx.lineWidth = LW(0.8); ctx.stroke();
+      ctx.fillStyle = 'rgba(186,117,23,0.16)'; ctx.fill(); ctx.strokeStyle = C_AMB; ctx.lineWidth = LW(0.8); ctx.stroke();
     }
     for (let i = 0; i < 4; i++) for (let j = i + 1; j < 4; j++) seg3(V[i], V[j], ink, 1.4);
-    seg3(at(a0, 0), at(a1, 0), BL, 2.6);
+    seg3(at(a0, 0), at(a1, 0), C_GRN, 2.6);
     // 点与标注
-    [[d.H, 'H'], [d.G, 'G'], [d.O, 'O']].forEach(([q, t]) => { dot3(q, BL, 4.5); lab3(q, t, BL); });
-    dot3(d.P, TE, 6.5); lab3(d.P, 'P', TE);
-    [[d.Ps, 'P*'], [d.Pt, 'Pᵗ']].forEach(([q, t]) => { if (near(q)) { dot3(q, CO, 6.5); lab3(q, t, CO); } });
+    [[d.H, 'H'], [d.G, 'G'], [d.O, 'O']].forEach(([q, t]) => { dot3(q, C_GRN, 4.5); lab3(q, t, C_GRN); });
+    dot3(d.P, C_BLU, 6.5); lab3(d.P, 'P', C_BLU);
+    [[d.Ps, 'P*'], [d.Pt, 'Pᵗ']].forEach(([q, t]) => { if (near(q)) { dot3(q, C_ORG, 6.5); lab3(q, t, C_ORG); } });
     V.forEach((q, i) => { dot3(q, ink, 5); lab3(q, 'V' + i, ink); });
     let msg = 'P = H + t·(O − H)，t = ' + fmt(state.tE, 2) + '。';
     const gone = [[d.Ps, 'P*'], [d.Pt, 'Pᵗ']].filter(([q]) => !near(q)).map(([, t]) => t);
