@@ -3,7 +3,7 @@
 四十多条有名的平面几何定理，按家族分组，标出它们之间的推广、特例与对偶关系；
 其中十来条可以拖动三角形的顶点，看关系始终成立。
 
-**[在线打开 → dongzhang84.github.io/geometry-atlas](https://dongzhang84.github.io/geometry-atlas/)**
+**[打开 →](https://dongzhang84.github.io/geometry-atlas/)**
 
 这不是一本定理手册，也不是发现新定理的工具。它想回答的是一个问题：
 **这些定理之间是什么关系？** 哪一条是哪一条的推广，哪两条互为对偶，
