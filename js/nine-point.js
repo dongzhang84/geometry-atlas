@@ -32,16 +32,34 @@
         C_ORG = '#ef7a3a',   // 欧拉线、关键点
         C_PUR = '#b07ae8',   // 九点圆、欧拉点
         C_AMB = '#e0b061',   // 第二组辅助对象
-        C_WHT = '#f2f4f6',   // 主对象：欧拉线、九点圆（视频里就是白）
+        C_WHT = 'MAIN',      // 主对象：欧拉线、九点圆。跟主题走，见下面的 mainCol()
         C_FOT = '#58a6f0',   // 垂足（视频里垂足用的是另一种蓝）
         C_GRY = '#8a8f99';   // 外接圆这类陪衬
   const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim() || '#888';
+  /** 主对象的颜色：深色底上接近白，浅色底上是墨色。视频只有深色版，照搬固定白会在浅色主题里消失。 */
+  const mainCol = () => css('--ink');
+  /** 画的时候把 'MAIN' 这个占位换成当前主题的墨色 */
+  const col = (c) => (c === 'MAIN' ? mainCol() : c);
 
-  const TABS = [
-    ['orthocentric', '九点圆'], ['euler', '欧拉线'], ['homothety', '缩小外接圆'],
-    ['feuerbach', 'Feuerbach 相切'], ['simson', '西摩松线'], ['conic', '九点二次曲线'],
-    ['nagel', 'Nagel 线'], ['soddy', 'Soddy 线'], ['mandart', 'Mandart 圆'], ['poncelet', 'Poncelet 点'],
-  ];
+  /* 顺序、编号、名字全部从 data/atlas.js 推导：图谱和这里是同一份清单，
+     改名、调顺序、加定理都只动那一个文件，两边不可能再对不上。
+     只收这一页有画法（DRAW 里有）的那些锚点。 */
+  const PAGE = 'nine-point.html';
+  const TABS = (function () {
+    const A = window.ATLAS;
+    const out = [];
+    if (A) {
+      A.theorems.forEach((t) => {
+        const d = t.demo || '';
+        if (d.indexOf(PAGE) < 0) return;
+        const id = d.slice(d.indexOf('#') + 1);
+        if (!id || out.some((x) => x[0] === id)) return;
+        out.push([id, t.name, t.id]);
+      });
+    }
+    return out.length ? out : [['orthocentric', '九点圆', '']];
+  })();
+  const tabIndex = (id) => TABS.findIndex((x) => x[0] === id);
   const LEG = {
     euler: [[C_GRN, '中垂线 → O'], [C_BLU, '中线 → G'], [C_RED, '高 → H'], [C_WHT, '欧拉线 · 九点圆'], [C_ORG, 'O、G、H']],
     homothety: [[C_GRY, '外接圆与样点'], [C_AMB, '缩放后的圆'], [C_PUR, '九点圆']],
@@ -173,11 +191,11 @@
       if (state.show.pb) M.forEach((m) => seg(m, g.O, C_GRN, 1.1, [4, 3]));
       if (state.show.md) M.forEach((m, i) => seg(vs[i], m, C_BLU, 1.1));
       if (state.show.al) F.forEach((f, i) => { seg(vs[i], f, C_RED, 1.1); if (len(sub(g.H, f)) > len(sub(vs[i], f))) seg(f, g.H, C_RED, 0.8, [3, 3]); else seg(vs[i], g.H, C_RED, 0.8, [3, 3]); });
-      circle(g.N, g.r9, C_WHT, 2.6); lineInf(g.O, g.H, C_WHT, 1.2, [7, 4]); seg(g.O, g.H, C_WHT, 2.2);
+      circle(g.N, g.r9, col(C_WHT), 2.6); lineInf(g.O, g.H, col(C_WHT), 1.2, [7, 4]); seg(g.O, g.H, col(C_WHT), 2.2);
       ninePoints(g.A, g.B, g.C).forEach((p, i) => dot(p, i < 3 ? C_ORG : i < 6 ? C_FOT : C_PUR, 3.5));
       const dir = sub(g.H, g.O), same = near(g.O, g.G, g);
       if (same) { dot(g.O, C_ORG, 5.5); lab(g.O, 'O = G = H = N', 9, -9); }
-      else [[g.O, 'O', C_ORG, 1], [g.G, 'G', C_ORG, -1], [g.N, 'N', C_WHT, 1], [g.H, 'H', C_ORG, -1]].forEach(([p, n, c, sd]) => { dot(p, c, 5.5); labPerp(p, n, dir, sd); });
+      else [[g.O, 'O', C_ORG, 1], [g.G, 'G', C_ORG, -1], [g.N, 'N', col(C_WHT), 1], [g.H, 'H', C_ORG, -1]].forEach(([p, n, c, sd]) => { dot(p, c, 5.5); labPerp(p, n, dir, sd); });
       return info('三条中垂线交于外心 O，三条中线交于重心 G，三条高交于垂心 H。O、G、H 在一条直线上，叫做欧拉线，并且 OG : GH = 1 : 2。九点圆的圆心 N 是 OH 的中点。',
         '拖动顶点 A、B、C 改变三角形；用上面的复选框显示或隐藏中垂线（绿）、中线（蓝）、高（红）。白色粗线是欧拉线，白圈是九点圆，橙点是 O、G、H。<br>' +
         (same ? '三角形接近等边：O、G、H、N 几乎重合，欧拉线不再确定。' :
@@ -242,7 +260,7 @@
     },
     orthocentric(g) {
       const sec = css('--muted');
-      circle(g.N, g.r9, C_WHT, 2.6);
+      circle(g.N, g.r9, col(C_WHT), 2.6);
       const four = [[g.A, g.B, g.C], [g.A, g.B, g.H], [g.A, g.C, g.H], [g.B, g.C, g.H]];
       four.forEach((T) => tri(T[0], T[1], T[2], sec, 0.7));
       const T = four[state.tri]; tri(T[0], T[1], T[2], C_BLU, 2.2);
@@ -846,8 +864,42 @@
     b.textContent = text; b.setAttribute('aria-pressed', pressed ? 'true' : 'false'); b.onclick = onClick; return b;
   }
   function renderTabs() {
+    const i = Math.max(0, tabIndex(state.tab));
+    const [, name, num] = TABS[i] || ['', '', ''];
     tabsEl.innerHTML = '';
-    TABS.forEach(([id, name]) => tabsEl.appendChild(chip(name, id === state.tab, () => setTab(id, true))));
+    tabsEl.className = 'navbar';
+
+    const left = document.createElement('div'); left.className = 'navname';
+    if (num) { const k = document.createElement('i'); k.className = 'navnum'; k.textContent = num; left.appendChild(k); }
+    left.appendChild(document.createTextNode(name));
+
+    const right = document.createElement('div'); right.className = 'navpos';
+    const count = document.createElement('span');
+    count.className = 'navcount'; count.textContent = (i + 1) + ' / ' + TABS.length;
+
+    const prev = document.createElement('button');
+    prev.type = 'button'; prev.className = 'navarrow'; prev.textContent = '\u2039';
+    prev.title = '上一条'; prev.onclick = () => step(-1);
+
+    const dots = document.createElement('div'); dots.className = 'navdots';
+    TABS.forEach(([id, nm], j) => {
+      const d = document.createElement('button');
+      d.type = 'button'; d.className = 'navdot' + (j === i ? ' on' : '');
+      d.title = nm; d.setAttribute('aria-label', nm);
+      d.onclick = () => setTab(id, true);
+      dots.appendChild(d);
+    });
+
+    const next = document.createElement('button');
+    next.type = 'button'; next.className = 'navarrow'; next.textContent = '\u203a';
+    next.title = '下一条'; next.onclick = () => step(1);
+
+    right.append(count, prev, dots, next);
+    tabsEl.append(left, right);
+  }
+  function step(d) {
+    const n = TABS.length, i = Math.max(0, tabIndex(state.tab));
+    setTab(TABS[(i + d + n) % n][0], true);
   }
   function renderOpts() {
     optsEl.innerHTML = '';
@@ -965,7 +1017,7 @@
       const k = document.createElement('span'); k.innerHTML = '曲线类型：<b id="ckind" style="color:var(--ink)">—</b>'; optsEl.appendChild(k);
     }
     legendEl.innerHTML = '';
-    LEG[state.tab].forEach(([c, n]) => { const s = document.createElement('span'); s.innerHTML = '<i style="background:' + c + '"></i>' + n; legendEl.appendChild(s); });
+    LEG[state.tab].forEach(([c, n]) => { const s = document.createElement('span'); s.innerHTML = '<i style="background:' + col(c) + '"></i>' + n; legendEl.appendChild(s); });
   }
   function setTab(id, pushHash) {
     if (!DRAW[id]) id = TABS[0][0];
@@ -1051,6 +1103,11 @@
   }
 
   window.addEventListener('hashchange', () => setTab(location.hash.slice(1), false));
+  window.addEventListener('keydown', (e) => {
+    if (e.target && /INPUT|TEXTAREA/.test(e.target.tagName)) return;
+    if (e.key === 'ArrowLeft') step(-1);
+    else if (e.key === 'ArrowRight') step(1);
+  });
   matchMedia('(prefers-color-scheme: dark)').addEventListener('change', draw);
   new MutationObserver(draw).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 

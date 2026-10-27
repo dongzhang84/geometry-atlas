@@ -140,8 +140,11 @@ def main():
             bad.append(f"{t['id']} 的 demo 文件不存在：{path}")
         elif anchor:
             js = (ROOT / "js" / (pathlib.Path(path).stem + ".js"))
-            if js.exists() and f"'{anchor}'" not in js.read_text(encoding="utf-8"):
-                bad.append(f"{t['id']} 的 demo 锚点在 {js.name} 里找不到：#{anchor}")
+            if js.exists():
+                src = js.read_text(encoding="utf-8")
+                # 锚点可能以字符串出现，也可能是 DRAW 里的方法名（feuerbach(g) {...}）
+                if f"'{anchor}'" not in src and not re.search(r"\b%s\s*\(" % re.escape(anchor), src):
+                    bad.append(f"{t['id']} 的 demo 锚点在 {js.name} 里找不到：#{anchor}")
 
     # 6 页面不得引用外部资源
     for f in list(ROOT.glob("*.html")) + list(ROOT.glob("family/*.html")) + \

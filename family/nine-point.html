@@ -58,6 +58,23 @@ footer ul{margin:0;padding-left:18px}
 .embed header,.embed footer{display:none}
 .embed body{padding-block:0}
 .embed .wrap{gap:10px;padding-top:46px}
+
+/* 定理导航：编号 · 名称 ＋ 在这一族里第几条 ＋ 圆点 ＋ 前后箭头。
+   原来是一排芯片，定理一多就排不下，而且和图谱是两份清单。 */
+.navbar{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.navname{font-size:17px;font-weight:600;letter-spacing:.3px;display:flex;align-items:center;gap:8px}
+.navnum{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;font-style:normal;
+  color:var(--muted);border:1px solid var(--rule);border-radius:5px;padding:1px 6px}
+.navpos{display:flex;align-items:center;gap:10px}
+.navcount{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;color:var(--muted)}
+.navarrow{border:none;background:none;cursor:pointer;color:var(--muted);font-size:19px;line-height:1;
+  padding:0 2px}
+.navarrow:hover{color:var(--ink)}
+.navdots{display:flex;align-items:center;gap:6px}
+.navdot{width:7px;height:7px;border-radius:50%;border:none;padding:0;cursor:pointer;
+  background:var(--rule);transition:background .15s,transform .15s}
+.navdot:hover{background:var(--muted);transform:scale(1.35)}
+.navdot.on{background:var(--ink);transform:scale(1.25)}
 </style>
 </head>
 <body>
@@ -68,7 +85,7 @@ footer ul{margin:0;padding-left:18px}
     <p>九点圆不是一条孤立的定理：它和欧拉线、外接圆、Feuerbach 定理、西摩松线、垂心组都有实质的联系，而且本身是「九点二次曲线」的特例。每一页都可以拖动三角形的顶点 A、B、C，看这些关系始终成立。所有图都可以用双指捏合、⌘/Ctrl＋滚轮或图右上角的按钮缩放。</p>
   </header>
 
-  <nav class="tabs" id="tabs" aria-label="选择一条联系"></nav>
+  <nav class="navbar" id="tabs" aria-label="这一族里的定理"></nav>
   <div class="opts" id="opts"></div>
   <div class="stage"><canvas id="cv" aria-label="动态几何图"></canvas>
     <div class="zoom" role="group" aria-label="缩放">
@@ -97,8 +114,8 @@ footer ul{margin:0;padding-left:18px}
   document.documentElement.classList.add('embed');
   document.documentElement.setAttribute('data-theme', 'dark');
 }</script>
-<script src="../data/atlas.js?v=20261027d"></script>
-<script src="../js/geometry.js?v=20261027d"></script>
-<script src="../js/nine-point.js?v=20261027d"></script>
+<script src="../data/atlas.js?v=20261027f"></script>
+<script src="../js/geometry.js?v=20261027f"></script>
+<script src="../js/nine-point.js?v=20261027f"></script>
 </body>
 </html>
