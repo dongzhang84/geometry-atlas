@@ -187,12 +187,12 @@ footer a{color:var(--faint)}
   A.families.forEach(function (f) { famOf[f.id] = f; });
 
   var HUE = {
-    'nine-point': '#e06c2a', 'gems': '#c99a1e', 'projective': '#4a73c4',
+    'nine-point': '#e06c2a', 'projective': '#4a73c4',
     'circle': '#2f8a73', 'concurrent': '#8257c8', 'metric': '#6b7580',
     'inequality': '#c2456b', 'solid': '#2d8fa8'
   };
   // 右栏顺序：好看的放前面，度量这种地基放最后
-  var ORDER = ['nine-point', 'gems', 'projective', 'circle', 'concurrent', 'inequality', 'solid', 'metric'];
+  var ORDER = ['nine-point', 'concurrent', 'projective', 'circle', 'inequality', 'solid', 'metric'];
   var fams = ORDER.map(function (id) { return famOf[id]; }).filter(Boolean);
 
   function esc(s) {

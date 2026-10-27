@@ -13,12 +13,11 @@ window.ATLAS = {
 
   families: [
     { id: "metric",     name: "度量",         intro: "边长、角度、面积之间的恒等式。" },
-    { id: "concurrent", name: "共点与共线",   intro: "三条线什么时候交于一点，三个点什么时候落在一条线上。" },
+    { id: "concurrent", name: "共点与共线",   intro: "三条线什么时候交于一点，几个点又能凑出什么形状。" },
     { id: "nine-point", name: "九点圆家族",   intro: "三角形里最密集的一族结果，全都挂在欧拉线和九点圆上。" },
     { id: "circle",     name: "圆",           intro: "圆与圆的关系：幂、根轴、相切。" },
     { id: "projective", name: "射影",         intro: "只用「共线」和「共点」说话，不涉及长度和角度。" },
-    { id: "gems",       name: "漂亮结果",     intro: "结论出人意料、一眼就记住的那几条。" },
-    { id: "inequality", name: "度量关系与不等式", intro: "外接圆、内切圆之间的定量关系。" },
+    { id: "inequality", name: "内切与外接",     intro: "内切圆与外接圆之间的关系：距离、半径、以及闭合。" },
     { id: "solid",      name: "空间",         intro: "把平面上的结果搬到四面体里。" }
   ],
 
@@ -177,20 +176,20 @@ window.ATLAS = {
       why: "自对偶，射影平面的公理级结果。",
       source: "Girard Desargues，1639" },
 
-    // ── 漂亮结果 ─────────────────────────────────────────
-    { id: "B01", layer: "euc", family: "gems", name: "拿破仑定理",
+    // ── 原「漂亮结果」，已分到各家族 ─────────────────────
+    { id: "B01", layer: "euc", family: "concurrent", name: "拿破仑定理",
       statement: "在三边向外各作一个正三角形，它们的中心又构成一个正三角形。",
       why: "结论与原三角形的形状完全无关。",
       source: "19 世纪初，传为拿破仑", demo: "" },
-    { id: "B02", layer: "euc", family: "gems", name: "Morley 定理",
+    { id: "B02", layer: "euc", family: "concurrent", name: "Morley 定理",
       statement: "三个内角的三等分线，相邻两条的交点构成一个正三角形。",
       why: "三等分角做不出来，结论却如此整齐。",
       source: "Frank Morley，1899", demo: "" },
-    { id: "B03", layer: "euc", family: "gems", name: "Van Aubel 定理",
+    { id: "B03", layer: "euc", family: "metric", name: "Van Aubel 定理",
       statement: "在四边形四边向外作正方形，两条中心连线等长且互相垂直。",
       why: "四边形版的拿破仑定理。",
       source: "Henricus van Aubel，1878" },
-    { id: "B04", layer: "euc", family: "gems", name: "Mandart 内切椭圆",
+    { id: "B04", layer: "euc", family: "nine-point", name: "Mandart 内切椭圆",
       statement: "与三边都相切、并过三个旁切点的那条椭圆。",
       why: "它的中心、焦点都与 Nagel 点、Feuerbach 点有关。",
       source: "H. Mandart，1893", demo: "family/nine-point.html#mandart" },
