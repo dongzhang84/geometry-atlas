@@ -309,8 +309,11 @@ footer a{color:var(--faint)}
   var spin = 0, spinning = true, last = 0;
   function placeLabels() {
     label.attr('transform', function (d) {
-      var x = d._a + spin, flip = ((x % 360) + 360) % 360 < 180 ? 0 : 180;
-      return 'rotate(' + (x - 90) + ') translate(' + d._r + ',0) rotate(' + flip + ')';
+      // 标签在旋转的组里，角度只用基准值；spin 只用来判断要不要翻面，
+      // 否则旋转会叠两次，字就比色块快一倍。
+      var abs = ((d._a + spin) % 360 + 360) % 360;
+      return 'rotate(' + (d._a - 90) + ') translate(' + d._r + ',0) rotate('
+           + (abs < 180 ? 0 : 180) + ')';
     });
   }
   function tick(ts) {
