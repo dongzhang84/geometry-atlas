@@ -53,6 +53,11 @@ canvas{width:100%;height:auto;display:block;touch-action:none}
 footer{border-top:1px solid var(--rule);padding-top:14px;font-size:13px;color:var(--muted);max-width:76ch}
 footer h2{font-family:var(--serif);font-size:17px;color:var(--ink);margin:0 0 6px}
 footer ul{margin:0;padding-left:18px}
+
+/* 被首页的浮层嵌进来时，只留标签页和画布 */
+.embed header,.embed footer{display:none}
+.embed body{padding-block:0}
+.embed .wrap{gap:10px;padding-top:46px}
 </style>
 </head>
 <body>
@@ -88,6 +93,10 @@ footer ul{margin:0;padding-left:18px}
     </ul>
   </footer>
 </div>
+<script>if (window.self !== window.top) {        // 被首页浮层嵌入：收起页面外壳，并跟着用深色
+  document.documentElement.classList.add('embed');
+  document.documentElement.setAttribute('data-theme', 'dark');
+}</script>
 <script src="../data/atlas.js"></script>
 <script src="../js/geometry.js"></script>
 <script src="../js/nine-point.js"></script>
