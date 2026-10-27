@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>旭日图（草稿） · 几何图谱</title>
+<meta name="description" content="四十多条有名定理按「几何层次 → 家族 → 定理」排成环形图，点一圈放大进去。">
+<style>
+:root{
+  --bg:#f7f8f9; --panel:#fff; --ink:#16181a; --dim:#4a5056; --faint:#8b949c;
+  --line:#e3e6e9; --accent:#bc4c00;
+  --proj:#4a73c4; --aff:#c08a2a; --euc:#2f8a73;
+  --sans:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB",
+         "Microsoft YaHei","Noto Sans CJK SC",sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Noto Sans Mono CJK SC",monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#14171a; --panel:#1c2024; --ink:#e8eaec; --dim:#aeb4ba; --faint:#767d84;
+  --line:#2b3035; --accent:#ff8a4c;
+  --proj:#7aa2ea; --aff:#e0b061; --euc:#5fc4a8; color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+  font-size:15px;line-height:1.6;-webkit-text-size-adjust:100%}
+.wrap{max-width:1060px;margin:0 auto;padding:28px 16px 60px}
+a{color:var(--accent)}
+.back{font-size:13px;text-decoration:none}
+h1{font-size:23px;margin:12px 0 6px;letter-spacing:.5px}
+.lede{color:var(--dim);margin:0 0 10px;max-width:44em}
+.legend{display:flex;flex-wrap:wrap;gap:14px;margin:0 0 16px;
+  font-family:var(--mono);font-size:11.5px;color:var(--faint)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;
+  vertical-align:-1px}
+
+.cols{display:grid;grid-template-columns:1fr 330px;gap:22px;align-items:start}
+#sun{display:block;width:100%;height:auto;cursor:default}
+.arc{cursor:pointer;transition:fill-opacity .15s}
+.arc:hover{fill-opacity:1 !important}
+#crumb{font-family:var(--mono);font-size:11.5px;color:var(--faint);margin-bottom:8px}
+#crumb button{border:none;background:none;padding:0;cursor:pointer;color:var(--accent);
+  font:inherit}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px;
+  position:sticky;top:18px}
+.panel h2{font-size:17px;margin:0 0 2px}
+.panel .cnt{font-family:var(--mono);font-size:11.5px;color:var(--faint)}
+.panel dl{margin:14px 0 0}
+.panel dt{font-family:var(--mono);font-size:10.5px;color:var(--faint);letter-spacing:.5px;margin-top:10px}
+.panel dt:first-child{margin-top:0}
+.panel dd{margin:2px 0 0;font-size:13.5px;color:var(--dim);line-height:1.6}
+.panel .go{display:inline-block;margin-top:12px;font-size:13px;font-weight:600;
+  color:var(--accent);text-decoration:none}
+.plist{margin:12px 0 0;max-height:300px;overflow:auto}
+.plist div{font-size:13px;color:var(--dim);padding:3px 0;cursor:pointer}
+.plist div:hover{color:var(--accent)}
+.plist .k{font-family:var(--mono);font-size:10.5px;color:var(--faint);margin-right:6px}
+
+@media (max-width:820px){ .cols{grid-template-columns:1fr} .panel{position:static} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="index.html">← 返回几何图谱</a>
+  <h1>旭日图</h1>
+  <p class="lede">从里到外：几何层次 → 家族 → 每一条定理。点任何一圈放大进去，点中心退回上一层；
+     点最外圈的一小格，右边显示这条定理。</p>
+  <div class="legend">
+    <span><i style="background:var(--proj)"></i>射影层：只用点线关联与交比</span>
+    <span><i style="background:var(--aff)"></i>仿射层：加上平行与分比</span>
+    <span><i style="background:var(--euc)"></i>欧氏层：加上距离与角度</span>
+  </div>
+
+  <div class="cols">
+    <div>
+      <div id="crumb"></div>
+      <svg id="sun" viewBox="-390 -390 780 780" aria-label="定理旭日图"></svg>
+    </div>
+    <aside class="panel">
+      <h2 id="ptitle">全部定理</h2>
+      <div class="cnt" id="pcount"></div>
+      <div id="pbody"></div>
+    </aside>
+  </div>
+</div>
+
+<script src="data/atlas.js"></script>
+<script src="vendor/d3.min.js"></script>
+<script>
+(function () {
+  var A = window.ATLAS;
+  var LAYVAR = { proj: '--proj', aff: '--aff', euc: '--euc' };
+  var byId = {}; A.theorems.forEach(function (t) { byId[t.id] = t; });
+  var famName = {}; A.families.forEach(function (f) { famName[f.id] = f.name; });
+
+  // 层次 → 家族 → 定理
+  var data = { name: '全部定理', children: A.layers.map(function (L) {
+    var fams = A.families.map(function (f) {
+      var ts = A.theorems.filter(function (t) { return t.layer === L.id && t.family === f.id; });
+      return ts.length ? { name: f.name, fid: f.id, lay: L.id,
+        children: ts.map(function (t) { return { name: t.name, id: t.id, lay: L.id }; }) } : null;
+    }).filter(Boolean);
+    return { name: L.name, lay: L.id, note: L.note, children: fams };
+  }) };
+
+  var root = d3.hierarchy(data).sum(function (d) { return d.id ? 1 : 0; })
+               .sort(function (a, b) { return b.value - a.value; });
+  d3.partition().size([2 * Math.PI, root.height + 1])(root);
+  root.each(function (d) { d.current = d; var a = d; while (a.depth > 1) a = a.parent;
+                           d.lay = a.data.lay; });
+
+  var R = 360 / 4;                                  // 中心 + 三圈
+  var css = function (v) { return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); };
+  var arc = d3.arc().startAngle(function (d) { return d.x0; }).endAngle(function (d) { return d.x1; })
+    .padAngle(function (d) { return Math.min((d.x1 - d.x0) / 2, 0.005); }).padRadius(R * 1.5)
+    .innerRadius(function (d) { return d.y0 * R; })
+    .outerRadius(function (d) { return Math.max(d.y0 * R, d.y1 * R - 1); });
+
+  var svg = d3.select('#sun'), g = svg.append('g');
+  var focus = root, selected = null;
+  var visible = function (d) { return d.y1 <= 4.01 && d.y0 >= 1 && d.x1 > d.x0; };
+
+  function fill(d) {
+    if (d === selected) return css('--ink');
+    var base = d3.color(css(LAYVAR[d.lay] || '--euc'));
+    var t = [0, 0, .32, .56][d.depth] || .56;
+    return d3.interpolateRgb(base, css('--bg'))(t);
+  }
+
+  var path = g.append('g').selectAll('path').data(root.descendants().slice(1)).join('path')
+    .attr('class', 'arc').attr('d', function (d) { return arc(d.current); })
+    .on('click', function (e, d) { if (d.children) zoom(d); else pick(d); });
+  path.append('title').text(function (d) {
+    return d.ancestors().map(function (a) { return a.data.name; }).reverse().slice(1).join(' › ') +
+           (d.children ? '（' + d.value + ' 条）' : '');
+  });
+
+  var label = g.append('g').attr('text-anchor', 'middle').attr('pointer-events', 'none')
+    .selectAll('text').data(root.descendants().slice(1)).join('text')
+    .attr('dy', '0.35em')
+    .attr('font-size', function (d) { return d.depth === 1 ? 14 : d.depth === 2 ? 12 : 10; })
+    .attr('font-weight', function (d) { return d.depth === 1 ? 700 : 500; })
+    .text(function (d) { var n = d.data.name; return n.length > 9 ? n.slice(0, 8) + '…' : n; });
+  var labelVisible = function (d) {
+    var c = d.current;
+    return c.y1 <= 4.01 && c.y0 >= 1 && (c.y1 - c.y0) * (c.x1 - c.x0) > 0.045;
+  };
+  var labelTransform = function (d) {
+    var x = (d.x0 + d.x1) / 2 * 180 / Math.PI, y = (d.y0 + d.y1) / 2 * R;
+    return 'rotate(' + (x - 90) + ') translate(' + y + ',0) rotate(' + (x < 180 ? 0 : 180) + ')';
+  };
+
+  var centre = g.append('circle').attr('r', R).attr('fill', 'var(--panel)')
+    .attr('stroke', 'var(--line)').style('cursor', 'pointer')
+    .on('click', function () { zoom(focus.parent || root); });
+  var cText = g.append('text').attr('text-anchor', 'middle').attr('pointer-events', 'none');
+  var cNum = cText.append('tspan').attr('x', 0).attr('dy', '-0.1em').attr('font-size', 30).attr('font-weight', 700);
+  var cSub = cText.append('tspan').attr('x', 0).attr('dy', '1.7em').attr('font-size', 11);
+
+  function paint() {
+    path.attr('fill', fill)
+      .attr('fill-opacity', function (d) { return visible(d.current) ? (d === selected ? 1 : .88) : 0; })
+      .attr('pointer-events', function (d) { return visible(d.current) ? 'auto' : 'none'; })
+      .attr('stroke', css('--bg')).attr('stroke-width', .7);
+    label.attr('fill', function (d) { return d === selected ? css('--bg') : css('--ink'); })
+      .attr('fill-opacity', function (d) { return +labelVisible(d); })
+      .attr('transform', function (d) { return labelTransform(d.current); });
+    cNum.text(focus.leaves().length).attr('fill', css('--ink'));
+    cSub.text(focus === root ? '条定理' : '条 · 点此返回').attr('fill', css('--faint'));
+    renderPanel();
+  }
+
+  function zoom(p) {
+    focus = p; selected = null;
+    root.each(function (d) {
+      d.target = {
+        x0: Math.max(0, Math.min(1, (d.x0 - p.x0) / (p.x1 - p.x0))) * 2 * Math.PI,
+        x1: Math.max(0, Math.min(1, (d.x1 - p.x0) / (p.x1 - p.x0))) * 2 * Math.PI,
+        y0: Math.max(0, d.y0 - p.depth), y1: Math.max(0, d.y1 - p.depth)
+      };
+    });
+    var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var t = svg.transition().duration(reduce ? 0 : 640);
+    path.transition(t).tween('data', function (d) {
+      var i = d3.interpolate(d.current, d.target); return function (x) { d.current = i(x); };
+    }).attrTween('d', function (d) { return function () { return arc(d.current); }; });
+    label.transition(t).attrTween('transform', function (d) { return function () { return labelTransform(d.current); }; });
+    setTimeout(paint, reduce ? 0 : 650); paint();
+  }
+  function pick(d) { selected = d; paint(); }
+
+  function esc(x) {
+    return String(x == null ? '' : x).replace(/[&<>"]/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+    });
+  }
+
+  function renderPanel() {
+    var crumb = document.getElementById('crumb');
+    crumb.innerHTML = '';
+    focus.ancestors().reverse().forEach(function (a, i, arr) {
+      if (i) crumb.append(' › ');
+      if (i < arr.length - 1) {
+        var b = document.createElement('button');
+        b.textContent = a.data.name; b.onclick = function () { zoom(a); };
+        crumb.append(b);
+      } else crumb.append(a.data.name);
+    });
+
+    var title = document.getElementById('ptitle'), cnt = document.getElementById('pcount'),
+        body = document.getElementById('pbody');
+
+    if (selected) {
+      var t = byId[selected.data.id];
+      title.textContent = t.name;
+      cnt.textContent = t.id + ' · ' + famName[t.family] + ' · ' +
+        (A.layers.filter(function (L) { return L.id === t.layer; })[0] || {}).name;
+      var h = '<dl><dt>陈述</dt><dd>' + esc(t.statement) + '</dd>';
+      if (t.why) h += '<dt>为什么有名</dt><dd>' + esc(t.why) + '</dd>';
+      if (t.source) h += '<dt>出处</dt><dd>' + esc(t.source) + '</dd>';
+      var rel = A.relations.filter(function (r) { return r.from === t.id || r.to === t.id; });
+      if (rel.length) h += '<dt>关系</dt><dd>' + rel.map(function (r) {
+        var other = byId[r.from === t.id ? r.to : r.from];
+        return (r.type === 'dual' ? '对偶于 ' : r.from === t.id ? '推广了 ' : '推广自 ') +
+               '<b>' + esc(other ? other.name : '') + '</b>';
+      }).join('；') + '</dd>';
+      h += '</dl>';
+      if (t.demo) h += '<a class="go" href="' + t.demo + '">拖动顶点看动态图 →</a>';
+      body.innerHTML = h;
+      return;
+    }
+
+    title.textContent = focus.data.name;
+    var leaves = focus.leaves();
+    var sub = focus.children
+      ? focus.children.map(function (c) { return c.data.name + ' ' + c.leaves().length; }).join(' · ')
+      : '';
+    cnt.textContent = leaves.length + ' 条' + (sub ? '　' + sub : '');
+    body.innerHTML = '<div class="plist">' + leaves.map(function (l) {
+      var t = byId[l.data.id];
+      return '<div data-id="' + l.data.id + '"><span class="k">' + l.data.id + '</span>' +
+             esc(t ? t.name : l.data.name) + '</div>';
+    }).join('') + '</div>';
+    body.querySelectorAll('.plist div').forEach(function (el) {
+      el.onclick = function () {
+        var node = root.leaves().filter(function (l) { return l.data.id === el.dataset.id; })[0];
+        if (node) pick(node);
+      };
+    });
+  }
+
+  paint();
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', paint);
+})();
+</script>
+</body>
+</html>
