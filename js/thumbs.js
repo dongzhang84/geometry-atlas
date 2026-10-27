@@ -228,7 +228,7 @@
     }
     function start() {
       want = 1;
-      svg.classList.add('anim');          // 关掉入场过渡：每帧都是新元素，不能再从头淡入
+      svg.classList.add('anim', 'go');    // 关掉入场过渡（每帧都是新元素），并确保线是补全的
       if (!raf) raf = requestAnimationFrame(frame);
     }
     function stop()  { want = 0; }

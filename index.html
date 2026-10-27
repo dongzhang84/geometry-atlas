@@ -388,18 +388,18 @@ footer a{color:var(--faint)}
   /* 小图：滚到就画 */
   if (window.THUMBS) {
     var svgs = [].slice.call(document.querySelectorAll('svg.thumb'));
-    svgs.forEach(function (x) { THUMBS.fit(x); THUMBS.arm(x); });
+    // 悬停循环在初始化时就全部挂好，不依赖滚动观察器 —— 否则观察器没触发的那几张
+    // 永远挂不上，鼠标放上去毫无反应。
+    svgs.forEach(function (x) { THUMBS.fit(x); THUMBS.arm(x); THUMBS.live(x); });
     if (window.IntersectionObserver) {
       var tio = new IntersectionObserver(function (es) {
         es.forEach(function (en) {
           if (!en.isIntersecting) return;
-          var sv = en.target;
-          sv.classList.add('go'); tio.unobserve(sv);
-          setTimeout(function () { THUMBS.live(sv); }, 1500);   // 等自己画完再挂循环
+          en.target.classList.add('go'); tio.unobserve(en.target);
         });
       }, { rootMargin: '0px 0px -6% 0px', threshold: .12 });
       svgs.forEach(function (x) { tio.observe(x); });
-    } else { svgs.forEach(function (x) { x.classList.add('go'); THUMBS.live(x); }); }
+    } else { svgs.forEach(function (x) { x.classList.add('go'); }); }
   }
 
   /* 动图浮层：从那张小图原地长大 */
