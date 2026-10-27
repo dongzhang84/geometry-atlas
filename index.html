@@ -113,6 +113,10 @@ svg.thumb .pt{opacity:0;transform:scale(.2);transform-origin:center;transform-bo
   transition:opacity .3s ease,transform .3s cubic-bezier(.34,1.56,.64,1);
   transition-delay:calc(var(--i,0) * 70ms + 420ms)}
 svg.thumb.go .pt{opacity:1;transform:scale(1)}
+/* 虚线的辅助线：淡入，不做描边动画，免得 dash 被填满成实线 */
+svg.thumb .fadein{stroke-opacity:0;transition:stroke-opacity .45s ease;
+  transition-delay:calc(var(--i,0) * 70ms)}
+svg.thumb.go .fadein{stroke-opacity:1}
 /* 悬停循环期间：每帧都是新画的元素，入场过渡必须关掉，否则点永远在淡入 */
 svg.thumb.anim *{transition:none !important}
 svg.thumb.anim .pt{opacity:1 !important;transform:none !important}
@@ -196,10 +200,10 @@ footer a{color:var(--faint)}
   <div class="bar"><b id="stageTitle"></b><button id="stageClose">关闭 Esc</button></div>
 </div>
 
-<script src="data/atlas.js?v=20261027a"></script>
-<script src="js/geometry.js?v=20261027a"></script>
-<script src="js/thumbs.js?v=20261027a"></script>
-<script src="vendor/d3.min.js?v=20261027a"></script>
+<script src="data/atlas.js?v=20261027b"></script>
+<script src="js/geometry.js?v=20261027b"></script>
+<script src="js/thumbs.js?v=20261027b"></script>
+<script src="vendor/d3.min.js?v=20261027b"></script>
 <script>
 (function () {
   var A = window.ATLAS, byId = {}, famOf = {};

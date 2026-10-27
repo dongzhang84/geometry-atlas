@@ -212,6 +212,11 @@
   /** 把线条设成「待画」状态，加 .go 之后自己长出来 */
   function arm(svg) {
     svg.querySelectorAll('line, path, circle:not(.pt), ellipse').forEach((el) => {
+      // 本来就画成虚线的（辅助线），不能用 dash 做描边动画 —— 那会把虚线填成实线。
+      // 它们改成淡入，虚线在任何状态下都是虚线。
+      let dsh = '';
+      try { dsh = getComputedStyle(el).strokeDasharray; } catch (e) { dsh = ''; }
+      if (dsh && dsh !== 'none') { el.classList.add('fadein'); return; }
       let L = 0;
       try { L = el.getTotalLength ? el.getTotalLength() : 0; } catch (e) { L = 0; }
       if (!L && el.tagName === 'circle') L = 2 * Math.PI * el.r.baseVal.value;
