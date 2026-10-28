@@ -63,8 +63,8 @@
   const LEG = {
     euler: [[C_GRN, '中垂线 → O'], [C_BLU, '中线 → G'], [C_RED, '高 → H'], [C_WHT, '欧拉线 · 九点圆'], [C_ORG, 'O、G、H']],
     homothety: [[C_GRY, '外接圆与样点'], [C_AMB, '缩放后的圆'], [C_PUR, '九点圆']],
-    feuerbach: [[C_BLU, '角平分线、内切圆、旁切圆'], [C_ORG, '直线 NI 与切点'], [C_PUR, '九点圆']],
-    simson: [[C_BLU, '西摩松线'], [C_RED, '三条高 → 垂心 H'], [C_AMB, '线段 PH'], [C_PUR, '九点圆']],
+    feuerbach: [[C_GRN, '角平分线、内切圆、旁切圆'], [C_ORG, '直线 NI 与切点'], [C_WHT, '九点圆']],
+    simson: [[C_WHT, '西姆松线'], [C_FOT, '三个垂足'], [C_RED, '三条高 → 垂心 H'], [C_AMB, '线段 PH'], [C_WHT, '九点圆']],
     orthocentric: [[C_BLU, '当前三角形'], [C_RED, '它的三条高'], [C_ORG, '三边中点'], [C_FOT, '三个垂足'], [C_PUR, '三个欧拉点'], [C_WHT, '九点圆']],
     nagel: [[C_AMB, '内切圆、内心 I'], [C_RED, '顶点到旁切圆切点的连线 → Na'], [C_BLU, '中线 → G'], [C_GRN, 'Spieker 点 Sp'], [C_ORG, 'Nagel 线']],
     soddy: [[C_GRY, '以顶点为圆心的三个圆'], [C_BLU, '顶点到切点的连线 → Ge'], [C_PUR, '内 Soddy 圆'], [C_RED, '外 Soddy 圆'], [C_GRN, 'de Longchamps 点 L'], [C_ORG, 'Soddy 线']],
@@ -226,37 +226,37 @@
     },
     feuerbach(g) {
       const sec = css('--muted');
-      sides(g, sec); [g.A, g.B, g.C].forEach((P) => seg(P, g.I, C_BLU, 0.9, [4, 3]));
-      circle(g.I, g.r, C_BLU, 1.6); seg(g.I, foot(g.I, g.A, g.B), C_BLU, 0.8);
-      g.excircles.forEach((e) => circle(e, e.r, C_BLU, 1, [4, 3])); circle(g.N, g.r9, C_PUR, 2.6);
+      sides(g, sec); [g.A, g.B, g.C].forEach((P) => seg(P, g.I, C_GRN, 0.9, [4, 3]));
+      circle(g.I, g.r, C_GRN, 1.6); seg(g.I, foot(g.I, g.A, g.B), C_GRN, 0.8);
+      g.excircles.forEach((e) => circle(e, e.r, C_GRN, 1, [4, 3])); circle(g.N, g.r9, col(C_WHT), 2.6);
       const tp = (c) => add(g.N, mul(sub(c, g.N), g.r9 / len(sub(c, g.N)))), same = near(g.N, g.I, g);
       if (!same) { const T = tp(g.I); lineInf(g.N, g.I, C_ORG, 1, [6, 4]); seg(g.N, T, C_ORG, 1.8); dot(T, C_ORG, 6); lab(T, 'T', 8, 14); }
       g.excircles.forEach((e) => { const q = tp(e); seg(g.N, q, C_ORG, 0.8, [3, 3]); dot(q, C_ORG, 4.5); });
-      dot(g.N, C_PUR, 5); dot(g.I, C_BLU, 5);
+      dot(g.N, col(C_WHT), 5); dot(g.I, C_GRN, 5);
       if (same) lab(g.N, 'N = I', 8, -8); else { lab(g.N, 'N', 8, -8); lab(g.I, 'I', 8, -8); }
       return info('费尔巴哈定理：三角形的九点圆与内切圆相切，也与三个旁切圆相切。设 R 为外接圆半径、r 为内切圆半径、I 为内心，则九点圆圆心 N 到内心的距离 NI = R/2 − r，九点圆与内切圆的切点 T 在直线 NI 上。',
-        '拖动顶点 A、B、C 改变三角形。绿色虚线是三条角平分线（交于内心 I），绿色实线圆是内切圆，绿色虚线圆是三个旁切圆（可能伸出画面），紫色是九点圆，橙色点是四个切点。<br>' +
+        '拖动顶点 A、B、C 改变三角形。绿色虚线是三条角平分线（交于内心 I），绿色实线圆是内切圆，绿色虚线圆是三个旁切圆（可能伸出画面），白色是九点圆，橙色点是四个切点。<br>' +
         (same ? '等边三角形中九点圆与内切圆重合（N 与 I 重合，r = R/2），切点不再唯一，所以不画直线 NI 和切点 T。' :
           '实测：NI = ' + fmt(len(sub(g.I, g.N)), 3) + '，R/2 − r = ' + fmt(g.r9 - g.r, 3) + '。'));
     },
     simson(g) {
       const sec = css('--muted');
-      sides(g, sec); circle(g.O, g.R, sec, 1, [5, 4]); circle(g.N, g.r9, C_PUR, 2.6);
-      // 三条高（粉色虚线）交于垂心 H；H 在三角形外时延长到 H
+      sides(g, sec); circle(g.O, g.R, sec, 1, [5, 4]); circle(g.N, g.r9, col(C_WHT), 2.6);
+      // 三条高（红色虚线）交于垂心 H；H 在三角形外时延长到 H
       [[g.A, g.B, g.C], [g.B, g.C, g.A], [g.C, g.A, g.B]].forEach(([X, U, V]) => {
         const F = foot(X, U, V); seg(X, F, C_RED, 0.9, [4, 3]);
         if (len(sub(g.H, F)) > len(sub(X, F)) || len(sub(g.H, X)) > len(sub(F, X))) seg(len(sub(g.H, F)) < len(sub(g.H, X)) ? F : X, g.H, C_RED, 0.9, [4, 3]);
       });
       const P = { x: g.O.x + g.R * Math.cos(state.theta), y: g.O.y + g.R * Math.sin(state.theta) };
       const f = [foot(P, g.B, g.C), foot(P, g.C, g.A), foot(P, g.A, g.B)];
-      f.forEach((q) => { seg(P, q, sec, 0.8); dot(q, C_BLU, 4.5); });
+      f.forEach((q) => { seg(P, q, sec, 0.8); dot(q, C_FOT, 4.5); });
       const pr = [[0, 1], [1, 2], [0, 2]].reduce((b, ij) => len(sub(f[ij[0]], f[ij[1]])) > len(sub(f[b[0]], f[b[1]])) ? ij : b);
-      lineInf(f[pr[0]], f[pr[1]], C_BLU, 1.8);
+      lineInf(f[pr[0]], f[pr[1]], col(C_WHT), 2.2);
       seg(P, g.H, C_AMB, 1.6); const M = mid(P, g.H);
       dot(M, C_ORG, 6.5); dot(P, C_AMB, 7); dot(g.H, C_RED, 5); lab(P, 'P', 9, -9); lab(g.H, 'H', 8, -8); lab(M, 'M', 8, 14);
-      return info('西摩松定理：P 是三角形外接圆上任意一点，从 P 向三边（或其延长线）作垂线，三个垂足在一条直线上，这条直线叫做 P 的西摩松线。西摩松线平分 P 与垂心 H 的连线 PH，PH 的中点 M 在九点圆上。',
-        '在画面上拖动（顶点以外的地方），P 沿外接圆移动；也可以拖动顶点。粉色虚线是三角形的三条高，交于垂心 H；灰线是 P 到三边的垂线，绿色点是三个垂足，绿色直线是西摩松线，棕色线段是 PH，橙色点是它的中点 M。' +
-        '<br>M 为什么在九点圆上：以 H 为中心把外接圆缩小一半就是九点圆（见「缩小外接圆」），P 被送到 PH 的中点 M。');
+      return info('西姆松定理：P 是三角形外接圆上任意一点，从 P 向三边（或其延长线）作垂线，三个垂足在一条直线上，这条直线叫做 P 的西姆松线。西姆松线平分 P 与垂心 H 的连线 PH，PH 的中点 M 在九点圆上。',
+        '在画面上拖动（顶点以外的地方），P 沿外接圆移动；也可以拖动顶点。红色虚线是三角形的三条高，交于垂心 H；灰线是 P 到三边的垂线，蓝色点是三个垂足，白色直线是西姆松线，琥珀色线段是 PH，橙色点是它的中点 M。' +
+        '<br>M 为什么在九点圆上：以 H 为中心把外接圆缩小一半就是九点圆，P 被送到 PH 的中点 M。');
     },
     orthocentric(g) {
       const sec = css('--muted');
@@ -407,7 +407,7 @@
         F = add(g.N, mul(sub(g.I, g.N), g.r9 / len(sub(g.I, g.N))));
         seg(g.N, g.I, C_ORG, 0.8, [3, 3]); dot(F, C_RED, 6.5);
       }
-      dot(g.N, C_PUR, 5); dot(g.I, C_BLU, 5); dot(M, C_AMB, 4.5);
+      dot(g.N, col(C_WHT), 5); dot(g.I, C_GRN, 5); dot(M, C_AMB, 4.5);
       labelPoints([[U[0], 'Ua'], [U[1], 'Ub'], [U[2], 'Uc'], [g.N, 'N'], [g.I, 'I'], [M, 'M']]
         .concat(F ? [[F, 'F']] : []), sub(g.I, g.N));
       const ops = '拖动顶点 A、B、C 改变三角形。绿色虚线圆是三个旁切圆（可能伸出画面），绿色实线圆是内切圆；' +
