@@ -91,6 +91,13 @@ h1::after{content:"";display:block;height:2px;width:72px;margin-top:10px;
 .more dt{font-family:var(--mono);font-size:10.5px;color:var(--faint);letter-spacing:.5px;margin-top:9px}
 .more dt:first-child{margin-top:0}
 .more dd{margin:2px 0 0;font-size:13px;color:var(--dim);line-height:1.6}
+.more dd.deps{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px}
+.dep{display:inline-flex;align-items:center;gap:5px;font-size:12px;line-height:1;
+  padding:4px 8px;border-radius:999px;border:1px solid var(--line);background:var(--bg)}
+.dep.th{color:var(--ink);cursor:pointer;font-family:inherit}
+.dep.th:hover{border-color:var(--fc);color:var(--fc)}
+.dep.th i{font-family:var(--mono);font-size:9.5px;font-style:normal;color:var(--faint);letter-spacing:.3px}
+.dep.tool{color:var(--faint);border-style:dashed}
 .more .rel b{color:var(--ink);font-weight:600}
 
 svg.thumb{display:block;width:100%;height:auto;background:var(--ink0);--k:1}
@@ -209,10 +216,10 @@ footer a{color:var(--faint)}
   <div class="bar"><b id="stageTitle"></b><button id="stageClose">关闭 Esc</button></div>
 </div>
 
-<script src="data/atlas.js?v=20261027t"></script>
-<script src="js/geometry.js?v=20261027t"></script>
-<script src="js/thumbs.js?v=20261027t"></script>
-<script src="vendor/d3.min.js?v=20261027t"></script>
+<script src="data/atlas.js?v=20261027u"></script>
+<script src="js/geometry.js?v=20261027u"></script>
+<script src="js/thumbs.js?v=20261027u"></script>
+<script src="vendor/d3.min.js?v=20261027u"></script>
 <script>
 (function () {
   var A = window.ATLAS, byId = {}, famOf = {};
@@ -267,8 +274,14 @@ footer a{color:var(--faint)}
     if (t.demo) h += '<span class="flag">可拖动</span>';
     h += '<div class="more"><dl>';
     if (t.deps && t.deps.length) {
-      // 先决条件就是依赖图上的边：只列名字，不写成段落 —— 写成段落就喂不进画图的代码
-      h += '<dt>先决条件</dt><dd>' + t.deps.map(nameOf).map(esc).join('、') + '</dd>';
+      // 先决条件就是依赖图上的边。定理做成能点的标签（带编号，点了跳过去），
+      // 基础工具做成灰标签 —— 两者长得一样的话，根本看不出哪个是定理。
+      h += '<dt>先决条件</dt><dd class="deps">' + t.deps.map(function (d) {
+        return byId[d]
+          ? '<button type="button" class="dep th" data-go="' + d + '">' +
+            '<i>' + d + '</i>' + esc(nameOf(d)) + '</button>'
+          : '<span class="dep tool">' + esc(nameOf(d)) + '</span>';
+      }).join('') + '</dd>';
     }
     if (t.source) h += '<dt>出处</dt><dd>' + esc(t.source) + '</dd>';
     // 关系块暂时不显示：data 里 from 是「更一般的那一条」，卡片上却写成了「推广自」，
@@ -519,7 +532,19 @@ footer a{color:var(--faint)}
     }
   }
 
+  /** 跳到某条定理的卡片，展开并闪一下 */
+  function goTo(id) {
+    var c = document.querySelector('.card[data-id="' + id + '"]');
+    if (!c) return;
+    c.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    rowMates(c).forEach(function (x) { setOpen(x, true); });
+    c.classList.add('flash');
+    setTimeout(function () { c.classList.remove('flash'); }, 1200);
+  }
+
   document.addEventListener('click', function (e) {
+    var dep = e.target.closest('.dep.th');
+    if (dep) { e.stopPropagation(); goTo(dep.dataset.go); return; }
     var fig = e.target.closest('.fig');
     if (fig) { openStage(fig); return; }
     var c = e.target.closest('.card');
