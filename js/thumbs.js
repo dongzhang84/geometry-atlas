@@ -24,6 +24,9 @@
     C01: { A: { x: 72, y: 14 }, B: { x: 12, y: 128 }, C: { x: 180, y: 128 } },
     C02: { A: { x: 118, y: 20 }, B: { x: 18, y: 126 }, C: { x: 190, y: 126 } },
     C03: { A: { x: 54, y: 24 }, B: { x: 14, y: 124 }, C: { x: 176, y: 124 } },
+    C04: { A: { x: 96, y: 12 }, B: { x: 16, y: 130 }, C: { x: 186, y: 130 } },
+    C05: { A: { x: 60, y: 16 }, B: { x: 20, y: 128 }, C: { x: 192, y: 128 } },
+    C06: { A: { x: 130, y: 18 }, B: { x: 14, y: 126 }, C: { x: 184, y: 126 } },
   };
   /** 等边位置：底边不动，A 抬到正上方 */
   const apexOf = (T) => ({ x: (T.B.x + T.C.x) / 2,
@@ -77,6 +80,19 @@
       视频里两段各往一侧偏开是为了显示正负号；缩略图只有 200×140，一偏就成了断线，
       而且三角形的边会被切得七零八落。小图里连续比符号重要，正负号交给视频和大图。 */
   const seg2 = (P, Q, cls) => line(P, Q, cls === 'num' ? 'numseg' : 'denseg');
+
+  /** 刻度：线段中部打 n 道短垂线。小图里只打一道会看不出，所以线要够粗。 */
+  function ticks(P, Q, n, cls) {
+    const d = sub(Q, P), L = Math.max(len(d), 1e-9);
+    const u = { x: d.x / L, y: d.y / L }, nv = { x: -u.y, y: u.x };
+    const m = mid(P, Q), gap = 3.4, half = 4.2, out = [];
+    for (let k = 0; k < n; k++) {
+      const o = (k - (n - 1) / 2) * gap, c = { x: m.x + u.x * o, y: m.y + u.y * o };
+      out.push(line({ x: c.x - nv.x * half, y: c.y - nv.y * half },
+                    { x: c.x + nv.x * half, y: c.y + nv.y * half }, cls || 'tick'));
+    }
+    return out;
+  }
 
   /** 给定形变参数 k，把这张图要用到的点和圆都算出来 */
   function geom(k) {
@@ -153,6 +169,56 @@
               line({ x: Z.x - d.x * 0.14, y: Z.y - d.y * 0.14 },
                    { x: X.x + d.x * 0.10, y: X.y + d.y * 0.10 }, 'ln'),
               dot(X, 'key'), dot(Y), dot(Z)];
+    },
+    // Gergonne 点：内切圆的切点连对顶。刻度成对挨在同一个顶点两侧 —— 两条切线等长
+    C04: (g) => {
+      const { A, B, C, T } = g;
+      const a = len(sub(C, B)), b = len(sub(A, C)), c = len(sub(B, A)), s2 = (a + b + c) / 2;
+      const at = (P, Q, t) => { const d = sub(Q, P), L = Math.max(len(d), 1e-9);
+                                return { x: P.x + d.x / L * t, y: P.y + d.y / L * t }; };
+      const X = at(B, C, s2 - b), Y = at(C, A, s2 - c), Z = at(A, B, s2 - a);
+      const w = [1 / (s2 - a), 1 / (s2 - b), 1 / (s2 - c)], sw = w[0] + w[1] + w[2];
+      const Ge = { x: (A.x * w[0] + B.x * w[1] + C.x * w[2]) / sw,
+                   y: (A.y * w[0] + B.y * w[1] + C.y * w[2]) / sw };
+      return [tri(A, B, C), circle(g.incir, 'inc'),
+              line(A, X, 'med'), line(B, Y, 'med'), line(C, Z, 'med')]
+        .concat(ticks(A, Z, 1), ticks(A, Y, 1), ticks(B, X, 2), ticks(B, Z, 2),
+                ticks(C, Y, 3), ticks(C, X, 3),
+                [X, Y, Z].map((q) => dot(q, 'amb')), [dot(Ge, 'key')]);
+    },
+    // Nagel 点：旁切圆的切点连对顶。同一种长度分在两条不同的边上 —— 望远镜式约掉
+    C05: (g) => {
+      const { A, B, C } = g;
+      const a = len(sub(C, B)), b = len(sub(A, C)), c = len(sub(B, A)), s2 = (a + b + c) / 2;
+      const at = (P, Q, t) => { const d = sub(Q, P), L = Math.max(len(d), 1e-9);
+                                return { x: P.x + d.x / L * t, y: P.y + d.y / L * t }; };
+      const X = at(B, C, s2 - c), Y = at(C, A, s2 - a), Z = at(A, B, s2 - b);
+      const n = nagelData(A, B, C);
+      return [tri(A, B, C), line(A, X, 'med'), line(B, Y, 'med'), line(C, Z, 'med')]
+        .concat(ticks(B, X, 3), ticks(X, C, 2), ticks(C, Y, 1),
+                ticks(Y, A, 3), ticks(A, Z, 2), ticks(Z, B, 1),
+                [X, Y, Z].map((q) => dot(q, 'amb')), [dot(n.Na, 'key')]);
+    },
+    // Fermat 点：到三顶点距离之和最小；三条连线两两成 120°
+    C06: (g) => {
+      const { A, B, C, T } = g;
+      let F = { x: T.G.x, y: T.G.y };
+      for (let k = 0; k < 120; k++) {
+        let wx = 0, wy = 0, ws = 0;
+        [A, B, C].forEach((V) => { const d = Math.max(len(sub(F, V)), 1e-7);
+          wx += V.x / d; wy += V.y / d; ws += 1 / d; });
+        F = { x: wx / ws, y: wy / ws };
+      }
+      const R = Math.max(len(sub(A, T.O)), 1e-6), r = R * 0.17;
+      const arcs = [[A, B], [B, C], [C, A]].map(([U, V]) => {
+        const a1 = Math.atan2(U.y - F.y, U.x - F.x), a2 = Math.atan2(V.y - F.y, V.x - F.x);
+        let d = a2 - a1; while (d <= -Math.PI) d += 2 * Math.PI; while (d > Math.PI) d -= 2 * Math.PI;
+        const pad = 0.15 * Math.sign(d);
+        return arcSeg(F, r, (a1 + a2) / 2 + (Math.abs(a2 - a1) > Math.PI ? Math.PI : 0),
+                      Math.abs(d / 2) - Math.abs(pad), 'hi');
+      });
+      return [tri(A, B, C), line(F, A, 'amb2'), line(F, B, 'amb2'), line(F, C, 'amb2')]
+        .concat(arcs, [dot(F, 'key')]);
     },
     N01: (g) => {
       const { A, B, C, T } = g;

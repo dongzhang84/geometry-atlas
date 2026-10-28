@@ -67,6 +67,9 @@
     simson: [[C_WHT, '西姆松线'], [C_FOT, '三个垂足'], [C_RED, '三条高 → 垂心 H'], [C_AMB, '线段 PH'], [C_WHT, '九点圆']],
     ninepoint: [[C_WHT, '九点圆'], [C_ORG, '三边中点'], [C_FOT, '三个垂足'], [C_PUR, '三个欧拉点'], [C_RED, '三条高 → 垂心'], [C_GRY, '外接圆']],
     orthocentric: [[C_WHT, '当前三角形 · 九点圆'], [C_RED, '它的三条高 → 垂心'], [C_ORG, '三边中点'], [C_FOT, '三个垂足'], [C_PUR, '三个欧拉点']],
+    gergonne: [[C_ORG, 'Gergonne 点'], [C_GRN, '内切圆'], [C_AMB, '切点与切线长的刻度'], [C_BLU, '三条连线']],
+    nagelpoint: [[C_ORG, 'Nagel 点'], [C_GRN, '三个旁切圆'], [C_AMB, '切点与三种长度的刻度'], [C_BLU, '三条连线']],
+    fermat: [[C_ORG, 'Fermat 点 F 与三个 120° 角'], [C_AMB, 'PA、PB、PC']],
     centers: [[C_ORG, '四个心 G、O、I、H'], [C_BLU, '中线 → G'], [C_GRN, '中垂线 → O'], [C_AMB, '角平分线 → I'], [C_RED, '高 → H']],
     ceva: [[C_AMB, '三段分子 BX、CY、AZ'], [C_BLU, '三段分母 XC、YA、ZB'], [C_ORG, '塞瓦点 P']],
     menelaus: [[C_WHT, '横截线'], [C_AMB, '三段分子'], [C_BLU, '三段分母'], [C_ORG, '积为 −1']],
@@ -184,6 +187,18 @@
     ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, 2 * Math.PI);
     ctx.strokeStyle = col(c); ctx.lineWidth = w; ctx.setLineDash([]); ctx.stroke();
   }
+  /** 刻度：线段中部打 n 道短垂线。相等的两段打一样多，眼睛自己去配对。 */
+  function ticks(P1, Q1, n, col) {
+    const d = sub(Q1, P1), L = Math.max(len(d), 1e-9);
+    const u = { x: d.x / L, y: d.y / L }, nv = { x: -u.y, y: u.x };
+    const m = mid(P1, Q1), gap = L * 0.055, half = Math.max(L * 0.05, 0.035);
+    for (let k = 0; k < n; k++) {
+      const o = (k - (n - 1) / 2) * gap;
+      const c0 = { x: m.x + u.x * o, y: m.y + u.y * o };
+      seg({ x: c0.x - nv.x * half, y: c0.y - nv.y * half },
+          { x: c0.x + nv.x * half, y: c0.y + nv.y * half }, col, 1.8);
+    }
+  }
   function tri(X, Y, Z, col, w) { seg(X, Y, col, w); seg(Y, Z, col, w); seg(Z, X, col, w); }
   function sides(g, c) { lineInf(g.A, g.B, c, 0.5, [2, 4]); lineInf(g.B, g.C, c, 0.5, [2, 4]); lineInf(g.C, g.A, c, 0.5, [2, 4]); }
   const fmt = (x, n = 2) => x.toFixed(n);
@@ -193,6 +208,90 @@
   /* ---------- 各标签页 ---------- */
   const DRAW = {
     /* ── 共点与共线 ───────────────────────────────────────── */
+    gergonne(g) {
+      const sec = css('--muted'), V = [g.A, g.B, g.C];
+      const a = len(sub(g.C, g.B)), b = len(sub(g.A, g.C)), c = len(sub(g.B, g.A));
+      const s2 = (a + b + c) / 2;
+      const un = (P1, Q1) => { const d = sub(Q1, P1), L = Math.max(len(d), 1e-9); return { x: d.x / L, y: d.y / L }; };
+      const at = (P1, Q1, t) => { const u = un(P1, Q1); return { x: P1.x + u.x * t, y: P1.y + u.y * t }; };
+      const X = at(g.B, g.C, s2 - b), Y = at(g.C, g.A, s2 - c), Z = at(g.A, g.B, s2 - a);
+      const w = [1 / (s2 - a), 1 / (s2 - b), 1 / (s2 - c)], sw = w[0] + w[1] + w[2];
+      const Ge = { x: (g.A.x * w[0] + g.B.x * w[1] + g.C.x * w[2]) / sw,
+                   y: (g.A.y * w[0] + g.B.y * w[1] + g.C.y * w[2]) / sw };
+      circle(g.I, g.r, C_GRN, 1.8);
+      [[g.A, X], [g.B, Y], [g.C, Z]].forEach(([P1, Q1]) => seg(P1, Q1, C_BLU, 1.3, [5, 4]));
+      // 每个顶点的两条切线等长：一道 / 两道 / 三道，成对挨着
+      [[g.A, Z, 1], [g.A, Y, 1], [g.B, X, 2], [g.B, Z, 2], [g.C, Y, 3], [g.C, X, 3]]
+        .forEach(([P1, Q1, n]) => ticks(P1, Q1, n, C_AMB));
+      [X, Y, Z].forEach((q) => dot(q, C_AMB, 5));
+      dot(g.I, C_GRN, 4.5); dot(Ge, C_ORG, 6.5);
+      labelPoints([[X, 'X'], [Y, 'Y'], [Z, 'Z'], [Ge, 'Ge']], sub(Ge, g.I));
+      return info('Gergonne 点：内切圆与三边切于 X、Y、Z，三条连线 AX、BY、CZ 共点。',
+        '拖动顶点 A、B、C 改变三角形。绿圈是内切圆，琥珀点是三个切点，蓝虚线是三条连线，橙点是 Gergonne 点。' +
+        '<br>刻度是关键：<b>从每个顶点出发的两条切线等长</b>（都等于 s−a、s−b、s−c），' +
+        'Ceva 的乘积 (BX/XC)·(CY/YA)·(AZ/ZB) 因此一项项约掉，正好是 1。' +
+        '<br>实测：s−a = ' + fmt(s2 - a) + '，s−b = ' + fmt(s2 - b) + '，s−c = ' + fmt(s2 - c) +
+        '；乘积 = <b style="color:' + C_ORG + '">' +
+        fmt(((s2 - b) / (s2 - c)) * ((s2 - c) / (s2 - a)) * ((s2 - a) / (s2 - b)), 3) + '</b>。');
+    },
+    nagelpoint(g) {
+      const sec = css('--muted');
+      const a = len(sub(g.C, g.B)), b = len(sub(g.A, g.C)), c = len(sub(g.B, g.A));
+      const s2 = (a + b + c) / 2;
+      const un = (P1, Q1) => { const d = sub(Q1, P1), L = Math.max(len(d), 1e-9); return { x: d.x / L, y: d.y / L }; };
+      const at = (P1, Q1, t) => { const u = un(P1, Q1); return { x: P1.x + u.x * t, y: P1.y + u.y * t }; };
+      const X = at(g.B, g.C, s2 - c), Y = at(g.C, g.A, s2 - a), Z = at(g.A, g.B, s2 - b);
+      const n = nagelData(g.A, g.B, g.C);
+      g.excircles.forEach((e) => circle(e, e.r, C_GRN, 1, [4, 3]));
+      [[g.A, X], [g.B, Y], [g.C, Z]].forEach(([P1, Q1]) => seg(P1, Q1, C_BLU, 1.3, [5, 4]));
+      // 六段只有三种长度，每种出现两次 —— 而且在两条不同的边上，这是和 Gergonne 的区别
+      [[g.B, X, 3], [X, g.C, 2], [g.C, Y, 1], [Y, g.A, 3], [g.A, Z, 2], [Z, g.B, 1]]
+        .forEach(([P1, Q1, k]) => ticks(P1, Q1, k, C_AMB));
+      [X, Y, Z].forEach((q) => dot(q, C_AMB, 5));
+      dot(n.Na, C_ORG, 6.5);
+      labelPoints([[X, 'X'], [Y, 'Y'], [Z, 'Z'], [n.Na, 'Na']], sub(n.Na, g.I));
+      return info('Nagel 点：三个旁切圆与三边切于 X、Y、Z，三条连线 AX、BY、CZ 共点。',
+        '拖动顶点 A、B、C 改变三角形。绿虚线圆是三个旁切圆（可能伸出画面），琥珀点是三个切点，蓝虚线是三条连线，橙点是 Nagel 点。' +
+        '<br>刻度是关键：<b>六段只有三种长度 s−a、s−b、s−c，每种正好出现两次</b>，一次当分子一次当分母，' +
+        'Ceva 的乘积是望远镜式地约掉的。和 Gergonne 点的区别就在排法：那边两段相等挨在同一个顶点，这边同一种长度分在两条不同的边上。' +
+        '<br>实测：s−a = ' + fmt(s2 - a) + '，s−b = ' + fmt(s2 - b) + '，s−c = ' + fmt(s2 - c) + '。');
+    },
+    fermat(g) {
+      const ink = css('--ink');
+      // Weiszfeld 迭代求 Fermat 点
+      let F = { x: g.G.x, y: g.G.y };
+      for (let k = 0; k < 160; k++) {
+        let wx = 0, wy = 0, ws = 0;
+        [g.A, g.B, g.C].forEach((V) => {
+          const d = Math.max(len(sub(F, V)), 1e-7);
+          wx += V.x / d; wy += V.y / d; ws += 1 / d;
+        });
+        F = { x: wx / ws, y: wy / ws };
+      }
+      if (!state.P) state.P = { x: F.x, y: F.y };
+      const P0 = state.P;
+      const sum = (q) => len(sub(q, g.A)) + len(sub(q, g.B)) + len(sub(q, g.C));
+      [g.A, g.B, g.C].forEach((V) => seg(P0, V, C_AMB, 2.0));
+      const near2 = len(sub(P0, F)) < g.R * 0.012;
+      if (!near2) { circle(F, g.R * 0.022, C_ORG, 2.0); lab(F, 'F', 10, 10); }
+      // 三个 120°：只在 P 落到 F 上时画，它正是「F 在这儿」的特征
+      if (near2) {
+        [[g.A, g.B], [g.B, g.C], [g.C, g.A]].forEach(([U, V]) => {
+          const r = g.R * 0.17;
+          const a1 = Math.atan2(U.y - P0.y, U.x - P0.x), a2 = Math.atan2(V.y - P0.y, V.x - P0.x);
+          let d = a2 - a1; while (d <= -Math.PI) d += 2 * Math.PI; while (d > Math.PI) d -= 2 * Math.PI;
+          const pad = 0.22 * Math.sign(d), q = S(P0);   // 三个角加起来 360°，缝留小了就拼成一个整圈
+          ctx.beginPath(); ctx.arc(q.x, q.y, r * view.s, a1 + pad, a2 - pad, d < 0);
+          ctx.strokeStyle = C_ORG; ctx.lineWidth = LW(2.2); ctx.stroke();
+        });
+      }
+      dot(P0, C_ORG, 6.5); lab(P0, near2 ? 'F' : 'P', 9, -9);
+      const d0 = sum(P0), dF = sum(F);
+      return info('Fermat 点：到三个顶点距离之和最小的那个点。三角形各角都小于 120° 时，它对三边的张角都是 120°。',
+        '在画面上拖动（顶点以外的地方）移动 P，也可以拖动顶点。橙圈是 Fermat 点 F —— 把 P 拖到它上面，三个 120° 的角就出现了。' +
+        '<br>实测：PA + PB + PC = ' + fmt(d0, 3) + '，最小值（在 F 处）= <b style="color:' + C_ORG + '">' + fmt(dF, 3) + '</b>' +
+        (near2 ? '，<b style="color:' + C_ORG + '">P 就在 F 上。</b>' : '，差 ' + fmt(d0 - dF, 3) + ' —— 怎么拖都减不到更小。'));
+    },
     centers(g) {
       const sec = css('--muted'), V = [g.A, g.B, g.C];
       const a = len(sub(g.C, g.B)), b = len(sub(g.A, g.C)), c = len(sub(g.B, g.A));
@@ -1149,12 +1248,12 @@
   /* ---------- 拖动 ---------- */
   let drag = null;
   const pos = (e) => { const r = cv.getBoundingClientRect(); return { x: (e.clientX - r.left) * W / r.width, y: (e.clientY - r.top) * H / r.height }; };
-  const draggablePoint = () => ['simson', 'homothety', 'conic', 'poncelet', 'ceva'].includes(state.tab);
+  const draggablePoint = () => ['simson', 'homothety', 'conic', 'poncelet', 'ceva', 'fermat'].includes(state.tab);
   function movePoint(p) {
     const w = Wd(p), g = geo();
     if (state.tab === 'simson' || state.tab === 'homothety') state.theta = Math.atan2(w.y - g.O.y, w.x - g.O.x);
     else if (state.tab === 'conic') state.P = state.onCircle ? onCircumcircle(w, g) : w;
-    else if (state.tab === 'poncelet' || state.tab === 'ceva') state.P = w;
+    else if (state.tab === 'poncelet' || state.tab === 'ceva' || state.tab === 'fermat') state.P = w;
     draw();
   }
   /* 缩放：以画布中心为中心，倍数夹在 ZMIN–ZMAX；点、线宽、文字保持像素大小不变 */

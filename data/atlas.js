@@ -89,15 +89,15 @@ window.ATLAS = {
     { id: "C04", layer: "euc", family: "concurrent", name: "Gergonne 点",
       statement: "内切圆的三个切点与对顶的连线共点。",
       deps: ["C02"],
-      source: "Joseph Gergonne，19 世纪初" },
+      source: "Joseph Gergonne，19 世纪初", demo: "family/figures.html#gergonne" },
     { id: "C05", layer: "euc", family: "concurrent", name: "Nagel 点",
       statement: "三个旁切圆的切点与对顶的连线共点。",
       deps: ["C02"],
-      source: "Christian Heinrich von Nagel，1836" },
+      source: "Christian Heinrich von Nagel，1836", demo: "family/figures.html#nagelpoint" },
     { id: "C06", layer: "euc", family: "concurrent", name: "Fermat 点",
       statement: "到三个顶点距离之和最小的点；各角都小于 120° 时，它对三边的张角都是 120°。",
       deps: ["T8"],
-      source: "费马向托里拆利提出，17 世纪" },
+      source: "费马向托里拆利提出，17 世纪", demo: "family/figures.html#fermat" },
 
     // ── 九点圆家族 ───────────────────────────────────────
     { id: "N01", layer: "euc", family: "nine-point", name: "欧拉线",
