@@ -65,7 +65,7 @@
     homothety: [[C_GRY, '外接圆与样点'], [C_AMB, '缩放后的圆'], [C_PUR, '九点圆']],
     feuerbach: [[C_GRN, '角平分线、内切圆、旁切圆'], [C_ORG, '直线 NI 与切点'], [C_WHT, '九点圆']],
     simson: [[C_WHT, '西姆松线'], [C_FOT, '三个垂足'], [C_RED, '三条高 → 垂心 H'], [C_AMB, '线段 PH'], [C_WHT, '九点圆']],
-    orthocentric: [[C_BLU, '当前三角形'], [C_RED, '它的三条高'], [C_ORG, '三边中点'], [C_FOT, '三个垂足'], [C_PUR, '三个欧拉点'], [C_WHT, '九点圆']],
+    orthocentric: [[C_WHT, '当前三角形 · 九点圆'], [C_RED, '它的三条高 → 垂心'], [C_ORG, '三边中点'], [C_FOT, '三个垂足'], [C_PUR, '三个欧拉点']],
     nagel: [[C_AMB, '内切圆、内心 I'], [C_RED, '顶点到旁切圆切点的连线 → Na'], [C_BLU, '中线 → G'], [C_GRN, 'Spieker 点 Sp'], [C_ORG, 'Nagel 线']],
     soddy: [[C_GRY, '以顶点为圆心的三个圆'], [C_BLU, '顶点到切点的连线 → Ge'], [C_PUR, '内 Soddy 圆'], [C_RED, '外 Soddy 圆'], [C_GRN, 'de Longchamps 点 L'], [C_ORG, 'Soddy 线']],
     mandart: [[C_BLU, '内切圆、三个旁切圆'], [C_ORG, '旁切点 Ua、Ub、Uc 与旁切点三角形'], [C_AMB, 'Mandart 圆'], [C_PUR, '九点圆'], [C_RED, '费尔巴哈点 F']],
@@ -268,8 +268,9 @@
       const sec = css('--muted');
       circle(g.N, g.r9, col(C_WHT), 2.6);
       const four = [[g.A, g.B, g.C], [g.A, g.B, g.H], [g.A, g.C, g.H], [g.B, g.C, g.H]];
+      const left = [g.H, g.C, g.B, g.A];              // 每个三角形空出来的那个点，正是它的垂心
       four.forEach((T) => tri(T[0], T[1], T[2], sec, 0.7));
-      const T = four[state.tri]; tri(T[0], T[1], T[2], C_BLU, 2.2);
+      const T = four[state.tri]; tri(T[0], T[1], T[2], col(C_WHT), 2.2);
       const m = Math.max(len(sub(T[1], T[0])), len(sub(T[2], T[0])), len(sub(T[2], T[1])));
       const flat = Math.abs((T[1].x - T[0].x) * (T[2].y - T[0].y) - (T[1].y - T[0].y) * (T[2].x - T[0].x)) < 1e-6 * m * m;
       if (!flat) {
@@ -279,10 +280,13 @@
           dot(p, i < 3 ? C_ORG : i < 6 ? C_FOT : C_PUR, 4.5);
         });
       }
-      dot(g.H, C_RED, 5); lab(g.H, 'H', 8, -8);
+      // 当前三角形的垂心 = 它空出来的那个点，和视频一样标红
+      const Hc = left[state.tri];
+      dot(Hc, C_RED, 6); lab(Hc, ['H', 'C', 'B', 'A'][state.tri], 8, -8);
+      if (state.tri !== 0) { dot(g.H, col(C_WHT), 4.5); lab(g.H, 'H', 8, -8); }
       return info('三角形三边的中点、三条高的垂足、三个顶点到垂心连线的中点，这九个点在同一个圆上，叫做九点圆。' +
         '<br>进一步：A、B、C 和垂心 H 这四个点中任取三点，组成四个三角形，每个三角形的垂心正好是剩下的那个点；这四个三角形共用同一个九点圆。',
-        '拖动顶点 A、B、C 改变三角形；用上面的按钮在四个三角形之间切换。绿色是当前三角形，粉色虚线是它的三条高，橙色是它的九个点，紫色是九点圆。' +
+        '拖动顶点 A、B、C 改变三角形；用上面的按钮在四个三角形之间切换。白色粗线是当前三角形，红色虚线是它的三条高、交于它的垂心（就是空出来的那个点，标红），三组点分别是三边中点（橙）、三个垂足（蓝）、三个欧拉点（紫），白圈是九点圆 —— 四个三角形共用同一个，切换时它一动不动。' +
         (flat ? '<br>现在是直角三角形，垂心 H 落在直角顶点上，这个三角形退化成一条线段，没有高和九点，只画出三边。' : ''));
     },
     conic(g) {

@@ -3,7 +3,7 @@
  * 关系类型：generalizes（A 推广了 B）/ dual（对偶）/ converse（逆命题）。
  * 只收公认的数学事实；拿不准的不收。 */
 window.ATLAS = {
-  version: "0.1",
+  version: "0.2",
 
   layers: [
     { id: "proj", name: "射影层", note: "只用点线关联与交比" },
@@ -103,10 +103,6 @@ window.ATLAS = {
       statement: "外接圆上一点在三边的投影共线。",
       why: "「共圆」变成「共线」的典型例子。",
       source: "William Wallace，1799（惯称 Simson）", demo: "family/nine-point.html#simson" },
-    { id: "N06", layer: "euc", family: "nine-point", name: "垂足圆",
-      statement: "一点与它的等角共轭点，各自在三边的三个投影，六个点共圆。",
-      why: "单说三个投影共圆是平凡的（三点本来就共圆）；非平凡的是另外三个点也在同一个圆上。九点圆是 O 与 H 这一对的垂足圆，西姆松线是点落到外接圆上时它退化的情形。",
-      source: "经典" },
     { id: "N07", layer: "euc", family: "nine-point", name: "垂心组",
       statement: "A、B、C、H 四个点中任取三个，第四个都是它们的垂心；四者共享同一个九点圆。",
       why: "说明九点圆其实属于四个点，而不属于某一个三角形。",
@@ -227,7 +223,6 @@ window.ATLAS = {
     { from: "N02", to: "N04", type: "generalizes", note: "相切是九点圆的进一步性质" },
     { from: "N07", to: "N02", type: "generalizes", note: "四个点共享同一个九点圆" },
     { from: "N08", to: "N02", type: "generalizes", note: "仿射推广，圆变成二次曲线" },
-    { from: "N06", to: "N05", type: "generalizes", note: "点落到外接圆上时，圆退化成直线" },
     { from: "S02", to: "N02", type: "generalizes", note: "从三角形升到四面体" },
     { from: "P01", to: "P03", type: "generalizes", note: "圆锥曲线退化成两条直线" },
     { from: "P02", to: "P01", type: "dual", note: "点与线互换" },

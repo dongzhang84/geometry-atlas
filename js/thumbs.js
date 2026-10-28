@@ -142,11 +142,14 @@
       return out.concat(F.map((q) => dot(q, 'foot')), [dot(P, 'key')]);
     },
     // 垂心组：四个点共享同一个九点圆
-    N07: (g) => [circle(g.nine, 'hi'),
-                 tri(g.A, g.B, g.C),
-                 tri(g.A, g.B, g.T.H, 'tri dim'), tri(g.B, g.C, g.T.H, 'tri dim'),
-                 tri(g.C, g.A, g.T.H, 'tri dim'),
-                 dot(g.A), dot(g.B), dot(g.C), dot(g.T.H, 'key')],
+    N07: (g) => {
+      // 四个三角形地位平等，所以一样淡；白圆是它们共用的那一个；四个点同色
+      const H = g.T.H;
+      return [circle(g.nine, 'ln'),
+              tri(g.A, g.B, g.C, 'tri dim'), tri(g.A, g.B, H, 'tri dim'),
+              tri(g.A, g.C, H, 'tri dim'), tri(g.B, g.C, H, 'tri dim'),
+              dot(g.A, 'key'), dot(g.B, 'key'), dot(g.C, 'key'), dot(H, 'key')];
+    },
     // 九点二次曲线：仿射推广
     N08: (g) => {
       const P = { x: g.T.G.x + 22, y: g.T.G.y - 6 };     // 一般的第四点，才得到真正的椭圆
