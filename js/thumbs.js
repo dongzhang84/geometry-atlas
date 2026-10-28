@@ -16,10 +16,22 @@
 
   /* ---------- 三角形：底边钉死，只动顶点 A（和视频同一个构型） ---------- */
   const BASE = { A: { x: 48, y: 10 }, B: { x: 15, y: 130 }, C: { x: 185, y: 130 } };
-  const APEX = { x: 102, y: -20 };                 // 等边位置（y 向下，所以更高）
+
+  /* 共点与共线这一族单独换形状。四十多张卡片全是同一个三角形，排在一起太像复制品；
+     这一族的三条讲的又正好是「换个三角形照样成立」，更不该都长一个样。
+     每条写死一个（不是渲染时随机）—— 卡片要是每次刷新都变，列表看着会晃。 */
+  const SHAPES = {
+    C01: { A: { x: 72, y: 14 }, B: { x: 12, y: 128 }, C: { x: 180, y: 128 } },
+    C02: { A: { x: 118, y: 20 }, B: { x: 18, y: 126 }, C: { x: 190, y: 126 } },
+    C03: { A: { x: 54, y: 24 }, B: { x: 14, y: 124 }, C: { x: 176, y: 124 } },
+  };
+  /** 等边位置：底边不动，A 抬到正上方 */
+  const apexOf = (T) => ({ x: (T.B.x + T.C.x) / 2,
+                           y: T.B.y - (T.C.x - T.B.x) * Math.sqrt(3) / 2 });
+  let SHAPE = BASE, APEX = apexOf(BASE);
   const verts = (k) => ({
-    A: { x: BASE.A.x + (APEX.x - BASE.A.x) * k, y: BASE.A.y + (APEX.y - BASE.A.y) * k },
-    B: BASE.B, C: BASE.C,
+    A: { x: SHAPE.A.x + (APEX.x - SHAPE.A.x) * k, y: SHAPE.A.y + (APEX.y - SHAPE.A.y) * k },
+    B: SHAPE.B, C: SHAPE.C,
   });
 
   /* ---------- SVG 片段 ---------- */
@@ -61,15 +73,10 @@
              ang: 0.5 * Math.atan2(b, a - c) * 180 / Math.PI };
   }
 
-  /** 分子段 / 分母段：垂直于自己那条线偏开一点。
-      正常的边上两段首尾相接；交点落在边外时两段同向重叠，一眼看出哪个是负的。 */
-  function seg2(P, Q, cls) {
-    const d = sub(Q, P), L = Math.max(len(d), 1e-6);
-    const s = cls === 'num' ? 1 : -1, k = 2.2 * s;
-    const n = { x: -d.y / L * k, y: d.x / L * k };
-    return line({ x: P.x + n.x, y: P.y + n.y }, { x: Q.x + n.x, y: Q.y + n.y },
-                cls === 'num' ? 'numseg' : 'denseg');
-  }
+  /** 分子段 / 分母段：就画在边上，不偏移。
+      视频里两段各往一侧偏开是为了显示正负号；缩略图只有 200×140，一偏就成了断线，
+      而且三角形的边会被切得七零八落。小图里连续比符号重要，正负号交给视频和大图。 */
+  const seg2 = (P, Q, cls) => line(P, Q, cls === 'num' ? 'numseg' : 'denseg');
 
   /** 给定形变参数 k，把这张图要用到的点和圆都算出来 */
   function geom(k) {
@@ -111,7 +118,8 @@
       };
       const X = ix(A, P, B, C), Y = ix(B, P, C, A), Z = ix(C, P, A, B);
       if (!X || !Y || !Z) return [tri(A, B, C)];
-      return [seg2(B, X, 'num'), seg2(X, C, 'den'),
+      return [tri(A, B, C, 'tri dim'),
+              seg2(B, X, 'num'), seg2(X, C, 'den'),
               seg2(C, Y, 'num'), seg2(Y, A, 'den'),
               seg2(A, Z, 'num'), seg2(Z, B, 'den'),
               line(A, X, 'thin'), line(B, Y, 'thin'), line(C, Z, 'thin'),
@@ -120,22 +128,28 @@
     // Menelaus：一条横截线切三边所在直线，一个交点落在延长线上 —— 负号就在那儿
     C03: (g) => {
       const { A, B, C } = g;
-      const Z = { x: A.x + (B.x - A.x) * 0.34, y: A.y + (B.y - A.y) * 0.34 };
-      const Y = { x: A.x + (C.x - A.x) * 0.68, y: A.y + (C.y - A.y) * 0.68 };
+      // 先定 X 在直线 BC 上的位置（只伸出 C 一点点），再由 Z、X 截出 Y。
+      // 反过来先定 Z、Y 再求 X 的话，换个三角形 X 就飞到老远，fit() 为了装下它
+      // 会把整张图缩没 —— 大图那边踩过同一个坑。
+      const X = { x: B.x + (C.x - B.x) * 1.26, y: B.y + (C.y - B.y) * 1.26 };
+      const Z = { x: A.x + (B.x - A.x) * 0.36, y: A.y + (B.y - A.y) * 0.36 };
       const ix = (p1, p2, p3, p4) => {
         const d1 = sub(p2, p1), d2 = sub(p4, p3), den = d1.x * d2.y - d1.y * d2.x;
         if (Math.abs(den) < 1e-9) return null;
         const t = ((p3.x - p1.x) * d2.y - (p3.y - p1.y) * d2.x) / den;
         return { x: p1.x + d1.x * t, y: p1.y + d1.y * t };
       };
-      const X = ix(Z, Y, B, C);
-      if (!X) return [tri(A, B, C)];
+      const Y = ix(Z, X, C, A);
+      if (!Y) return [tri(A, B, C)];
       const d = sub(X, Z);
-      return [line(B, { x: X.x + d.x * 0.10, y: X.y + d.y * 0.10 }, 'ext'),   // BC 的延长线
-              seg2(B, X, 'num'), seg2(X, C, 'den'),
+      // BC 的延长线要沿着 BC 的方向延，不是沿横截线的方向 —— 原来用错了方向向量，
+      // 这条虚线斜着岔出去，和底边根本不共线。
+      const e = sub(C, B);
+      return [line(B, { x: C.x + e.x * 0.30, y: C.y + e.y * 0.30 }, 'ext'),
+              tri(A, B, C, 'tri dim'),
               seg2(C, Y, 'num'), seg2(Y, A, 'den'),
               seg2(A, Z, 'num'), seg2(Z, B, 'den'),
-              tri(A, B, C),
+              seg2(B, C, 'num'), seg2(C, X, 'den'),   // 出界那条：BC 整条是分子，C→X 是分母
               line({ x: Z.x - d.x * 0.14, y: Z.y - d.y * 0.14 },
                    { x: X.x + d.x * 0.10, y: X.y + d.y * 0.10 }, 'ln'),
               dot(X, 'key'), dot(Y), dot(Z)];
@@ -284,8 +298,10 @@
     },
   };
 
-  const body = (id, k) =>
-    DRAW[id](geom(k)).map((s, i) => s.replace('class="', `style="--i:${i}" class="`)).join('');
+  const body = (id, k) => {
+    SHAPE = SHAPES[id] || BASE; APEX = apexOf(SHAPE);      // 这一张用哪个三角形
+    return DRAW[id](geom(k)).map((s, i) => s.replace('class="', `style="--i:${i}" class="`)).join('');
+  };
 
   function svgFor(id, k) {
     if (!DRAW[id]) return null;
