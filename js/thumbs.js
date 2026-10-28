@@ -96,10 +96,6 @@
       return out.concat([tri(A, B, C), circle(g.nine, 'ln'), dot(T.H, 'hpt')],
                         g.NP.map((p, i) => dot(p, grp[i])));
     },
-    // 位似：外接圆被送到九点圆
-    N03: (g) => [tri(g.A, g.B, g.C), circle(g.circum, 'aux'), circle(g.nine, 'hi'),
-                 line(g.A, g.T.G, 'thin'), line(g.B, g.T.G, 'thin'), line(g.C, g.T.G, 'thin'),
-                 dot(g.T.G, 'key')],
     // Feuerbach：九点圆与内切圆相切
     N04: (g) => {
       const d = sub(g.incir, g.nine), L = len(d) || 1;

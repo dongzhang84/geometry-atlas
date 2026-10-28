@@ -68,7 +68,7 @@
     orthocentric: [[C_BLU, '当前三角形'], [C_RED, '它的三条高'], [C_ORG, '三边中点'], [C_FOT, '三个垂足'], [C_PUR, '三个欧拉点'], [C_WHT, '九点圆']],
     nagel: [[C_AMB, '内切圆、内心 I'], [C_RED, '顶点到旁切圆切点的连线 → Na'], [C_BLU, '中线 → G'], [C_GRN, 'Spieker 点 Sp'], [C_ORG, 'Nagel 线']],
     soddy: [[C_GRY, '以顶点为圆心的三个圆'], [C_BLU, '顶点到切点的连线 → Ge'], [C_PUR, '内 Soddy 圆'], [C_RED, '外 Soddy 圆'], [C_GRN, 'de Longchamps 点 L'], [C_ORG, 'Soddy 线']],
-    mandart: [[C_BLU, '内切圆、三个旁切圆'], [C_ORG, '旁切点 Ua、Ub、Uc 与旁切点三角形'], [C_AMB, 'Mandart 圆'], [C_PUR, '九点圆'], [C_RED, 'Feuerbach 点 F']],
+    mandart: [[C_BLU, '内切圆、三个旁切圆'], [C_ORG, '旁切点 Ua、Ub、Uc 与旁切点三角形'], [C_AMB, 'Mandart 圆'], [C_PUR, '九点圆'], [C_RED, '费尔巴哈点 F']],
     sevenpoint: [[C_PUR, '七点球'], [C_GRY, '外接球'], [C_ORG, '七个点'], [C_AMB, 'V0、G、A、C 共线'], [C_BLU, '欧拉线上的 O、G、E、4G−3O'], [C_GRN, 'O、O′、B、4O′−3O 共线']],
     thirteen: [[C_PUR, '十三点球 Σ'], [C_GRY, '外接球'], [C_GRN, '对面、它的九点圆和三条高'], [C_ORG, '十三个点'], [C_AMB, '直线 HG′ → P'], [C_BLU, 'HX → Q1'], [C_RED, '高线 V0H → Y → Q2']],
     eulerplane: [[C_GRN, '欧拉线 H、G、O'], [C_BLU, '欧拉线上的点 P'], [C_ORG, '等角共轭 P*、等截共轭 Pᵗ'], [C_AMB, '过欧拉线和 P*、Pᵗ 的平面'], [C_GRY, '外接球']],
@@ -400,7 +400,7 @@
       circle(M, M.r, C_AMB, 2.4);
       circle(g.N, g.r9, C_PUR, 2.6);
       U.forEach((u) => dot(u, C_ORG, 5));
-      // Feuerbach 点：九点圆与内切圆的切点，在直线 NI 上
+      // 费尔巴哈点：九点圆与内切圆的切点，在直线 NI 上
       const same = near(g.N, g.I, g);
       let F = null;
       if (!same) {
@@ -412,8 +412,8 @@
         .concat(F ? [[F, 'F']] : []), sub(g.I, g.N));
       const ops = '拖动顶点 A、B、C 改变三角形。绿色虚线圆是三个旁切圆（可能伸出画面），绿色实线圆是内切圆；' +
         '橙色点是三个旁切点 Ua、Ub、Uc，橙色细线是它们连成的旁切点三角形，棕色是这个三角形的外接圆，也就是 Mandart 圆（圆心 M）；' +
-        '紫色是九点圆，粉色点是 Feuerbach 点 F。<br>';
-      return info('Mandart 圆：三个旁切圆与它们所对的边分别切于 Ua、Ub、Uc，这三点连成旁切点三角形，它的外接圆叫 Mandart 圆。这个圆经过 Feuerbach 点 F —— 也就是九点圆与内切圆的切点。',
+        '紫色是九点圆，粉色点是 费尔巴哈点 F。<br>';
+      return info('Mandart 圆：三个旁切圆与它们所对的边分别切于 Ua、Ub、Uc，这三点连成旁切点三角形，它的外接圆叫 Mandart 圆。这个圆经过 费尔巴哈点 F —— 也就是九点圆与内切圆的切点。',
         ops + (same ? '等边三角形中九点圆与内切圆重合，切点不唯一，所以不标 F。'
           : '实测：Mandart 圆半径 ' + fmt(M.r, 3) + '，圆心 M 到 F 的距离 ' + fmt(len(sub(F, M)), 3) + '，两者相等即 F 在圆上。'));
     },
@@ -457,7 +457,7 @@
       const worst = Math.max(...errs);
       return info(thm, base +
         '实测：Po 到四个九点圆心的距离与各自半径之差，相对误差最大 ' + worst.toExponential(1) + '，即 Po 同时落在这四个圆上。' +
-        '<br>把 P 放到内心，Po 就是 Feuerbach 点；把 P 放到垂心，这条双曲线不再唯一。');
+        '<br>把 P 放到内心，Po 就是 费尔巴哈点；把 P 放到垂心，这条双曲线不再唯一。');
     },
   };
 
