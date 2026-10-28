@@ -65,6 +65,7 @@
     homothety: [[C_GRY, '外接圆与样点'], [C_AMB, '缩放后的圆'], [C_PUR, '九点圆']],
     feuerbach: [[C_GRN, '角平分线、内切圆、旁切圆'], [C_ORG, '直线 NI 与切点'], [C_WHT, '九点圆']],
     simson: [[C_WHT, '西姆松线'], [C_FOT, '三个垂足'], [C_RED, '三条高 → 垂心 H'], [C_AMB, '线段 PH'], [C_WHT, '九点圆']],
+    ninepoint: [[C_WHT, '九点圆'], [C_ORG, '三边中点'], [C_FOT, '三个垂足'], [C_PUR, '三个欧拉点'], [C_RED, '三条高 → 垂心'], [C_GRY, '外接圆']],
     orthocentric: [[C_WHT, '当前三角形 · 九点圆'], [C_RED, '它的三条高 → 垂心'], [C_ORG, '三边中点'], [C_FOT, '三个垂足'], [C_PUR, '三个欧拉点']],
     nagel: [[C_AMB, '内切圆、内心 I'], [C_RED, '顶点到旁切圆切点的连线 → Na'], [C_BLU, '中线 → G'], [C_GRN, 'Spieker 点 Sp'], [C_ORG, 'Nagel 线']],
     soddy: [[C_GRY, '以顶点为圆心的三个圆'], [C_BLU, '顶点到切点的连线 → Ge'], [C_PUR, '内 Soddy 圆'], [C_RED, '外 Soddy 圆'], [C_GRN, 'de Longchamps 点 L'], [C_ORG, 'Soddy 线']],
@@ -174,6 +175,12 @@
     const y = Math.min(Math.max(p.y + n.y * d * side + fs * 0.3, fs + 2), H - 4);
     ctx.fillStyle = css('--ink'); ctx.textAlign = 'center'; ctx.fillText(txt, x, y); ctx.textAlign = 'start';
   }
+  /** 空心圈：套在已经画好的点外面，用来点名「这个点现在是主角」 */
+  function ring(P, r, c, w) {
+    const p = S(P);
+    ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, 2 * Math.PI);
+    ctx.strokeStyle = col(c); ctx.lineWidth = w; ctx.setLineDash([]); ctx.stroke();
+  }
   function tri(X, Y, Z, col, w) { seg(X, Y, col, w); seg(Y, Z, col, w); seg(Z, X, col, w); }
   function sides(g, c) { lineInf(g.A, g.B, c, 0.5, [2, 4]); lineInf(g.B, g.C, c, 0.5, [2, 4]); lineInf(g.C, g.A, c, 0.5, [2, 4]); }
   const fmt = (x, n = 2) => x.toFixed(n);
@@ -264,6 +271,22 @@
         '在画面上拖动（顶点以外的地方），P 沿外接圆移动；也可以拖动顶点。红色虚线是三角形的三条高，交于垂心 H；灰线是 P 到三边的垂线，蓝色点是三个垂足，白色直线是西姆松线，琥珀色线段是 PH，橙色点是它的中点 M。' +
         '<br>M 为什么在九点圆上：以 H 为中心把外接圆缩小一半就是九点圆，P 被送到 PH 的中点 M。');
     },
+    ninepoint(g) {
+      // 和视频同一套：中点橙、垂足蓝、欧拉点紫，九点圆用主对象色
+      const V = [g.A, g.B, g.C];
+      circle(g.O, g.R, C_GRY, 1.2, [5, 4]);
+      V.forEach((P) => seg(P, foot(P, ...V.filter((x) => x !== P)), C_RED, 1.1, [4, 3]));
+      V.forEach((P) => seg(P, g.H, C_PUR, 1.0, [4, 3]));
+      circle(g.N, g.r9, col(C_WHT), 2.6);
+      ninePoints(g.A, g.B, g.C).forEach((p, i) => dot(p, i < 3 ? C_ORG : i < 6 ? C_FOT : C_PUR, 4.8));
+      dot(g.H, C_RED, 5.5); lab(g.H, 'H', 8, -8);
+      dot(g.N, col(C_WHT), 4.6); lab(g.N, 'N', 8, 14);
+      return info('三边的中点、三条高的垂足、三个顶点到垂心 H 连线的中点 —— 这九个点在同一个圆上。' +
+        '圆心 N 是 OH 的中点，半径是外接圆半径的一半。',
+        '拖动顶点 A、B、C 改变三角形，九个点始终落在同一个圆上。' +
+        '橙色是三边中点，蓝色是三个垂足，紫色是三个欧拉点；红虚线是三条高，紫虚线是顶点到 H 的连线，' +
+        '灰虚线是外接圆。现在 R = ' + fmt(g.R) + '，九点圆半径 = ' + fmt(g.r9) + '。');
+    },
     orthocentric(g) {
       const sec = css('--muted');
       circle(g.N, g.r9, col(C_WHT), 2.6);
@@ -274,16 +297,17 @@
       const m = Math.max(len(sub(T[1], T[0])), len(sub(T[2], T[0])), len(sub(T[2], T[1])));
       const flat = Math.abs((T[1].x - T[0].x) * (T[2].y - T[0].y) - (T[1].y - T[0].y) * (T[2].x - T[0].x)) < 1e-6 * m * m;
       if (!flat) {
-        T.forEach((P) => seg(P, foot(P, ...T.filter((x) => x !== P)), C_RED, 0.9, [3, 3]));
+        T.forEach((P) => seg(P, foot(P, ...T.filter((x) => x !== P)), C_RED, 1.2, [4, 3]));
         // 三组点三种颜色：中点橙、垂足蓝、欧拉点紫 —— 和视频、卡片缩略图一致
         ninePoints(T[0], T[1], T[2]).forEach((p, i) => {
           dot(p, i < 3 ? C_ORG : i < 6 ? C_FOT : C_PUR, 4.5);
         });
       }
-      // 当前三角形的垂心 = 它空出来的那个点，和视频一样标红
+      // 当前三角形的垂心 = 它空出来的那个点。A、B、C 这三个把手由 draw() 统一画在最后，
+      // 这里再画点、再标字母会被盖掉、字母还会重一份，所以只套一个红圈。
       const Hc = left[state.tri];
-      dot(Hc, C_RED, 6); lab(Hc, ['H', 'C', 'B', 'A'][state.tri], 8, -8);
-      if (state.tri !== 0) { dot(g.H, col(C_WHT), 4.5); lab(g.H, 'H', 8, -8); }
+      if (state.tri === 0) { dot(Hc, C_RED, 6); lab(Hc, 'H', 8, -8); }
+      else { ring(Hc, 10, C_RED, 1.8); dot(g.H, col(C_WHT), 4.5); lab(g.H, 'H', 8, -8); }
       return info('三角形三边的中点、三条高的垂足、三个顶点到垂心连线的中点，这九个点在同一个圆上，叫做九点圆。' +
         '<br>进一步：A、B、C 和垂心 H 这四个点中任取三点，组成四个三角形，每个三角形的垂心正好是剩下的那个点；这四个三角形共用同一个九点圆。',
         '拖动顶点 A、B、C 改变三角形；用上面的按钮在四个三角形之间切换。白色粗线是当前三角形，红色虚线是它的三条高、交于它的垂心（就是空出来的那个点，标红），三组点分别是三边中点（橙）、三个垂足（蓝）、三个欧拉点（紫），白圈是九点圆 —— 四个三角形共用同一个，切换时它一动不动。' +

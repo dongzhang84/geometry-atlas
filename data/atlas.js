@@ -94,7 +94,7 @@ window.ATLAS = {
     { id: "N02", layer: "euc", family: "nine-point", name: "九点圆",
       statement: "三边中点、三条高的垂足、三个欧拉点，共九个点落在同一个圆上。",
       why: "九个本不相干的点共圆，而且圆心就在欧拉线上。",
-      source: "Brianchon 与 Poncelet，1821", demo: "family/nine-point.html#orthocentric" },
+      source: "Brianchon 与 Poncelet，1821", demo: "family/nine-point.html#ninepoint" },
     { id: "N04", layer: "euc", family: "nine-point", name: "费尔巴哈定理",
       statement: "九点圆与内切圆内切，与三个旁切圆外切。",
       why: "四个相切同时发生，被认为是初等几何最漂亮的结果之一。",
