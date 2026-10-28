@@ -249,6 +249,12 @@
       });
       const P = { x: g.O.x + g.R * Math.cos(state.theta), y: g.O.y + g.R * Math.sin(state.theta) };
       const f = [foot(P, g.B, g.C), foot(P, g.C, g.A), foot(P, g.A, g.B)];
+      // 垂足落在边外时，把那条边延长出去（虚线）—— 不画的话垂足就是悬空的
+      [[g.B, g.C], [g.C, g.A], [g.A, g.B]].forEach(([U, V], i) => {
+        const qf = f[i], d = sub(V, U);
+        const k = ((qf.x - U.x) * d.x + (qf.y - U.y) * d.y) / (d.x * d.x + d.y * d.y);
+        if (k < 0 || k > 1) seg(k < 0 ? U : V, qf, col(C_WHT), 1, [6, 5]);
+      });
       f.forEach((q) => { seg(P, q, sec, 0.8); dot(q, C_FOT, 4.5); });
       const pr = [[0, 1], [1, 2], [0, 2]].reduce((b, ij) => len(sub(f[ij[0]], f[ij[1]])) > len(sub(f[b[0]], f[b[1]])) ? ij : b);
       lineInf(f[pr[0]], f[pr[1]], col(C_WHT), 2.2);
