@@ -209,10 +209,10 @@ footer a{color:var(--faint)}
   <div class="bar"><b id="stageTitle"></b><button id="stageClose">关闭 Esc</button></div>
 </div>
 
-<script src="data/atlas.js?v=20261027r"></script>
-<script src="js/geometry.js?v=20261027r"></script>
-<script src="js/thumbs.js?v=20261027r"></script>
-<script src="vendor/d3.min.js?v=20261027r"></script>
+<script src="data/atlas.js?v=20261027s"></script>
+<script src="js/geometry.js?v=20261027s"></script>
+<script src="js/thumbs.js?v=20261027s"></script>
+<script src="vendor/d3.min.js?v=20261027s"></script>
 <script>
 (function () {
   var A = window.ATLAS, byId = {}, famOf = {};
@@ -261,7 +261,7 @@ footer a{color:var(--faint)}
        + '<div class="one">' + esc(t.statement) + '</div>';
     if (t.demo) h += '<span class="flag">可拖动</span>';
     h += '<div class="more"><dl>';
-    if (t.why)    h += '<dt>为什么有名</dt><dd>' + esc(t.why) + '</dd>';
+    if (t.needs)  h += '<dt>先决条件</dt><dd>' + esc(t.needs) + '</dd>';
     if (t.source) h += '<dt>出处</dt><dd>' + esc(t.source) + '</dd>';
     // 关系块暂时不显示：data 里 from 是「更一般的那一条」，卡片上却写成了「推广自」，
     // 方向整个反了（九点二次曲线推广了九点圆，不是九点圆推广自它）。数据保留，
