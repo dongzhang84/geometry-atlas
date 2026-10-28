@@ -108,6 +108,55 @@ def main():
             bad.append(f"关系重复：{f} -> {to} ({ty})")
         seen.add((f, to, ty))
 
+    # 3b 依赖边：每条定理都要有 deps，指向的 id 必须存在，不能自指
+    tool_ids = {t["id"] for t in A.get("tools", [])}
+    node_ids = idset | tool_ids
+    for t in ths:
+        if "deps" not in t:
+            bad.append(f"{t['id']} 缺字段 deps")
+            continue
+        for d in t["deps"]:
+            if d not in node_ids:
+                bad.append(f"{t['id']} 依赖了不存在的 {d}")
+            if d == t["id"]:
+                bad.append(f"{t['id']} 依赖自己")
+        if len(set(t["deps"])) != len(t["deps"]):
+            bad.append(f"{t['id']} 的 deps 有重复")
+
+    # 3c 依赖不能成环，也不能写传递能推出来的边（A→B→C 时不再写 A→C）
+    dep = {t["id"]: list(t.get("deps", [])) for t in ths}
+    dstate = {}
+
+    def dwalk(n, path):
+        if dstate.get(n) == 2:
+            return
+        if dstate.get(n) == 1:
+            bad.append("依赖成环：" + " -> ".join(path + [n]))
+            return
+        dstate[n] = 1
+        for m in dep.get(n, []):
+            dwalk(m, path + [n])
+        dstate[n] = 2
+
+    for n in list(dep):
+        dwalk(n, [])
+
+    if not any("依赖成环" in b for b in bad):
+        def reach(n, acc):
+            for m in dep.get(n, []):
+                if m not in acc:
+                    acc.add(m); reach(m, acc)
+            return acc
+        for t in ths:
+            ds = t.get("deps", [])
+            for d in ds:
+                indirect = set()
+                for o in ds:
+                    if o != d:
+                        reach(o, indirect)
+                if d in indirect:
+                    bad.append(f"{t['id']} 的 {d} 是多余的：顺着别的依赖已经能走到")
+
     # 4 generalizes 不能成环
     g = {}
     for r in A["relations"]:
@@ -156,7 +205,12 @@ def main():
             bad.append(f"{f.relative_to(ROOT)} 里有 fetch()，数据应当用 <script src> 加载")
 
     n_demo = sum(1 for t in ths if t.get("demo"))
-    print(f"定理 {len(ths)} 条 · 家族 {len(fams)} 个 · 关系 {len(A['relations'])} 条 · 动态图 {n_demo} 个")
+    n_edge = sum(len(t.get("deps", [])) for t in ths)
+    roots = [t["id"] for t in ths if not t.get("deps")]
+    print(f"定理 {len(ths)} 条 · 家族 {len(fams)} 个 · 基础工具 {len(A.get('tools', []))} 个 · "
+          f"依赖边 {n_edge} 条 · 关系 {len(A['relations'])} 条 · 动态图 {n_demo} 个")
+    if roots:
+        print("没有父节点的：" + "、".join(roots))
     if bad:
         print("\n发现 %d 个问题：" % len(bad))
         for b in bad:
