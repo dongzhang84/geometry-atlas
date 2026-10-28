@@ -44,7 +44,7 @@
   /* 顺序、编号、名字全部从 data/atlas.js 推导：图谱和这里是同一份清单，
      改名、调顺序、加定理都只动那一个文件，两边不可能再对不上。
      只收这一页有画法（DRAW 里有）的那些锚点。 */
-  const PAGE = 'nine-point.html';
+  const PAGE = 'figures.html';
   const TABS = (function () {
     const A = window.ATLAS;
     const out = [];
@@ -67,6 +67,9 @@
     simson: [[C_WHT, '西姆松线'], [C_FOT, '三个垂足'], [C_RED, '三条高 → 垂心 H'], [C_AMB, '线段 PH'], [C_WHT, '九点圆']],
     ninepoint: [[C_WHT, '九点圆'], [C_ORG, '三边中点'], [C_FOT, '三个垂足'], [C_PUR, '三个欧拉点'], [C_RED, '三条高 → 垂心'], [C_GRY, '外接圆']],
     orthocentric: [[C_WHT, '当前三角形 · 九点圆'], [C_RED, '它的三条高 → 垂心'], [C_ORG, '三边中点'], [C_FOT, '三个垂足'], [C_PUR, '三个欧拉点']],
+    centers: [[C_ORG, '四个心 G、O、I、H'], [C_BLU, '中线 → G'], [C_GRN, '中垂线 → O'], [C_AMB, '角平分线 → I'], [C_RED, '高 → H']],
+    ceva: [[C_AMB, '三段分子 BX、CY、AZ'], [C_BLU, '三段分母 XC、YA、ZB'], [C_ORG, '塞瓦点 P']],
+    menelaus: [[C_WHT, '横截线'], [C_AMB, '三段分子'], [C_BLU, '三段分母'], [C_ORG, '积为 −1']],
     nagel: [[C_WHT, 'Nagel 线'], [C_ORG, 'I、G、Sp、Na'], [C_GRN, '内切圆'], [C_AMB, '到旁切点的连线 → Na'], [C_BLU, '中线 → G']],
     soddy: [[C_GRY, '以顶点为圆心的三个圆'], [C_BLU, '顶点到切点的连线 → Ge'], [C_PUR, '内 Soddy 圆'], [C_RED, '外 Soddy 圆'], [C_GRN, 'de Longchamps 点 L'], [C_ORG, 'Soddy 线']],
     mandart: [[C_WHT, 'Mandart 圆'], [C_ORG, '费尔巴哈点 F'], [C_AMB, '旁切点 Ua、Ub、Uc 与旁切点三角形'], [C_GRN, '内切圆、三个旁切圆'], [C_PUR, '九点圆']],
@@ -189,6 +192,77 @@
 
   /* ---------- 各标签页 ---------- */
   const DRAW = {
+    /* ── 共点与共线 ───────────────────────────────────────── */
+    centers(g) {
+      const sec = css('--muted'), V = [g.A, g.B, g.C];
+      const a = len(sub(g.C, g.B)), b = len(sub(g.A, g.C)), c = len(sub(g.B, g.A));
+      // 角平分线的垂足：BD : DC = AB : AC = c : b
+      const D = [add(g.B, mul(sub(g.C, g.B), c / (b + c))),
+                 add(g.C, mul(sub(g.A, g.C), a / (c + a))),
+                 add(g.A, mul(sub(g.B, g.A), b / (a + b)))];
+      const M = [mid(g.B, g.C), mid(g.C, g.A), mid(g.A, g.B)];
+      // 和视频同一套色：中线蓝、中垂线绿、角平分线琥珀、高红，四个心全橙
+      V.forEach((P, i) => seg(P, M[i], C_BLU, 1.2, [5, 4]));
+      M.forEach((m, i) => {
+        const d = sub(V[(i + 2) % 3], V[(i + 1) % 3]), n = mul([-d.y, d.x], 1 / len(d));
+        seg(sub(m, mul(n, g.R * 1.05)), add(m, mul(n, g.R * 1.05)), C_GRN, 1.2, [5, 4]);
+      });
+      V.forEach((P, i) => seg(P, D[i], C_AMB, 1.2, [5, 4]));
+      V.forEach((P, i) => seg(P, foot(P, V[(i + 1) % 3], V[(i + 2) % 3]), C_RED, 1.2, [5, 4]));
+      [g.G, g.O, g.I, g.H].forEach((P) => dot(P, C_ORG, 5.5));
+      labelPoints([[g.G, 'G'], [g.O, 'O'], [g.I, 'I'], [g.H, 'H']], sub(g.H, g.O));
+      return info('三条中线交于重心 G，三条中垂线交于外心 O，三条角平分线交于内心 I，三条高交于垂心 H —— 四族线各自共点。' +
+        '<br>三条线交于一点本来是稀罕事：随手画三条塞瓦线，它们只会围出一个小三角形。这四族每一族都共点，才是定理。',
+        '拖动顶点 A、B、C 改变三角形。蓝虚线是中线 → G，绿虚线是中垂线 → O，琥珀虚线是角平分线 → I，红虚线是高 → H；四个心同色，因为它们是同一类东西。' +
+        '<br>实测：OG = ' + fmt(len(sub(g.G, g.O))) + '，GH = ' + fmt(len(sub(g.H, g.G))) + '，比值 ' + fmt(len(sub(g.H, g.G)) / Math.max(len(sub(g.G, g.O)), 1e-9)) + '（这就是欧拉线的 1 : 2）。');
+    },
+    ceva(g) {
+      const sec = css('--muted'), ink = css('--ink');
+      if (!state.P) state.P = { x: g.G.x + 0.10 * g.R, y: g.G.y - 0.06 * g.R };
+      const P0 = state.P;
+      const X = intersect(g.A, P0, g.B, g.C), Y = intersect(g.B, P0, g.C, g.A), Z = intersect(g.C, P0, g.A, g.B);
+      if (!X || !Y || !Z) { dot(P0, C_ORG, 6.5); lab(P0, 'P', 9, -9);
+        return info('Ceva 定理', '这个位置上塞瓦线和某条边平行，交点跑到无穷远。把 P 拖开一点。'); }
+      // 六段交替染色：分子段琥珀、分母段蓝，和视频、和底部式子同色
+      [[g.B, X], [g.C, Y], [g.A, Z]].forEach(([p, q]) => seg(p, q, C_AMB, 3.0));
+      [[X, g.C], [Y, g.A], [Z, g.B]].forEach(([p, q]) => seg(p, q, C_BLU, 3.0));
+      [[g.A, X], [g.B, Y], [g.C, Z]].forEach(([p, q]) => seg(p, q, sec, 1.1, [4, 4]));
+      [X, Y, Z].forEach((q) => dot(q, ink, 5));
+      dot(P0, C_ORG, 6.5);
+      labelPoints([[X, 'X'], [Y, 'Y'], [Z, 'Z'], [P0, 'P']], sub(X, g.A));
+      const r = [len(sub(X, g.B)) / len(sub(g.C, X)), len(sub(Y, g.C)) / len(sub(g.A, Y)),
+                 len(sub(Z, g.A)) / len(sub(g.B, Z))];
+      return info('Ceva 定理：三条塞瓦线 AX、BY、CZ 共点，当且仅当 (BX/XC)·(CY/YA)·(AZ/ZB) = 1。',
+        '在画面上拖动（顶点以外的地方）移动 P，也可以拖动顶点。琥珀是三段分子 BX、CY、AZ，蓝是三段分母 XC、YA、ZB。' +
+        '<br>实测：BX/XC = ' + fmt(r[0]) + '，CY/YA = ' + fmt(r[1]) + '，AZ/ZB = ' + fmt(r[2]) +
+        '，三者之积 = <b style="color:' + C_ORG + '">' + fmt(r[0] * r[1] * r[2], 3) + '</b>。');
+    },
+    menelaus(g) {
+      const sec = css('--muted'), ink = css('--ink');
+      // 滑块直接定 X 在直线 BC 上的位置（参数 > 1 即落在 C 外侧），Z 固定在 AB 上，
+      // Y 由这两点的连线截出来。原来反过来定 Z、Y 再求 X —— 换个三角形 X 就飞出画面了。
+      if (!state.mw) state.mw = 1.16;
+      const sX = state.mw, aZ = 0.35;   // X 只伸出 C 一点点 —— 伸远了就跑出画框，而画框是十三张图共用的
+      const X = add(g.B, mul(sub(g.C, g.B), sX));
+      const Z = add(g.A, mul(sub(g.B, g.A), aZ));
+      const Y = intersect(Z, X, g.C, g.A);
+      if (!Y) { return info('Menelaus 定理', '横截线此刻平行于 CA，交点在无穷远。用下面的滑块挪一下。'); }
+      sides(g, sec);
+      [[g.B, X], [g.C, Y], [g.A, Z]].forEach(([p, q]) => seg(p, q, C_AMB, 3.0));
+      [[X, g.C], [Y, g.A], [Z, g.B]].forEach(([p, q]) => seg(p, q, C_BLU, 3.0));
+      const d = sub(X, Z);
+      seg(sub(Z, mul(d, 0.16)), add(X, mul(d, 0.10)), col(C_WHT), 2.2);
+      [X, Y, Z].forEach((q) => dot(q, ink, 5));
+      labelPoints([[X, 'X'], [Y, 'Y'], [Z, 'Z']], d);
+      const sp = (Q, P1, R1) => { const e = sub(R1, P1);
+        return ((Q.x - P1.x) * e.x + (Q.y - P1.y) * e.y) / (e.x * e.x + e.y * e.y); };
+      const sx = sp(X, g.B, g.C), sy = sp(Y, g.C, g.A), sz = sp(Z, g.A, g.B);
+      const r = [sx / (1 - sx), sy / (1 - sy), sz / (1 - sz)];
+      return info('Menelaus 定理：一条横截线与三边所在直线交于 X、Y、Z，则有向分比满足 (BX/XC)·(CY/YA)·(AZ/ZB) = −1。',
+        '用下面的滑块移动横截线，也可以拖动顶点。琥珀是三段分子，蓝是三段分母；三个交点里必有一个落在边的延长线上，那一段是反向的，负号就从这儿来。' +
+        '<br>实测：BX/XC = ' + fmt(r[0]) + '，CY/YA = ' + fmt(r[1]) + '，AZ/ZB = ' + fmt(r[2]) +
+        '，三者之积 = <b style="color:' + C_ORG + '">' + fmt(r[0] * r[1] * r[2], 3) + '</b>。');
+    },
     euler(g) {
       const sec = css('--muted');
       sides(g, sec); circle(g.O, g.R, sec, 1, [5, 4]);
@@ -961,6 +1035,16 @@
       };
       l.append('缩放比例', s, out); optsEl.appendChild(l);
     }
+    if (state.tab === 'menelaus') {
+      const l = document.createElement('label');
+      l.style.cssText = 'display:flex;align-items:center;gap:8px;flex:1;min-width:240px';
+      const sl = document.createElement('input');
+      sl.type = 'range'; sl.min = 1.10; sl.max = 1.34; sl.step = 0.005;
+      sl.value = state.mw === undefined ? 1.16 : state.mw; sl.style.flex = '1';
+      sl.setAttribute('aria-label', '横截线的位置');
+      sl.oninput = () => { state.mw = +sl.value; draw(); };
+      l.append('移动横截线', sl); optsEl.appendChild(l);
+    }
     if (state.tab === 'orthocentric') {
       ['ABC', 'ABH', 'ACH', 'BCH'].forEach((n, i) => optsEl.appendChild(chip('三角形 ' + n, i === state.tri, () => { state.tri = i; renderOpts(); draw(); })));
     }
@@ -1065,12 +1149,12 @@
   /* ---------- 拖动 ---------- */
   let drag = null;
   const pos = (e) => { const r = cv.getBoundingClientRect(); return { x: (e.clientX - r.left) * W / r.width, y: (e.clientY - r.top) * H / r.height }; };
-  const draggablePoint = () => ['simson', 'homothety', 'conic', 'poncelet'].includes(state.tab);
+  const draggablePoint = () => ['simson', 'homothety', 'conic', 'poncelet', 'ceva'].includes(state.tab);
   function movePoint(p) {
     const w = Wd(p), g = geo();
     if (state.tab === 'simson' || state.tab === 'homothety') state.theta = Math.atan2(w.y - g.O.y, w.x - g.O.x);
     else if (state.tab === 'conic') state.P = state.onCircle ? onCircumcircle(w, g) : w;
-    else if (state.tab === 'poncelet') state.P = w;
+    else if (state.tab === 'poncelet' || state.tab === 'ceva') state.P = w;
     draw();
   }
   /* 缩放：以画布中心为中心，倍数夹在 ZMIN–ZMAX；点、线宽、文字保持像素大小不变 */

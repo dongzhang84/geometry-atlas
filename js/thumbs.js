@@ -61,6 +61,16 @@
              ang: 0.5 * Math.atan2(b, a - c) * 180 / Math.PI };
   }
 
+  /** 分子段 / 分母段：垂直于自己那条线偏开一点。
+      正常的边上两段首尾相接；交点落在边外时两段同向重叠，一眼看出哪个是负的。 */
+  function seg2(P, Q, cls) {
+    const d = sub(Q, P), L = Math.max(len(d), 1e-6);
+    const s = cls === 'num' ? 1 : -1, k = 2.2 * s;
+    const n = { x: -d.y / L * k, y: d.x / L * k };
+    return line({ x: P.x + n.x, y: P.y + n.y }, { x: Q.x + n.x, y: Q.y + n.y },
+                cls === 'num' ? 'numseg' : 'denseg');
+  }
+
   /** 给定形变参数 k，把这张图要用到的点和圆都算出来 */
   function geom(k) {
     const { A, B, C } = verts(k);
@@ -75,6 +85,61 @@
   /* ---------- 每条定理画什么 ---------- */
   const DRAW = {
     // 欧拉线：O、G、H 共线
+    /* ── 共点与共线 ───────────────────────────────────────── */
+    // 三角形的四心：四族线各自交于一点，四个点同色 —— 它们是同一类东西
+    C01: (g) => {
+      const { A, B, C, T } = g;
+      const a = len(sub(C, B)), b = len(sub(A, C)), c = len(sub(B, A));
+      const bis = [add(B, mul(sub(C, B), c / (b + c))),
+                   add(C, mul(sub(A, C), a / (c + a))),
+                   add(A, mul(sub(B, A), b / (a + b)))];
+      const out = [tri(A, B, C)];
+      [[A, mid(B, C)], [B, mid(C, A)], [C, mid(A, B)]].forEach(([p, q]) => out.push(line(p, q, 'med')));
+      [[A, B, C], [B, C, A], [C, A, B]].forEach(([p, q, r]) => out.push(line(p, foot(p, q, r), 'alt2')));
+      [A, B, C].forEach((p, i) => out.push(line(p, bis[i], 'amb')));
+      return out.concat([T.G, T.O, T.I, T.H].map((q) => dot(q, 'key')));
+    },
+    // Ceva：三条塞瓦线共点，六段交替染色 —— 颜色就是分式的上下
+    C02: (g) => {
+      const { A, B, C, T } = g;
+      const P = { x: T.G.x + 14, y: T.G.y - 9 };          // 一般的点，不要取成重心
+      const ix = (p1, p2, p3, p4) => {
+        const d1 = sub(p2, p1), d2 = sub(p4, p3), den = d1.x * d2.y - d1.y * d2.x;
+        if (Math.abs(den) < 1e-9) return null;
+        const t = ((p3.x - p1.x) * d2.y - (p3.y - p1.y) * d2.x) / den;
+        return { x: p1.x + d1.x * t, y: p1.y + d1.y * t };
+      };
+      const X = ix(A, P, B, C), Y = ix(B, P, C, A), Z = ix(C, P, A, B);
+      if (!X || !Y || !Z) return [tri(A, B, C)];
+      return [seg2(B, X, 'num'), seg2(X, C, 'den'),
+              seg2(C, Y, 'num'), seg2(Y, A, 'den'),
+              seg2(A, Z, 'num'), seg2(Z, B, 'den'),
+              line(A, X, 'thin'), line(B, Y, 'thin'), line(C, Z, 'thin'),
+              dot(X), dot(Y), dot(Z), dot(P, 'key')];
+    },
+    // Menelaus：一条横截线切三边所在直线，一个交点落在延长线上 —— 负号就在那儿
+    C03: (g) => {
+      const { A, B, C } = g;
+      const Z = { x: A.x + (B.x - A.x) * 0.34, y: A.y + (B.y - A.y) * 0.34 };
+      const Y = { x: A.x + (C.x - A.x) * 0.68, y: A.y + (C.y - A.y) * 0.68 };
+      const ix = (p1, p2, p3, p4) => {
+        const d1 = sub(p2, p1), d2 = sub(p4, p3), den = d1.x * d2.y - d1.y * d2.x;
+        if (Math.abs(den) < 1e-9) return null;
+        const t = ((p3.x - p1.x) * d2.y - (p3.y - p1.y) * d2.x) / den;
+        return { x: p1.x + d1.x * t, y: p1.y + d1.y * t };
+      };
+      const X = ix(Z, Y, B, C);
+      if (!X) return [tri(A, B, C)];
+      const d = sub(X, Z);
+      return [line(B, { x: X.x + d.x * 0.10, y: X.y + d.y * 0.10 }, 'ext'),   // BC 的延长线
+              seg2(B, X, 'num'), seg2(X, C, 'den'),
+              seg2(C, Y, 'num'), seg2(Y, A, 'den'),
+              seg2(A, Z, 'num'), seg2(Z, B, 'den'),
+              tri(A, B, C),
+              line({ x: Z.x - d.x * 0.14, y: Z.y - d.y * 0.14 },
+                   { x: X.x + d.x * 0.10, y: X.y + d.y * 0.10 }, 'ln'),
+              dot(X, 'key'), dot(Y), dot(Z)];
+    },
     N01: (g) => {
       const { A, B, C, T } = g;
       const out = [circle(g.circum, 'aux')];
