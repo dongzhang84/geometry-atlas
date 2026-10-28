@@ -36,6 +36,13 @@
     `<ellipse class="${cls}" cx="${f(el.cx)}" cy="${f(el.cy)}" rx="${f(el.rx)}" ry="${f(el.ry)}"` +
     ` transform="rotate(${f(el.ang)} ${f(el.cx)} ${f(el.cy)})"/>`;
 
+  /** 一段弧：圆心 c、半径 r，围绕角度 a0 两侧各 half 弧度 */
+  function arcSeg(c, r, a0, half, cls) {
+    const p0 = { x: c.x + r * Math.cos(a0 - half), y: c.y + r * Math.sin(a0 - half) };
+    const p1 = { x: c.x + r * Math.cos(a0 + half), y: c.y + r * Math.sin(a0 + half) };
+    const big = half > Math.PI / 2 ? 1 : 0;
+    return `<path class="${cls}" d="M${f(p0.x)} ${f(p0.y)}A${f(r)} ${f(r)} 0 ${big} 1 ${f(p1.x)} ${f(p1.y)}"/>`;
+  }
   function long(P, Q, k) {
     const d = sub(Q, P), L = len(d) || 1, u = mul(d, (k || 115) / L);
     return [sub(mid(P, Q), u), add(mid(P, Q), u)];
@@ -98,20 +105,41 @@
     },
     // Feuerbach：九点圆与内切圆相切
     N04: (g) => {
-      const d = sub(g.incir, g.nine), L = len(d) || 1;
-      const F = add(g.nine, mul(d, g.nine.r / L));
-      return [tri(g.A, g.B, g.C), circle(g.nine, 'alt'), circle(g.incir, 'hi'), dot(F, 'key')];
+      const out = [tri(g.A, g.B, g.C)];
+      // 切点：在九点圆上，沿圆心连线方向
+      const tp = (c) => { const v = sub(c, g.nine), L = Math.max(len(v), 1e-6);
+                          return add(g.nine, mul(v, g.nine.r / L)); };
+      // 三个旁切圆只画切点附近那一段 —— 整圆画出来画框要被撑爆（同视频）
+      g.T.excircles.forEach((e) => {
+        const q = tp(e), w = sub(q, e), a0 = Math.atan2(w.y, w.x);
+        out.push(arcSeg(e, e.r, a0, Math.min(1.0, 95 / e.r), 'exc'));
+      });
+      out.push(circle(g.incir, 'inc'), circle(g.nine, 'ln'));
+      return out.concat([g.incir].concat(g.T.excircles).map((c) => dot(tp(c), 'key')));
     },
     // 西姆松线：外接圆上一点的三个投影共线
     N05: (g) => {
-      const th = 250 * Math.PI / 180;
+      // 起点和视频同一个：垂足间距最大、P 离顶点最远
+      const th = -1.082;                       // 视频里是 1.082，这里 y 轴向下所以取反
       const P = { x: g.circum.x + g.circum.r * Math.cos(th), y: g.circum.y + g.circum.r * Math.sin(th) };
-      const F1 = foot(P, g.B, g.C), F2 = foot(P, g.C, g.A), F3 = foot(P, g.A, g.B);
-      const [p, q] = long(F2, F3, 90);
-      return [circle(g.circum, 'aux'), tri(g.A, g.B, g.C),
-              line(P, F1, 'thin'), line(P, F2, 'thin'), line(P, F3, 'thin'),
-              line(p, q, 'hi'),
-              dot(F1, 'key'), dot(F2, 'key'), dot(F3, 'key'), dot(P)];
+      const sides = [[g.B, g.C], [g.C, g.A], [g.A, g.B]];
+      const F = sides.map(([U, V]) => foot(P, U, V));
+      const out = [circle(g.circum, 'aux'), tri(g.A, g.B, g.C)];
+      // 垂足落在边外时延长那条边，否则点是悬空的
+      sides.forEach(([U, V], i) => {
+        const d = sub(V, U), q = F[i];
+        const k = ((q.x - U.x) * d.x + (q.y - U.y) * d.y) / (d.x * d.x + d.y * d.y);
+        if (k < 0 || k > 1) out.push(line(k < 0 ? U : V, q, 'ext'));
+      });
+      F.forEach((q) => out.push(line(P, q, 'alt2')));
+      // 西姆松线：取最远的一对垂足，往两头延出去
+      let bi = [0, 1], bd = -1;
+      [[0, 1], [1, 2], [0, 2]].forEach((ij) => {
+        const d = len(sub(F[ij[0]], F[ij[1]])); if (d > bd) { bd = d; bi = ij; }
+      });
+      const u0 = F[bi[0]], u1 = F[bi[1]], dd = sub(u1, u0);
+      out.push(line(sub(u0, mul(dd, 0.22)), add(u1, mul(dd, 0.22)), 'ln'));
+      return out.concat(F.map((q) => dot(q, 'foot')), [dot(P, 'key')]);
     },
     // 垂心组：四个点共享同一个九点圆
     N07: (g) => [circle(g.nine, 'hi'),
