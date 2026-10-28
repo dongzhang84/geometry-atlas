@@ -151,22 +151,35 @@
               dot(g.A, 'key'), dot(g.B, 'key'), dot(g.C, 'key'), dot(H, 'key')];
     },
     // 九点二次曲线：仿射推广
+    // 九点二次曲线：和视频一套色 —— 六个中点蓝、三个对角点琥珀、曲线是主对象色、P 橙
     N08: (g) => {
       const P = { x: g.T.G.x + 22, y: g.T.G.y - 6 };     // 一般的第四点，才得到真正的椭圆
-      const pts = [mid(g.A, g.B), mid(g.B, g.C), mid(g.C, g.A), mid(g.A, P), mid(g.B, P)];
-      const el = conicEllipse(conicThrough(pts));
+      const m = [mid(g.A, g.B), mid(g.B, g.C), mid(g.C, g.A), mid(g.A, P), mid(g.B, P), mid(g.C, P)];
+      const el = conicEllipse(conicThrough(m.slice(0, 5)));
+      const ix = (p1, p2, p3, p4) => {
+        const d1 = sub(p2, p1), d2 = sub(p4, p3), den = d1.x * d2.y - d1.y * d2.x;
+        if (Math.abs(den) < 1e-9) return null;
+        const s = ((p3.x - p1.x) * d2.y - (p3.y - p1.y) * d2.x) / den;
+        return { x: p1.x + d1.x * s, y: p1.y + d1.y * s };
+      };
+      const dg = [ix(g.A, P, g.B, g.C), ix(g.B, P, g.C, g.A), ix(g.C, P, g.A, g.B)];
       const out = [tri(g.A, g.B, g.C, 'tri dim'),
                    line(g.A, P, 'thin'), line(g.B, P, 'thin'), line(g.C, P, 'thin')];
-      if (el) out.push(ellipse(el, 'hi'));
-      return out.concat([mid(g.A, g.B), mid(g.B, g.C), mid(g.C, g.A),
-                         mid(g.A, P), mid(g.B, P), mid(g.C, P)].map((p) => dot(p, 'key')));
+      if (el) out.push(ellipse(el, 'ln'));
+      return out.concat(m.map((p) => dot(p, 'mid')),
+                        dg.filter(Boolean).map((p) => dot(p, 'amb')),
+                        [dot(P, 'key')]);
     },
     // Nagel 线：I、G、Na 共线
+    // Nagel 线：和视频一套色 —— 内切圆绿、到旁切点的连线琥珀、线本身是主对象色
     N09: (g) => {
-      const n = nagelData(g.A, g.B, g.C);
+      const n = nagelData(g.A, g.B, g.C), V = [g.A, g.B, g.C], U = [n.Ua, n.Ub, n.Uc];
       const [p, q] = long(n.I, n.Na);
-      return [tri(g.A, g.B, g.C), circle(g.incir, 'aux'),
-              line(p, q, 'hi'), dot(n.I, 'key'), dot(n.G, 'key'), dot(n.Na, 'key')];
+      return [tri(g.A, g.B, g.C), circle(g.incir, 'inc'),
+              line(V[0], U[0], 'amb'), line(V[1], U[1], 'amb'), line(V[2], U[2], 'amb'),
+              line(p, q, 'ln'),
+              dot(U[0], 'amb'), dot(U[1], 'amb'), dot(U[2], 'amb'),
+              dot(n.I, 'key'), dot(n.G, 'key'), dot(n.Na, 'key')];
     },
     // Soddy：三个顶点圆两两外切
     K07: (g) => {
@@ -181,8 +194,10 @@
       const n = nagelData(g.A, g.B, g.C), U = [n.Ua, n.Ub, n.Uc];
       const v = sub(g.incir, g.nine), L = Math.max(len(v), 1e-6);
       const F = add(g.nine, mul(v, g.nine.r / L));          // 九点圆与内切圆的切点
-      const out = [tri(g.A, g.B, g.C), tri(U[0], U[1], U[2], 'aux'), circle(circumcircle(U[0], U[1], U[2]), 'hi')];
-      return out.concat(U.map((p) => dot(p, 'key')), [dot(F, 'hpt')]);
+      // 圆是主对象色，旁切点和它们的三角形琥珀，F 橙 —— 和视频一致
+      const out = [tri(g.A, g.B, g.C), circle(g.incir, 'inc'),
+                   tri(U[0], U[1], U[2], 'amb2'), circle(circumcircle(U[0], U[1], U[2]), 'ln')];
+      return out.concat(U.map((p) => dot(p, 'amb')), [dot(F, 'key')]);
     },
     // Poncelet 闭合：另一个内接外切三角形
     I03: (g) => {

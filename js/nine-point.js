@@ -67,14 +67,14 @@
     simson: [[C_WHT, '西姆松线'], [C_FOT, '三个垂足'], [C_RED, '三条高 → 垂心 H'], [C_AMB, '线段 PH'], [C_WHT, '九点圆']],
     ninepoint: [[C_WHT, '九点圆'], [C_ORG, '三边中点'], [C_FOT, '三个垂足'], [C_PUR, '三个欧拉点'], [C_RED, '三条高 → 垂心'], [C_GRY, '外接圆']],
     orthocentric: [[C_WHT, '当前三角形 · 九点圆'], [C_RED, '它的三条高 → 垂心'], [C_ORG, '三边中点'], [C_FOT, '三个垂足'], [C_PUR, '三个欧拉点']],
-    nagel: [[C_AMB, '内切圆、内心 I'], [C_RED, '顶点到旁切圆切点的连线 → Na'], [C_BLU, '中线 → G'], [C_GRN, 'Spieker 点 Sp'], [C_ORG, 'Nagel 线']],
+    nagel: [[C_WHT, 'Nagel 线'], [C_ORG, 'I、G、Sp、Na'], [C_GRN, '内切圆'], [C_AMB, '到旁切点的连线 → Na'], [C_BLU, '中线 → G']],
     soddy: [[C_GRY, '以顶点为圆心的三个圆'], [C_BLU, '顶点到切点的连线 → Ge'], [C_PUR, '内 Soddy 圆'], [C_RED, '外 Soddy 圆'], [C_GRN, 'de Longchamps 点 L'], [C_ORG, 'Soddy 线']],
-    mandart: [[C_BLU, '内切圆、三个旁切圆'], [C_ORG, '旁切点 Ua、Ub、Uc 与旁切点三角形'], [C_AMB, 'Mandart 圆'], [C_PUR, '九点圆'], [C_RED, '费尔巴哈点 F']],
+    mandart: [[C_WHT, 'Mandart 圆'], [C_ORG, '费尔巴哈点 F'], [C_AMB, '旁切点 Ua、Ub、Uc 与旁切点三角形'], [C_GRN, '内切圆、三个旁切圆'], [C_PUR, '九点圆']],
     sevenpoint: [[C_PUR, '七点球'], [C_GRY, '外接球'], [C_ORG, '七个点'], [C_AMB, 'V0、G、A、C 共线'], [C_BLU, '欧拉线上的 O、G、E、4G−3O'], [C_GRN, 'O、O′、B、4O′−3O 共线']],
     thirteen: [[C_PUR, '十三点球 Σ'], [C_GRY, '外接球'], [C_GRN, '对面、它的九点圆和三条高'], [C_ORG, '十三个点'], [C_AMB, '直线 HG′ → P'], [C_BLU, 'HX → Q1'], [C_RED, '高线 V0H → Y → Q2']],
     eulerplane: [[C_GRN, '欧拉线 H、G、O'], [C_BLU, '欧拉线上的点 P'], [C_ORG, '等角共轭 P*、等截共轭 Pᵗ'], [C_AMB, '过欧拉线和 P*、Pᵗ 的平面'], [C_GRY, '外接球']],
     poncelet: [[C_PUR, '过 A、B、C、P 的等轴双曲线'], [C_ORG, '两条渐近线、中心 Po'], [C_BLU, 'ABC 的九点圆'], [C_GRN, 'PBC、PCA、PAB 的九点圆']],
-    conic: [[C_BLU, '6 条连线的中点'], [C_ORG, '3 个对角点、渐近线'], [C_PUR, '九点二次曲线'], ['rgba(29,158,117,.45)', '背景绿：P 在此处时是椭圆'], ['rgba(216,90,48,.4)', '背景橙：P 在此处时是双曲线']],
+    conic: [[C_WHT, '九点二次曲线'], [C_BLU, '6 条连线的中点'], [C_AMB, '3 个对角点、渐近线'], [C_ORG, '第四点 P'], ['rgba(29,158,117,.45)', '背景绿：P 在此处时是椭圆'], ['rgba(216,90,48,.4)', '背景橙：P 在此处时是双曲线']],
   };
 
   const state = {
@@ -333,10 +333,10 @@
       const onSide = !onVertex && sides.some(([U, X]) => close(foot(P, U, X), P));
       const thm = '九点二次曲线（Bôcher，1892）：任取四点 A、B、C、P（其中任意三点不共线），六条连线 AB、BC、CA、AP、BP、CP 的中点，和三个对角点 AP∩BC、BP∩CA、CP∩AB，这 9 个点在同一条二次曲线上。' +
         'P 在三角形内部，或在顶点背后的对顶角区域时，这条曲线是椭圆；P 在边的外侧时是双曲线；P 在外接圆上时是等轴双曲线；P 在垂心时就是九点圆。';
-      const ops0 = '在画面上拖动（顶点以外的地方）移动 P，也可以拖动顶点。绿色点是 6 个中点，橙色点是 3 个对角点，紫色是过这 9 点的二次曲线；背景浅绿表示 P 在这里时曲线是椭圆，浅橙表示是双曲线。' +
+      const ops0 = '在画面上拖动（顶点以外的地方）移动 P，也可以拖动顶点。蓝色点是 6 个中点，琥珀点是 3 个对角点，白线是过这 9 点的二次曲线；背景浅绿表示 P 在这里时曲线是椭圆，浅橙表示是双曲线。' +
         '「把 P 放到垂心」会把 P 移到垂心；勾选「让 P 只能沿外接圆走」后，P 被限制在外接圆上。' +
         '<br>九点圆是这条定理在 P 落在垂心时的特例：从欧氏几何升到仿射几何，「圆」变成了「二次曲线」。<br>';
-      const finishP = () => { dot(P, ink, 6.5); lab(P, 'P', 9, -9); };
+      const finishP = () => { dot(P, C_ORG, 6.5); lab(P, 'P', 9, -9); };
       if (onVertex || onSide) {
         finishP(); setKind('—');
         return info(thm, ops0 + (onVertex ? 'P 与一个顶点重合，四点只剩三个，九个点里有几个重合，确定不了二次曲线。把 P 拖开一点。'
@@ -351,7 +351,7 @@
         finishP(); setKind('—');
         return info(thm, ops0 + '这个位置上九个点退化，确定不了二次曲线。把 P 拖开一点。');
       }
-      ctx.strokeStyle = C_PUR; ctx.lineWidth = LW(2.4);
+      ctx.strokeStyle = col(C_WHT); ctx.lineWidth = LW(2.6);
       traceImplicit(ctx, (sx, sy) => evalConic(co, nrm(Wd({ x: sx, y: sy }))), W, H, 3);
 
       const [a, b, c] = co, sc = Math.abs(a) + Math.abs(c) + 1e-300, disc = b * b - 4 * a * c;
@@ -365,7 +365,7 @@
         if (cn && isFinite(cn.x) && isFinite(cn.y)) {
           const cen = { x: g.O.x + cn.x * R, y: g.O.y + cn.y * R };
           const ms = asymptoteSlopes(co), dirs = ms.length ? ms.map((m) => ({ x: 1, y: m })) : [{ x: 0, y: 1 }, { x: 1, y: -a / b }];
-          dirs.forEach((d) => lineInf(cen, add(cen, d), C_ORG, 1.2, [7, 5]));
+          dirs.forEach((d) => lineInf(cen, add(cen, d), C_AMB, 1.2, [7, 5]));
           const cosT = Math.abs(dirs[0].x * dirs[1].x + dirs[0].y * dirs[1].y) / (len(dirs[0]) * len(dirs[1]));
           note = '两条渐近线（橙色虚线）夹角约 ' + fmt(Math.acos(Math.min(1, cosT)) * 180 / Math.PI, 1) + '°' + (rect ? '，互相垂直。' : '。');
         }
@@ -373,27 +373,28 @@
       setKind(kind);
       mids.forEach((p) => dot(p, C_BLU, 4.5));
       const far = diag.filter((p) => !p).length;
-      diag.forEach((p) => { if (p) { const q = S(p); if (q.x > -W && q.x < 2 * W && q.y > -H && q.y < 2 * H) dot(p, C_ORG, 5); } });
+      diag.forEach((p) => { if (p) { const q = S(p); if (q.x > -W && q.x < 2 * W && q.y > -H && q.y < 2 * H) dot(p, C_AMB, 5); } });
       finishP();
       return info(thm, ops0 + '现在曲线是<b>' + kind + '</b>。' + note +
         (far ? '有 ' + far + ' 个对角点在无穷远处（P 与某个顶点的连线平行于对边）。' : ''));
     },
     nagel(g) {
       const sec = css('--muted'), n = nagelData(g.A, g.B, g.C), V = [g.A, g.B, g.C], U = [n.Ua, n.Ub, n.Uc];
-      sides(g, sec); circle(g.I, g.r, C_AMB, 1.3);
-      U.forEach((u, i) => seg(V[i], u, C_RED, 1.1));
+      sides(g, sec); circle(g.I, g.r, C_GRN, 1.6);
+      U.forEach((u, i) => seg(V[i], u, C_AMB, 1.2, [5, 4]));
       [mid(g.B, g.C), mid(g.C, g.A), mid(g.A, g.B)].forEach((m, i) => seg(V[i], m, C_BLU, 1.1));
       const same = len(sub(n.Na, n.I)) < g.R * 1e-6;
-      if (!same) { lineInf(n.I, n.Na, C_ORG, 1.2, [7, 4]); seg(n.I, n.Na, C_ORG, 2.2); }
-      U.forEach((u) => dot(u, C_RED, 4));
-      [[n.I, C_AMB], [n.G, C_BLU], [n.Sp, C_GRN], [n.Na, C_RED]].forEach(([P, c]) => dot(P, c, 5.5));
+      if (!same) { lineInf(n.I, n.Na, col(C_WHT), 1.0, [7, 4]); seg(n.I, n.Na, col(C_WHT), 2.4); }
+      U.forEach((u) => dot(u, C_AMB, 4.4));
+      // I、G、Sp、Na 同色：它们是一伙的，正是「共线」要说的那件事
+      [n.I, n.G, n.Sp, n.Na].forEach((P2) => dot(P2, C_ORG, 5.5));
       labelPoints(same ? [[n.I, 'I = G = Sp = Na'], [n.Ua, 'Ua'], [n.Ub, 'Ub'], [n.Uc, 'Uc']]
         : [[n.I, 'I'], [n.G, 'G'], [n.Sp, 'Sp'], [n.Na, 'Na'], [n.Ua, 'Ua'], [n.Ub, 'Ub'], [n.Uc, 'Uc']], sub(n.Na, n.I));
       const ig = len(sub(n.G, n.I)), gn = len(sub(n.Na, n.G));
       return info('Nagel 线：三角形的内心 I、重心 G、Spieker 点 Sp 和 Nagel 点 Na 在一条直线上，并且 IG : GNa = 1 : 2，Sp 是 I 与 Na 的中点。' +
         '其中 Nagel 点是三个顶点与对边上旁切圆切点的连线的交点，Spieker 点是三边中点所成三角形的内心。' +
         '<br>以 G 为中心、比例 −1/2 的位似把 Na 变成 I、把 I 变成 Sp，和欧拉线上把 H 变成 O、把 O 变成 N 是同一个位似。',
-        '拖动顶点 A、B、C 改变三角形。棕色圆是内切圆；粉色线是三个顶点到对边上旁切圆切点 Ua、Ub、Uc 的连线，交于 Nagel 点 Na；绿色线是三条中线，交于重心 G；橙色粗线是 Nagel 线。<br>' +
+        '拖动顶点 A、B、C 改变三角形。绿圈是内切圆；琥珀虚线是三个顶点到对边上旁切圆切点 Ua、Ub、Uc 的连线，交于 Nagel 点 Na；蓝虚线是三条中线，交于重心 G；白线是 Nagel 线，I、G、Sp、Na 四个橙点都在它上面。<br>' +
         (same ? '三角形接近等边：I、G、Sp、Na 几乎重合，Nagel 线不再确定。'
           : '实测：IG : GNa = 1 : ' + fmt(gn / ig) + '；ISp = ' + fmt(len(sub(n.Sp, n.I))) + '，SpNa = ' + fmt(len(sub(n.Na, n.Sp))) + '，Sp 是 I 与 Na 的中点。'));
     },
@@ -426,27 +427,27 @@
     mandart(g) {
       const sec = css('--muted'), d = nagelData(g.A, g.B, g.C);
       sides(g, sec);
-      g.excircles.forEach((e) => circle(e, e.r, C_BLU, 1, [4, 3]));
-      circle(g.I, g.r, C_BLU, 1.6);
+      g.excircles.forEach((e) => circle(e, e.r, C_GRN, 1, [4, 3]));
+      circle(g.I, g.r, C_GRN, 1.6);
       const U = [d.Ua, d.Ub, d.Uc];
-      tri(U[0], U[1], U[2], C_ORG, 1.1);
+      tri(U[0], U[1], U[2], C_AMB, 1.3);
       const M = circumcircle(U[0], U[1], U[2]);
-      circle(M, M.r, C_AMB, 2.4);
+      circle(M, M.r, col(C_WHT), 2.6);
       circle(g.N, g.r9, C_PUR, 2.6);
-      U.forEach((u) => dot(u, C_ORG, 5));
+      U.forEach((u) => dot(u, C_AMB, 5));
       // 费尔巴哈点：九点圆与内切圆的切点，在直线 NI 上
       const same = near(g.N, g.I, g);
       let F = null;
       if (!same) {
         F = add(g.N, mul(sub(g.I, g.N), g.r9 / len(sub(g.I, g.N))));
-        seg(g.N, g.I, C_ORG, 0.8, [3, 3]); dot(F, C_RED, 6.5);
+        seg(g.N, g.I, C_AMB, 0.8, [3, 3]); dot(F, C_ORG, 6.5);
       }
-      dot(g.N, col(C_WHT), 5); dot(g.I, C_GRN, 5); dot(M, C_AMB, 4.5);
+      dot(g.N, C_PUR, 5); dot(g.I, C_GRN, 5); dot(M, col(C_WHT), 4.5);
       labelPoints([[U[0], 'Ua'], [U[1], 'Ub'], [U[2], 'Uc'], [g.N, 'N'], [g.I, 'I'], [M, 'M']]
         .concat(F ? [[F, 'F']] : []), sub(g.I, g.N));
-      const ops = '拖动顶点 A、B、C 改变三角形。绿色虚线圆是三个旁切圆（可能伸出画面），绿色实线圆是内切圆；' +
-        '橙色点是三个旁切点 Ua、Ub、Uc，橙色细线是它们连成的旁切点三角形，棕色是这个三角形的外接圆，也就是 Mandart 圆（圆心 M）；' +
-        '紫色是九点圆，粉色点是 费尔巴哈点 F。<br>';
+      const ops = '拖动顶点 A、B、C 改变三角形。绿虚线圆是三个旁切圆（可能伸出画面），绿实线圆是内切圆；' +
+        '琥珀点是三个旁切点 Ua、Ub、Uc，琥珀细线是它们连成的旁切点三角形，白圈是这个三角形的外接圆，也就是 Mandart 圆（圆心 M）；' +
+        '紫色是九点圆，橙点是费尔巴哈点 F —— 它是九点圆与内切圆的切点，和旁切点三角形毫无关系，却正好落在白圈上。<br>';
       return info('Mandart 圆：三个旁切圆与它们所对的边分别切于 Ua、Ub、Uc，这三点连成旁切点三角形，它的外接圆叫 Mandart 圆。这个圆经过 费尔巴哈点 F —— 也就是九点圆与内切圆的切点。',
         ops + (same ? '等边三角形中九点圆与内切圆重合，切点不唯一，所以不标 F。'
           : '实测：Mandart 圆半径 ' + fmt(M.r, 3) + '，圆心 M 到 F 的距离 ' + fmt(len(sub(F, M)), 3) + '，两者相等即 F 在圆上。'));
