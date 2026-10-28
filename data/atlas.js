@@ -187,7 +187,7 @@ window.ATLAS = {
       source: "Henricus van Aubel，1878" },
     { id: "B04", layer: "euc", family: "nine-point", name: "Mandart 内切椭圆",
       statement: "与三边都相切、并过三个旁切点的那条椭圆。",
-      why: "它的中心、焦点都与 Nagel 点、Feuerbach 点有关。",
+      why: "它的中心、焦点都与 Nagel 点、费尔巴哈点有关。",
       source: "H. Mandart，1893", demo: "family/nine-point.html#mandart" },
 
     // ── 度量关系与不等式 ─────────────────────────────────
