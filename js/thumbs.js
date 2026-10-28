@@ -176,13 +176,13 @@
       if (s.S1 && s.r1 > 0) out.push(circle({ x: s.S1.x, y: s.S1.y, r: s.r1 }, 'hi'));
       return out.concat(V.map((p) => dot(p)));
     },
-    // Mandart 内切椭圆：过三个旁切点
+    // Mandart 圆：旁切点三角形的外接圆，过费尔巴哈点 F
     B04: (g) => {
       const n = nagelData(g.A, g.B, g.C), U = [n.Ua, n.Ub, n.Uc];
-      const el = conicEllipse(conicThrough([U[0], U[1], U[2], mid(U[0], U[1]), mid(U[1], U[2])]));
-      const out = [tri(g.A, g.B, g.C)];
-      if (el) out.push(ellipse(el, 'hi'));
-      return out.concat(U.map((p) => dot(p, 'key')));
+      const v = sub(g.incir, g.nine), L = Math.max(len(v), 1e-6);
+      const F = add(g.nine, mul(v, g.nine.r / L));          // 九点圆与内切圆的切点
+      const out = [tri(g.A, g.B, g.C), tri(U[0], U[1], U[2], 'aux'), circle(circumcircle(U[0], U[1], U[2]), 'hi')];
+      return out.concat(U.map((p) => dot(p, 'key')), [dot(F, 'hpt')]);
     },
     // Poncelet 闭合：另一个内接外切三角形
     I03: (g) => {

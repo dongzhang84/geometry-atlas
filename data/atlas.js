@@ -194,9 +194,9 @@ window.ATLAS = {
       statement: "在四边形四边向外作正方形，两条中心连线等长且互相垂直。",
       deps: ["T8"],
       source: "Henricus van Aubel，1878" },
-    { id: "B04", layer: "euc", family: "nine-point", name: "Mandart 内切椭圆",
-      statement: "与三边都相切、并过三个旁切点的那条椭圆。",
-      deps: ["C05", "T6"],
+    { id: "B04", layer: "euc", family: "nine-point", name: "Mandart 圆",
+      statement: "三个旁切点连成的三角形，它的外接圆经过费尔巴哈点。",
+      deps: ["C05", "N04"],
       source: "H. Mandart，1893", demo: "family/nine-point.html#mandart" },
 
     // ── 度量关系与不等式 ─────────────────────────────────
