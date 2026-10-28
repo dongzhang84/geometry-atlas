@@ -222,10 +222,12 @@
     },
     // 垂心组：四个点共享同一个九点圆
     N07: (g) => {
-      // 四个三角形地位平等，所以一样淡；白圆是它们共用的那一个；四个点同色
+      // 白圆是四个三角形共用的那一个；四个点同色。
+      // ABC 用正常线宽：四个都降成灰细线的话（我原来就是这么干的），整张图虚得
+      // 看不出是个三角形。「地位平等」靠四个点同色和那个共用的圆来说，不靠把线削细。
       const H = g.T.H;
       return [circle(g.nine, 'ln'),
-              tri(g.A, g.B, g.C, 'tri dim'), tri(g.A, g.B, H, 'tri dim'),
+              tri(g.A, g.B, g.C), tri(g.A, g.B, H, 'tri dim'),
               tri(g.A, g.C, H, 'tri dim'), tri(g.B, g.C, H, 'tri dim'),
               dot(g.A, 'key'), dot(g.B, 'key'), dot(g.C, 'key'), dot(H, 'key')];
     },
@@ -242,7 +244,7 @@
         return { x: p1.x + d1.x * s, y: p1.y + d1.y * s };
       };
       const dg = [ix(g.A, P, g.B, g.C), ix(g.B, P, g.C, g.A), ix(g.C, P, g.A, g.B)];
-      const out = [tri(g.A, g.B, g.C, 'tri dim'),
+      const out = [tri(g.A, g.B, g.C),
                    line(g.A, P, 'thin'), line(g.B, P, 'thin'), line(g.C, P, 'thin')];
       if (el) out.push(ellipse(el, 'ln'));
       return out.concat(m.map((p) => dot(p, 'mid')),
