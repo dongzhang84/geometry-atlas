@@ -35,6 +35,13 @@
     P02: { A: { x: 108, y: 44 }, B: { x: 58, y: 104 }, C: { x: 146, y: 100 } },
     P03: { A: { x: 30, y: 20 }, B: { x: 110, y: 126 }, C: { x: 190, y: 52 } },
     P04: { A: { x: 53.2, y: 21.1 }, B: { x: 176.1, y: 53.1 }, C: { x: 43.4, y: 115.1 } },
+    // 圆这一族：三角形只是用来摆圆心（K02 / K03）或给出外接圆（K01）、三条边（K04）
+    K01: { A: { x: 118, y: 26 }, B: { x: 170, y: 104 }, C: { x: 74, y: 112 } },
+    K02: { A: { x: 46, y: 96 }, B: { x: 158, y: 96 }, C: { x: 104, y: 24 } },
+    // K03 的三角形和半径是一起搜出来的：要求 <b>Monge 线穿过图形</b>（重心到线 ≤ 18），
+    // 否则那条线吊在三个圆下面，和圆一点关系都看不出来
+    K03: { A: { x: 82.3, y: 104.2 }, B: { x: 116.7, y: 102.4 }, C: { x: 42.2, y: 62.9 } },
+    K04: { A: { x: 30, y: 116 }, B: { x: 178, y: 116 }, C: { x: 92, y: 24 } },
   };
   /** 等边位置：底边不动，A 抬到正上方 */
   const apexOf = (T) => ({ x: (T.B.x + T.C.x) / 2,
@@ -134,6 +141,53 @@
     const sp = ((q.x - P1.x) * d.x + (q.y - P1.y) * d.y) / L2;
     return (sp >= 0 && sp <= 1) ? null : line(sp < 0 ? P1 : P2, q, cls);
   };
+
+  /* ---------- 圆这一族共用的小工具 ---------- */
+  const RADR = [17, 22, 15.5];                 // K02 三个圆的半径（缩略图尺度）
+  const MONR = [4.7, 12.8, 47.5];              // K03：必须按比例拉开，否则外位似中心飞出画面
+  const tanPtT = (P, c, r, sgn) => {
+    const d = sub(c, P), L = len(d);
+    if (L <= r + 1e-6) return null;
+    const tl = Math.sqrt(L * L - r * r), b = Math.asin(r / L) * sgn, ux = { x: d.x / L, y: d.y / L };
+    return { x: P.x + (ux.x * Math.cos(b) - ux.y * Math.sin(b)) * tl,
+             y: P.y + (ux.x * Math.sin(b) + ux.y * Math.cos(b)) * tl };
+  };
+  const radAxT = (c1, r1, c2, r2) => {
+    const d = sub(c2, c1), L = len(d);
+    if (L < 1e-6) return null;
+    const ux = { x: d.x / L, y: d.y / L }, k = (L * L + r1 * r1 - r2 * r2) / (2 * L);
+    return { f: { x: c1.x + ux.x * k, y: c1.y + ux.y * k }, d: { x: -ux.y, y: ux.x } };
+  };
+  const axMeetT = (a, b) => {
+    const den = a.d.x * b.d.y - a.d.y * b.d.x;
+    if (Math.abs(den) < 1e-9) return null;
+    const w = sub(b.f, a.f), t = (w.x * b.d.y - w.y * b.d.x) / den;
+    return { x: a.f.x + a.d.x * t, y: a.f.y + a.d.y * t };
+  };
+  const extCenT = (c1, r1, c2, r2) => (Math.abs(r2 - r1) < 1e-6 ? null
+    : { x: (r2 * c1.x - r1 * c2.x) / (r2 - r1), y: (r2 * c1.y - r1 * c2.y) / (r2 - r1) });
+  /** 把一条无限长的直线裁到一个盒子里。
+      缩略图的画框是 getBBox 算的，<b>没法像大图那样把直线排除在外</b> —— 根轴往两头
+      随便画 60 就把画框压成 1.03 的方块、三个圆缩到只占画宽 21%。所以必须自己裁。 */
+  function clipLine(f, d, bx) {
+    let t0 = -1e9, t1 = 1e9;
+    const lim = (p, q, lo, hi) => {              // p + t·q 落在 [lo, hi] 内的 t 区间
+      if (Math.abs(q) < 1e-9) return p >= lo && p <= hi;
+      const a = (lo - p) / q, b = (hi - p) / q;
+      t0 = Math.max(t0, Math.min(a, b)); t1 = Math.min(t1, Math.max(a, b));
+      return true;
+    };
+    if (!lim(f.x, d.x, bx[0], bx[1]) || !lim(f.y, d.y, bx[2], bx[3]) || t0 >= t1) return null;
+    return [{ x: f.x + d.x * t0, y: f.y + d.y * t0 }, { x: f.x + d.x * t1, y: f.y + d.y * t1 }];
+  }
+  function circumT(A, B, C) {
+    const d = 2 * (A.x * (B.y - C.y) + B.x * (C.y - A.y) + C.x * (A.y - B.y));
+    if (Math.abs(d) < 1e-9) return null;
+    const a2 = A.x * A.x + A.y * A.y, b2 = B.x * B.x + B.y * B.y, c2 = C.x * C.x + C.y * C.y;
+    const o = { x: (a2 * (B.y - C.y) + b2 * (C.y - A.y) + c2 * (A.y - B.y)) / d,
+                y: (a2 * (C.x - B.x) + b2 * (A.x - C.x) + c2 * (B.x - A.x)) / d };
+    return { x: o.x, y: o.y, r: len(sub(o, A)) };
+  }
 
   /** 给定形变参数 k，把这张图要用到的点和圆都算出来 */
   function geom(k) {
@@ -260,6 +314,98 @@
       });
       return [tri(A, B, C), line(F, A, 'amb2'), line(F, B, 'amb2'), line(F, C, 'amb2')]
         .concat(arcs, [dot(F, 'key')]);
+    },
+    /* ── 圆 ─────────────────────────────────────────────── */
+    /* 四张都遵守同一条：<b>舞台钉死（geom(0)），只动定理自己的自由度。</b>
+       靠形变三角形来动的话，这四张都只是整体缩放平移，什么都没演示。 */
+    // 圆幂：圆和 P 不动，割线绕 P 转 —— A、B 跑来跑去，切线长 PT 一动不动
+    K01: (g, k) => {
+      const G = geom(0), O = G.circum, R = O.r;
+      const P = { x: O.x - R * 1.62, y: O.y + R * 0.22 };
+      const th = 0.30 + (k || 0) * 1.5;
+      const Q = { x: O.x + R * Math.cos(th), y: O.y + R * Math.sin(th) };
+      const d = sub(Q, P), L2 = d.x * d.x + d.y * d.y;
+      const f = sub(P, O), b = 2 * (f.x * d.x + f.y * d.y), c0 = f.x * f.x + f.y * f.y - R * R;
+      const disc = b * b - 4 * L2 * c0;
+      if (disc < 0) return [circle(O, 'conic')];
+      const sq = Math.sqrt(disc), t1 = (-b - sq) / (2 * L2), t2 = (-b + sq) / (2 * L2);
+      const A = { x: P.x + d.x * t1, y: P.y + d.y * t1 }, B = { x: P.x + d.x * t2, y: P.y + d.y * t2 };
+      const T = tanPtT(P, O, R, +1);
+      const out = [circle(O, 'conic'), line(P, B, 'medp2'), line(P, A, 'amb2')];
+      if (T) out.push(line(P, T, 'thin'), dot(T, 'key'));
+      return out.concat([dot(A), dot(B), dot(P, 'key')]);
+    },
+    // 根轴与根心：三个圆的圆心钉死，<b>半径呼吸</b> —— 三条根轴跟着挪，始终共点
+    K02: (g, k) => {
+      const G = geom(0), C3 = [G.A, G.B, G.C];
+      const kk = k || 0;
+      const R = [RADR[0] * (1 + 0.55 * kk), RADR[1] * (1 - 0.30 * kk), RADR[2] * (1 + 0.22 * kk)];
+      const ax = [[0, 1], [1, 2], [2, 0]].map(([i, j]) => radAxT(C3[i], R[i], C3[j], R[j]));
+      if (!ax.every(Boolean)) return C3.map((c, i) => circle({ x: c.x, y: c.y, r: R[i] }, 'aux'));
+      const M = axMeetT(ax[0], ax[1]);
+      const out = [];
+      let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
+      C3.forEach((c, i) => {
+        out.push(circle({ x: c.x, y: c.y, r: R[i] }, ['amb2', 'medp2', 'grnp2'][i]));
+        x0 = Math.min(x0, c.x - R[i]); x1 = Math.max(x1, c.x + R[i]);
+        y0 = Math.min(y0, c.y - R[i]); y1 = Math.max(y1, c.y + R[i]);
+      });
+      const bx = [x0 - 9, x1 + 9, y0 - 9, y1 + 9];     // 根轴裁到这个盒子里
+      ax.forEach((a) => { const e = clipLine(a.f, a.d, bx); if (e) out.push(line(e[0], e[1], 'ln')); });
+      if (M) {
+        C3.forEach((c, i) => {
+          const T = tanPtT(M, c, R[i], i === 1 ? -1 : +1);
+          if (T) out.push(line(M, T, ['ambt', 'medt', 'grnt'][i]), dot(T));
+        });
+        // 根心被六条白线的端点围住，橙点太小会被淹掉 —— 先用底色描一圈再点
+        out.push(circle({ x: M.x, y: M.y, r: 4.6 }, 'halo'), dot(M, 'key'));
+      }
+      return out;
+    },
+    // Monge：三个圆的圆心钉死，<b>半径呼吸</b> —— 三个外位似中心在线上滑，始终共线
+    K03: (g, k) => {
+      const G = geom(0), C3 = [G.A, G.B, G.C];
+      const kk = k || 0;
+      const R = [MONR[0] * (1 + 0.42 * kk), MONR[1] * (1 + 0.10 * kk), MONR[2] * (1 - 0.14 * kk)];
+      const E = [[0, 1], [1, 2], [0, 2]].map(([i, j]) => extCenT(C3[i], R[i], C3[j], R[j]));
+      const out = [];
+      C3.forEach((c, i) => out.push(circle({ x: c.x, y: c.y, r: R[i] }, ['amb2', 'medp2', 'grnp2'][i])));
+      if (!E.every(Boolean)) return out;
+      const e2 = thru(E, 0.18);
+      out.push(line(e2[0], e2[1], 'halo'), line(e2[0], e2[1], 'ln'));
+      E.forEach((q, i) => out.push(dot(q, 'key')));
+      return out;
+    },
+    // Miquel：三角形三条边钉死，<b>横截线转</b> —— 四个外接圆全变，Miquel 点不动
+    K04: (g, k) => {
+      const G = geom(0), kk = k || 0;
+      const at = (U, V2, t) => ({ x: U.x + (V2.x - U.x) * t, y: U.y + (V2.y - U.y) * t });
+      const X = at(G.A, G.B, 0.58 + 0.30 * kk), Y = at(G.A, G.C, 1.22 - 0.26 * kk);
+      const Z = xl2(X, Y, G.B, G.C);
+      if (!Z) return [tri(G.A, G.B, G.C, 'aux')];
+      const tris = [[G.A, X, Y], [G.B, X, Z], [G.C, Y, Z], [G.A, G.B, G.C]];
+      const cir = tris.map((t) => circumT(t[0], t[1], t[2]));
+      if (!cir.every(Boolean)) return [tri(G.A, G.B, G.C, 'aux')];
+      const c1 = cir[0], c2 = cir[1], d = sub(c2, c1), L = len(d);
+      const out = [line(G.A, G.B, 'aux'), line(G.B, G.C, 'aux'), line(G.A, G.C, 'aux'), line(X, Y, 'aux')];
+      const CLS = ['amb2', 'medp2', 'grnp2', 'viot'];
+      cir.forEach((c, i) => out.push(circle(c, CLS[i])));
+      if (L > 1e-6) {
+        const a = (L * L + c1.r * c1.r - c2.r * c2.r) / (2 * L), h2 = c1.r * c1.r - a * a;
+        if (h2 >= 0) {
+          const h = Math.sqrt(h2), ux = { x: d.x / L, y: d.y / L };
+          const base = { x: c1.x + ux.x * a, y: c1.y + ux.y * a };
+          const cand = [{ x: base.x - ux.y * h, y: base.y + ux.x * h },
+                        { x: base.x + ux.y * h, y: base.y - ux.x * h }];
+          const vs = [G.A, G.B, G.C, X, Y, Z];
+          const M = cand.reduce((bb, z) => {
+            const dm = Math.min(...vs.map((v) => len(sub(z, v))));
+            return (!bb || dm > bb.d) ? { p: z, d: dm } : bb;
+          }, null).p;
+          out.push(dot(M, 'key'));
+        }
+      }
+      return out.concat([G.A, G.B, G.C, X, Y, Z].map((q) => dot(q)));
     },
     /* ── 射影 ─────────────────────────────────────────────── */
     // Pascal：外接圆当圆锥曲线，内接交叉六边形，三组对边的交点共线

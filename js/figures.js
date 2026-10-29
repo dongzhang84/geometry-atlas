@@ -67,6 +67,10 @@
     simson: [[C_WHT, '西姆松线'], [C_FOT, '三个垂足'], [C_RED, '三条高 → 垂心 H'], [C_AMB, '线段 PH'], [C_WHT, '九点圆']],
     ninepoint: [[C_WHT, '九点圆'], [C_ORG, '三边中点'], [C_FOT, '三个垂足'], [C_PUR, '三个欧拉点'], [C_RED, '三条高 → 垂心'], [C_GRY, '外接圆']],
     orthocentric: [[C_WHT, '当前三角形 · 九点圆'], [C_RED, '它的三条高 → 垂心'], [C_ORG, '三边中点'], [C_FOT, '三个垂足'], [C_PUR, '三个欧拉点']],
+    power: [[C_AMB, 'PA'], [C_BLU, 'PB'], [C_ORG, 'P · 切线 PT'], [C_WHT, '圆（圆锥曲线）']],
+    radical: [[C_WHT, '三条根轴'], [C_ORG, '根心'], [C_AMB, '圆① 与它的切线'], [C_BLU, '圆②'], [C_GRN, '圆③']],
+    monge: [[C_WHT, 'Monge 线'], [C_AMB, '第一对与它们的外位似中心'], [C_BLU, '第二对'], [C_GRN, '第三对']],
+    miquel: [[C_ORG, 'Miquel 点 M'], [C_AMB, '三角形 AXY'], [C_BLU, 'BXZ'], [C_GRN, 'CYZ'], [C_PUR, 'ABC']],
     pascal: [[C_WHT, 'Pascal 线'], [C_ORG, '三组对边的交点'], [C_AMB, '第一组对边'], [C_BLU, '第二组'], [C_GRN, '第三组']],
     brianchon: [[C_WHT, '外切六边形'], [C_ORG, 'Brianchon 点'], [C_AMB, '第一条对角线'], [C_BLU, '第二条'], [C_GRN, '第三条']],
     pappus: [[C_WHT, '六个点 · Pappus 线'], [C_ORG, '三个交点'], [C_AMB, '第一组交叉连线'], [C_BLU, '第二组'], [C_GRN, '第三组']],
@@ -114,6 +118,25 @@
     if (degenerate()) return state.V;
     const g = geo();
     // 拿破仑那张的三个外接正三角形伸得比外接圆还远，不单独算进来会被切掉
+    if (state.tab === 'power') {
+      // 圆是舞台，<b>整个圆要进画框</b> —— 只放 A、B、C 的话三点在圆上，
+      // 包围盒装不下圆本身，圆会被裁掉（第一版就是这样）
+      const P = state.Ppow || defPpow(g);
+      return [{ x: g.O.x - g.R, y: g.O.y - g.R }, { x: g.O.x + g.R, y: g.O.y + g.R }, P]; }
+    if (state.tab === 'radical') { const C3 = [g.A, g.B, g.C], out = [];
+      C3.forEach((c, i) => { out.push({ x: c.x - RAD_R[i], y: c.y - RAD_R[i] }, { x: c.x + RAD_R[i], y: c.y + RAD_R[i] }); });
+      const a = radAxisOf(C3[0], RAD_R[0], C3[1], RAD_R[1]), b = radAxisOf(C3[1], RAD_R[1], C3[2], RAD_R[2]);
+      const R = a && b ? axMeet(a, b) : null; if (R) out.push(R);
+      return out; }                              // 根轴本身不进画框：直线该跑出画面
+    if (state.tab === 'monge') { const C3 = [g.A, g.B, g.C], out = [];
+      C3.forEach((c, i) => { out.push({ x: c.x - MON_R[i], y: c.y - MON_R[i] }, { x: c.x + MON_R[i], y: c.y + MON_R[i] }); });
+      [[0, 1], [1, 2], [0, 2]].forEach(([i, j]) => { const e = extCen(C3[i], MON_R[i], C3[j], MON_R[j]); if (e) out.push(e); });
+      return out; }
+    if (state.tab === 'miquel') { const c = miquelCfg(g);
+      if (!c) return [g.A, g.B, g.C];
+      const out = [g.A, g.B, g.C, c.X, c.Y, c.Z, c.M];
+      c.cir.forEach((z) => out.push({ x: z.o.x - z.r, y: z.o.y - z.r }, { x: z.o.x + z.r, y: z.o.y + z.r }));
+      return out; }
     if (state.tab === 'brianchon') return [g.A, g.B, g.C].concat(brianchonCfg(g).V.filter(Boolean));
     if (state.tab === 'pappus') { const c = pappusCfg(g);
       return [g.A, g.B, g.C].concat(c.A3, c.B3, c.X.filter(Boolean)); }
@@ -173,6 +196,22 @@
   let placed = [];
   const GAP = 4;   // 文字框之间至少留的间隔
   const overlap = (r, q) => r.x < q.x + q.w + GAP && q.x < r.x + r.w + GAP && r.y < q.y + q.h + GAP && q.y < r.y + r.h + GAP;
+  /** 半透明填一块多边形：用来标「这是哪个三角形」，不占线条 */
+  function fillPoly(pts, hex, alpha) {
+    const n = parseInt(hex.slice(1), 16);
+    ctx.save(); ctx.beginPath();
+    pts.forEach((p, i) => { const z = S(p); i ? ctx.lineTo(z.x, z.y) : ctx.moveTo(z.x, z.y); });
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(' + (n >> 16) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',' + alpha + ')';
+    ctx.fill(); ctx.restore();
+  }
+  /** 一道刻度：一样多 = 一样长 */
+  function tick(P, Q, c) {
+    const d = sub(Q, P), L = Math.max(len(d), 1e-9);
+    const u2 = { x: d.x / L, y: d.y / L }, nv = { x: -u2.y, y: u2.x };
+    const m = mid(P, Q), h = 0.055;
+    seg({ x: m.x - nv.x * h, y: m.y - nv.y * h }, { x: m.x + nv.x * h, y: m.y + nv.y * h }, c, 2.2);
+  }
   function labelPoints(items, dir) {
     const pts = items.map(([P]) => S(P)), fs = FS(), dd = OFF(11);
     const dots = pts.map((p) => ({ x: p.x - 7, y: p.y - 7, w: 14, h: 14 }));
@@ -355,6 +394,88 @@
     seg(sp < 0 ? P1 : P2, q, c, w, [5, 4]);
   }
 
+  /* ---------- 圆这一族的四条 ----------
+     舞台同样借用现成的东西：圆幂用三角形的外接圆，根轴和 Monge 把三个圆的圆心
+     放在 A、B、C 上，Miquel 用三角形的三条边加一条横截线。拖 A、B、C 就能改变全局。
+     Monge 的半径是算出来的：外位似中心 = (r₂c₁ − r₁c₂)/(r₂ − r₁)，放大倍数是
+     r₂/(r₂ − r₁)，<b>半径一接近中心就飞出画面</b>。按标准三角形扫了一遍半径三元组，
+     [0.25, 0.55, 1.30] 是折中点：最小的圆还占画宽 4.7%（看得见），三角形横跨 40%。 */
+  const KTRIO = [C_AMB, C_BLU, C_GRN];
+  const RAD_R = [0.55, 0.70, 0.50];            // 根轴那张：三个圆的半径
+  const MON_R = [0.25, 0.55, 1.30];            // Monge 那张：必须拉开，理由见上
+  /** 两圆的根轴：到两圆等幂的点，垂直于连心线 */
+  function radAxisOf(c1, r1, c2, r2) {
+    const d = sub(c2, c1), L = len(d);
+    if (L < 1e-9) return null;
+    const ux = { x: d.x / L, y: d.y / L };
+    const k = (L * L + r1 * r1 - r2 * r2) / (2 * L);
+    return { foot: { x: c1.x + ux.x * k, y: c1.y + ux.y * k }, dir: { x: -ux.y, y: ux.x } };
+  }
+  function axMeet(a, b) {
+    const den = a.dir.x * b.dir.y - a.dir.y * b.dir.x;
+    if (Math.abs(den) < 1e-9) return null;
+    const w = sub(b.foot, a.foot), t = (w.x * b.dir.y - w.y * b.dir.x) / den;
+    return { x: a.foot.x + a.dir.x * t, y: a.foot.y + a.dir.y * t };
+  }
+  /** 从 P 到圆 (c,r) 的切点，sgn 选左右 */
+  function tanPt(P, c, r, sgn) {
+    const d = sub(c, P), L = len(d);
+    if (L <= r + 1e-9) return null;
+    const tl = Math.sqrt(L * L - r * r), b = Math.asin(r / L) * sgn, ux = { x: d.x / L, y: d.y / L };
+    return { x: P.x + (ux.x * Math.cos(b) - ux.y * Math.sin(b)) * tl,
+             y: P.y + (ux.x * Math.sin(b) + ux.y * Math.cos(b)) * tl };
+  }
+  const extCen = (c1, r1, c2, r2) => (Math.abs(r2 - r1) < 1e-9 ? null
+    : { x: (r2 * c1.x - r1 * c2.x) / (r2 - r1), y: (r2 * c1.y - r1 * c2.y) / (r2 - r1) });
+  /** 直线与圆的两个交点，按到 P 的距离排序 */
+  function lineCircle(P, dir, O, R) {
+    const f = sub(P, O), a = dir.x * dir.x + dir.y * dir.y;
+    const b = 2 * (f.x * dir.x + f.y * dir.y), c = f.x * f.x + f.y * f.y - R * R;
+    const disc = b * b - 4 * a * c;
+    if (disc < 0) return null;
+    const sq = Math.sqrt(disc), t1 = (-b - sq) / (2 * a), t2 = (-b + sq) / (2 * a);
+    const P1 = { x: P.x + dir.x * t1, y: P.y + dir.y * t1 };
+    const P2 = { x: P.x + dir.x * t2, y: P.y + dir.y * t2 };
+    return Math.abs(t1) <= Math.abs(t2) ? [P1, P2, t1, t2] : [P2, P1, t2, t1];
+  }
+  const miqParams = () => { if (!state.miq) state.miq = { x: 0.62, y: 1.25 }; return state.miq; };
+  /** Miquel：三角形三边 + 一条横截线 → 六个点、四个三角形、四个外接圆 */
+  function miquelCfg(g) {
+    const m = miqParams();
+    const at = (U, V2, t) => ({ x: U.x + (V2.x - U.x) * t, y: U.y + (V2.y - U.y) * t });
+    const X = at(g.A, g.B, m.x), Y = at(g.A, g.C, m.y);
+    const Z = xl2(X, Y, g.B, g.C);
+    if (!Z) return null;
+    const tri = [[g.A, X, Y], [g.B, X, Z], [g.C, Y, Z], [g.A, g.B, g.C]];
+    const cir = tri.map((t) => circum3(t[0], t[1], t[2]));
+    if (!cir.every(Boolean)) return null;
+    // Miquel 点：前两个圆的第二个交点（不是六个顶点里的那个）
+    const [c1, c2] = cir, d = sub(c2.o, c1.o), L = len(d);
+    if (L < 1e-9) return null;
+    const a = (L * L + c1.r * c1.r - c2.r * c2.r) / (2 * L), h2 = c1.r * c1.r - a * a;
+    if (h2 < 0) return null;
+    const h = Math.sqrt(h2), ux = { x: d.x / L, y: d.y / L };
+    const base = { x: c1.o.x + ux.x * a, y: c1.o.y + ux.y * a };
+    const cand = [{ x: base.x - ux.y * h, y: base.y + ux.x * h },
+                  { x: base.x + ux.y * h, y: base.y - ux.x * h }];
+    const vs = [g.A, g.B, g.C, X, Y, Z];
+    const M = cand.reduce((best, z) => {
+      const dm = Math.min(...vs.map((v) => len(sub(z, v))));
+      return (!best || dm > best.d) ? { p: z, d: dm } : best;
+    }, null).p;
+    return { X, Y, Z, tri, cir, M };
+  }
+  function circum3(A, B, C) {
+    const d = 2 * (A.x * (B.y - C.y) + B.x * (C.y - A.y) + C.x * (A.y - B.y));
+    if (Math.abs(d) < 1e-9) return null;
+    const a2 = A.x * A.x + A.y * A.y, b2 = B.x * B.x + B.y * B.y, c2 = C.x * C.x + C.y * C.y;
+    const o = { x: (a2 * (B.y - C.y) + b2 * (C.y - A.y) + c2 * (A.y - B.y)) / d,
+                y: (a2 * (C.x - B.x) + b2 * (A.x - C.x) + c2 * (B.x - A.x)) / d };
+    return { o, r: len(sub(o, A)) };
+  }
+  const defPpow = (g) => ({ x: g.O.x - g.R * 1.55, y: g.O.y - g.R * 0.28 });
+  const fx = (v) => (Math.round(v * 1000) / 1000).toFixed(3);
+
   const DRAW = {
     /* ── 共点与共线 ───────────────────────────────────────── */
     pascal(g) {
@@ -430,6 +551,110 @@
         '灰虚线是 O 到三个顶点的射线，第二个三角形（细线）就长在上面；<b>同色的两条边是一组对应边</b>，' +
         '橙<b>圈</b>是透视中心 O，橙<b>点</b>是三个交点，白粗线是透视轴。O 拖到三角形外面时两个三角形会互相穿插，拖回内部就恢复嵌套。' +
         '<br>这是四条射影定理里唯一把<b>点和线的对偶同时放在一张图上</b>的：一个中心 O，一条轴。');
+    },
+    power(g) {
+      if (!state.Ppow) state.Ppow = defPpow(g);
+      // 默认让割线<b>横穿</b>圆：Q 取在圆的右侧，弦才够长。
+      // 取 2.25（左上）的话割线擦着圆边过去，A 和 B 几乎重合，什么也看不出来
+      if (state.thPow === undefined) state.thPow = 0.42;
+      const P = state.Ppow;
+      const Q = { x: g.O.x + g.R * Math.cos(state.thPow), y: g.O.y + g.R * Math.sin(state.thPow) };
+      circle(g.O, g.R, css('--muted'), 1.5);
+      dot(g.O, css('--muted'), 3.5);
+      const hit = lineCircle(P, sub(Q, P), g.O, g.R);
+      if (!hit) return info('圆幂', '这条割线和圆不相交了，把点拖回去。');
+      const [A, B, ta, tb] = hit;
+      const dir = sub(Q, P), L = len(dir);
+      const u2 = { x: dir.x / L, y: dir.y / L };
+      lineInf(P, Q, css('--muted'), 1.1, [7, 6]);
+      seg(P, B, C_BLU, 3.2); seg(P, A, C_AMB, 3.2);
+      dot(A, C_AMB, 5.5); dot(B, C_BLU, 5.5);
+      lab(A, 'A', -15, -9); lab(B, 'B', 13, -9);
+      const pa = Math.abs(ta) * L, pb = Math.abs(tb) * L;
+      const d0 = len(sub(P, g.O)), pw = d0 * d0 - g.R * g.R;
+      const inside = pw < 0;
+      let tl = null;
+      if (!inside) {
+        const Tp = tanPt(P, g.O, g.R, +1);
+        if (Tp) { seg(P, Tp, C_ORG, 2.6, [6, 5]); dot(Tp, C_ORG, 5); lab(Tp, 'T', 13, -9); tl = len(sub(P, Tp)); }
+      }
+      dot(P, C_ORG, 6.5); lab(P, 'P', -15, 2);
+      ring(Q, 9, C_ORG, 1.8);
+      return info('圆幂：过 P 的任一条直线交圆于 A、B，<b>PA · PB 是定值</b>（P 在圆外时它等于切线长的平方）。',
+        '拖动 P，也可以拖动圆上套圈的那个点让割线绕 P 转动；拖 A、B、C 改变这个圆。' +
+        '<br><b>PA · PB = ' + fx(pa * pb) + '</b>' +
+        (tl === null ? '；P 在圆内，幂是负的，A、B 落在 P 的两侧。'
+                     : '　　PT² = ' + fx(tl * tl) + '　（割线怎么转，这两个数都不动）'));
+    },
+    radical(g) {
+      const C3 = [g.A, g.B, g.C];
+      C3.forEach((c, i) => { circle(c, RAD_R[i], KTRIO[i], 1.8); dot(c, KTRIO[i], 3.5); });
+      const ax = [[0, 1], [1, 2], [2, 0]].map(([i, j]) => radAxisOf(C3[i], RAD_R[i], C3[j], RAD_R[j]));
+      if (!ax.every(Boolean)) return info('根轴与根心', '有两个圆心重合了，把顶点拖开。');
+      const R = axMeet(ax[0], ax[1]);
+      ax.forEach((a, i) => {
+        const e = 9;                           // 直线跑出画面，别算进画框
+        seg({ x: a.foot.x + a.dir.x * e, y: a.foot.y + a.dir.y * e },
+            { x: a.foot.x - a.dir.x * e, y: a.foot.y - a.dir.y * e }, col(C_WHT), i === 2 ? 2.2 : 2.6);
+      });
+      if (!R) return info('根轴与根心', '三条根轴平行了（三个圆心共线），没有根心。');
+      const pw = C3.map((c, i) => len(sub(R, c)) ** 2 - RAD_R[i] * RAD_R[i]);
+      dot(R, C_ORG, 7.5);
+      if (Math.min(...pw) > 1e-4) {
+        C3.forEach((c, i) => {
+          const Tp = tanPt(R, c, RAD_R[i], i === 1 ? -1 : +1);
+          if (Tp) { seg(R, Tp, KTRIO[i], 2.4); dot(Tp, KTRIO[i], 4); tick(R, Tp, KTRIO[i]); }
+        });
+      }
+      return info('根轴与根心：对两个圆等幂的点组成一条直线（根轴）；三个圆的三条根轴<b>共点</b>，这点叫根心。',
+        '拖动 A、B、C 移动三个圆。两圆相交时根轴就是公共弦所在的直线 —— 把圆拖到相交看看。' +
+        '<br>橙点到三个圆的切线长相等（各打一道刻度）：<b>' +
+        (Math.min(...pw) > 1e-4 ? fx(Math.sqrt(pw[0])) : '根心落在某个圆内，切线长是虚的') + '</b>');
+    },
+    monge(g) {
+      const C3 = [g.A, g.B, g.C];
+      C3.forEach((c, i) => { circle(c, MON_R[i], KTRIO[i], 1.8); dot(c, KTRIO[i], 3.5); });
+      const E = [[0, 1], [1, 2], [0, 2]].map(([i, j]) => extCen(C3[i], MON_R[i], C3[j], MON_R[j]));
+      if (!E.every(Boolean)) return info('Monge 定理', '有两个圆半径相等，它们的外位似中心在无穷远。');
+      [[0, 1], [1, 2], [0, 2]].forEach(([i, j], k) => {
+        [+1, -1].forEach((sg) => {
+          const t1 = tanPt(E[k], C3[i], MON_R[i], sg), t2 = tanPt(E[k], C3[j], MON_R[j], sg);
+          if (t1 && t2) seg(E[k], len(sub(E[k], t1)) > len(sub(E[k], t2)) ? t1 : t2, KTRIO[k], 1.4, [6, 5]);
+          if (t1) dot(t1, KTRIO[k], 3.2);
+          if (t2) dot(t2, KTRIO[k], 3.2);
+        });
+      });
+      let bi = [0, 1], bd = -1;
+      [[0, 1], [1, 2], [0, 2]].forEach(([a, b]) => { const d = len(sub(E[a], E[b])); if (d > bd) { bd = d; bi = [a, b]; } });
+      const d = sub(E[bi[1]], E[bi[0]]);
+      seg({ x: E[bi[0]].x - d.x * 0.2, y: E[bi[0]].y - d.y * 0.2 },
+          { x: E[bi[1]].x + d.x * 0.2, y: E[bi[1]].y + d.y * 0.2 }, col(C_WHT), 3.0);
+      E.forEach((e, i) => dot(e, KTRIO[i], 6.5));
+      return info('Monge 定理：三个圆两两的<b>外位似中心</b>（两条外公切线的交点）共线。',
+        '拖动 A、B、C 移动三个圆，三个中心跟着跑，白线始终穿过它们。' +
+        '三个半径是写死的（0.25 / 0.55 / 1.30）：外位似中心 = (r₂c₁ − r₁c₂)/(r₂ − r₁)，' +
+        '<b>两个半径一接近，分母趋于零，中心就飞出画面</b>，所以必须拉开。');
+    },
+    miquel(g) {
+      const c = miquelCfg(g);
+      if (!c) return info('Miquel 定理', '这个位置上横截线和某条边平行了，把点拖开一点。');
+      const sec = css('--muted');
+      lineInf(g.A, g.B, sec, 1.2); lineInf(g.B, g.C, sec, 1.2); lineInf(g.A, g.C, sec, 1.2);
+      lineInf(c.X, c.Y, sec, 1.2);
+      const QUAD = [C_AMB, C_BLU, C_GRN, C_PUR];   // 四个三角形要四种颜色，紫借用欧拉点那支
+      // 四个三角形<b>只填色，不描边</b>。完全四边形里相邻两个三角形共用一条线上的一段，
+      // 四个都描边的话后画的会盖掉先画的（视频里是用「顺序交接」解决的，静态图没这个
+      // 办法）。填色加同色的外接圆已经够认：这块是谁的，那个圈就是谁的。
+      c.tri.forEach((t, i) => {
+        fillPoly(t, QUAD[i], 0.13);
+        circle(c.cir[i].o, c.cir[i].r, QUAD[i], 1.9);
+      });
+      [g.A, g.B, g.C, c.X, c.Y, c.Z].forEach((q) => dot(q, col(C_WHT), 4.5));
+      lab(c.X, 'X', -14, -9); lab(c.Y, 'Y', 13, -9); lab(c.Z, 'Z', 13, 9);
+      dot(c.M, C_ORG, 7.5); lab(c.M, 'M', 14, 8);
+      return info('Miquel 定理：完全四边形的四个三角形，它们的外接圆<b>共点</b> —— 这点叫 Miquel 点。',
+        '四条线是三角形的三条边加一条横截线。<b>拖动 X 和 Y</b> 让横截线动，' +
+        '也可以拖 A、B、C。四个三角形各略去一条线：AXY、BXZ、CYZ、ABC，四个外接圆始终过同一点 M。');
     },
     napoleon(g) {
       const E = napTri(g.A, g.B, g.C), N = E.map((e) => e.cen);
@@ -1344,14 +1569,15 @@
     const g = geo();
     placed = [[g.A, 'A'], [g.B, 'B'], [g.C, 'C']].map(([p, n]) => { const r = labPos(p, n, -16, -9); return { x: r.x, y: r.y - r.h, w: r.w, h: r.h }; });
     // 射影那四条自己画舞台（圆、两条直线、两个三角形），默认的 ABC 三角形只会添乱
-    const NO_TRI = ['orthocentric', 'conic', 'pascal', 'brianchon', 'pappus', 'desargues'];
+    const NO_TRI = ['orthocentric', 'conic', 'pascal', 'brianchon', 'pappus', 'desargues',
+                    'power', 'radical', 'monge', 'miquel'];
     if (NO_TRI.indexOf(state.tab) < 0) tri(g.A, g.B, g.C, ink, 1.3);
     const info = DRAW[state.tab](g);
     // Pascal / Brianchon 的六个点自己标了 A–F，三角形顶点再标一次 A、B、C 就成了
     // 一张图上两套 ABC；而且拖它们只是把那个圆挪一挪、缩一缩，和定理无关（要缩放
     // 有右上角的按钮）。<b>干脆不画、也不让拖。</b>
     // Pappus 不一样：拖顶点会改变两条直线的夹角，是有意义的，所以留着，但不标字母。
-    if (state.tab === 'pascal' || state.tab === 'brianchon') {
+    if (state.tab === 'pascal' || state.tab === 'brianchon' || state.tab === 'power') {
       /* 不画手柄 */
     } else if (state.tab === 'pappus') {
       [g.A, g.B, g.C].forEach((p) => ring(p, 5.5, css('--muted'), 1.5));
@@ -1544,7 +1770,7 @@
   /* ---------- 拖动 ---------- */
   let drag = null;
   const pos = (e) => { const r = cv.getBoundingClientRect(); return { x: (e.clientX - r.left) * W / r.width, y: (e.clientY - r.top) * H / r.height }; };
-  const draggablePoint = () => ['simson', 'homothety', 'conic', 'poncelet', 'ceva', 'fermat', 'desargues'].includes(state.tab);
+  const draggablePoint = () => ['simson', 'homothety', 'conic', 'poncelet', 'ceva', 'fermat', 'desargues', 'power'].includes(state.tab);
   /** 拖六个点中的一个：沿圆滑动 */
   function moveHex(i, p) {
     const w = Wd(p), g = geo();
@@ -1567,6 +1793,7 @@
     else if (state.tab === 'conic') state.P = state.onCircle ? onCircumcircle(w, g) : w;
     else if (state.tab === 'poncelet' || state.tab === 'ceva' || state.tab === 'fermat') state.P = w;
     else if (state.tab === 'desargues') state.Pdes = w;
+    else if (state.tab === 'power') state.Ppow = w;
     draw();
   }
   /* 缩放：以画布中心为中心，倍数夹在 ZMIN–ZMAX；点、线宽、文字保持像素大小不变 */
@@ -1608,6 +1835,21 @@
       const h = papHit(geo(), p);
       if (h) { drag = { pap: h }; cv.setPointerCapture(e.pointerId); return; }
     }
+    if (state.tab === 'power') {                 // 圆上套圈的那个点：拖它让割线绕 P 转
+      const g0 = geo();
+      const Q = { x: g0.O.x + g0.R * Math.cos(state.thPow === undefined ? 2.25 : state.thPow),
+                  y: g0.O.y + g0.R * Math.sin(state.thPow === undefined ? 2.25 : state.thPow) };
+      const z = S(Q);
+      if (Math.hypot(z.x - p.x, z.y - p.y) < HIT()) { drag = { thp: true }; cv.setPointerCapture(e.pointerId); return; }
+    }
+    if (state.tab === 'miquel') {
+      const g0 = geo(), c = miquelCfg(g0);
+      if (c) {
+        const zx = S(c.X), zy = S(c.Y);
+        if (Math.hypot(zx.x - p.x, zx.y - p.y) < HIT()) { drag = { miq: 'x' }; cv.setPointerCapture(e.pointerId); return; }
+        if (Math.hypot(zy.x - p.x, zy.y - p.y) < HIT()) { drag = { miq: 'y' }; cv.setPointerCapture(e.pointerId); return; }
+      }
+    }
     let vi = -1;
     state.V.forEach((v, i) => { const s = S(v); if (Math.hypot(s.x - p.x, s.y - p.y) < HIT()) vi = i; });
     if (vi >= 0) drag = { v: vi };
@@ -1620,6 +1862,13 @@
     if (!drag) return; const p = pos(e);
     if (drag.pinch) { if (touches.size >= 2) setZoom(drag.z0 * spread() / drag.d0); return; }
     if (drag.hex !== undefined) { moveHex(drag.hex, p); return; }
+    if (drag.thp) { const w = Wd(p), g0 = geo();
+      state.thPow = Math.atan2(w.y - g0.O.y, w.x - g0.O.x); draw(); return; }
+    if (drag.miq) { const w = Wd(p), g0 = geo(), m = miqParams();
+      const U = g0.A, V2 = drag.miq === 'x' ? g0.B : g0.C, d = sub(V2, U);
+      const L2 = d.x * d.x + d.y * d.y;
+      if (L2 > 1e-12) m[drag.miq] = Math.max(0.15, Math.min(1.75, ((w.x - U.x) * d.x + (w.y - U.y) * d.y) / L2));
+      draw(); return; }
     if (drag.pap) { movePap(drag.pap[0], drag.pap[1], p); return; }
     if (drag.rot) {
       const r = curRot();
