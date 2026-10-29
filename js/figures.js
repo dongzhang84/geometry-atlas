@@ -346,6 +346,33 @@
   };
   const lerpPt = (P, Q, t) => ({ x: P.x + (Q.x - P.x) * t, y: P.y + (Q.y - P.y) * t });
   /** 在 P 处画夹 Q、R 的角弧 */
+  /** 角标记：<b>扇形填充 + 弧线 + 度数</b>。半径按两条邻边里短的那条取，
+      所以角小的时候弧不会戳出三角形外面 —— 原来固定半径的 arcAng 就是这么难看的。 */
+  function angWedge(P, Q, R2, c, lbl) {
+    const a1 = Math.atan2(Q.y - P.y, Q.x - P.x), a2 = Math.atan2(R2.y - P.y, R2.x - P.x);
+    let d = a2 - a1;
+    while (d > Math.PI) d -= 2 * Math.PI;
+    while (d < -Math.PI) d += 2 * Math.PI;
+    const L = Math.min(len(sub(Q, P)), len(sub(R2, P))) * view.s;
+    const r = Math.max(20 * K, Math.min(0.26 * L, 62 * K));
+    const z = S(P), cc = col(c);
+    ctx.save();
+    ctx.beginPath(); ctx.moveTo(z.x, z.y);
+    ctx.arc(z.x, z.y, r, a1, a1 + d, d < 0); ctx.closePath();
+    ctx.fillStyle = cc; ctx.globalAlpha = 0.17; ctx.fill(); ctx.globalAlpha = 1;
+    ctx.beginPath(); ctx.arc(z.x, z.y, r, a1, a1 + d, d < 0);
+    ctx.strokeStyle = cc; ctx.lineWidth = 1.9 * Math.max(K, 0.8); ctx.stroke();
+    ctx.restore();
+    if (lbl) {
+      const am = a1 + d / 2, L2 = r + 19 * K;
+      ctx.save();
+      ctx.font = '500 ' + Math.round(13 * Math.max(K, 0.85)) + 'px ' + getComputedStyle(document.body).fontFamily;
+      const w = ctx.measureText(lbl).width;
+      ctx.fillStyle = cc;
+      ctx.fillText(lbl, z.x + Math.cos(am) * L2 - w / 2, z.y + Math.sin(am) * L2 + 4.5 * K);
+      ctx.restore();
+    }
+  }
   function arcAng(P, Q, R2, rad, c) {
     const a1 = Math.atan2(Q.y - P.y, Q.x - P.x), a2 = Math.atan2(R2.y - P.y, R2.x - P.x);
     let d = a2 - a1;
@@ -353,7 +380,9 @@
     while (d < -Math.PI) d += 2 * Math.PI;
     const z = S(P);
     ctx.save(); ctx.beginPath();
-    ctx.arc(z.x, z.y, rad * K * 46, -a1, -(a1 + d), d > 0);
+    // S() 不翻 y 轴，屏幕角就是 atan2 本身。<b>原来写 −a1，整条弧是上下镜像的</b>，
+    // 画出来老戳在角的外面 —— 用它的每一张图都中招了
+    ctx.arc(z.x, z.y, rad * K * 46, a1, a1 + d, d < 0);
     ctx.strokeStyle = col(c); ctx.lineWidth = 2.0 * Math.max(K, 0.8); ctx.stroke(); ctx.restore();
   }
   /** 直角记号 */
@@ -447,6 +476,11 @@
   const fmt = (x, n = 2) => x.toFixed(n);
   /** 图下说明：上面一段只写定理，下面一段写操作方法、图上标记和实测 */
   const info = (thm, ops) => '<p class="thm">' + thm + '</p>' + (ops ? '<p class="ops">' + ops + '</p>' : '');
+  /* 公式栏：DRAW 里调 fml()，draw() 每帧先清空再冲到 #formula 上。
+     公式属于图，不属于说明文字，所以放在画布正下方而不是埋在一段话里 */
+  let FORMULA = '';
+  const fml = (f, n) => { FORMULA = '<span class="f">' + f + '</span>' +
+    (n ? '<span class="n">' + n + '</span>' : ''); };
 
   /* ---------- 各标签页 ---------- */
   /* ---------- 射影四条的构型。放在外面，fitPoints 和 DRAW 都要用 ----------
@@ -653,6 +687,7 @@
   }
   const defPpow = (g) => ({ x: g.O.x - g.R * 1.55, y: g.O.y - g.R * 0.28 });
   const fx = (v) => (Math.round(v * 1000) / 1000).toFixed(3);
+  const fx1 = (v) => (Math.round(v * 10) / 10).toFixed(1);
 
   /* ---------- 蝴蝶 / Descartes / Casey ----------
      蝴蝶：M 是弦 PQ 的中点。<b>让 M 自由拖，PQ 取过 M 且垂直于 OM 的那条弦</b> ——
@@ -1016,13 +1051,15 @@
         .forEach((pair, i) => pair.forEach(([P, Q]) => { seg(P, Q, CL[i], 3.0); tickN(P, Q, i + 1, CL[i]); }));
       [c.Ta, c.Tb, c.Tc].forEach((z) => dot(z, css('--muted'), 3.6));
       const her = Math.sqrt(c.s * c.ta[0] * c.ta[1] * c.ta[2]);
-      return info('海伦公式：三角形面积只由三边决定，S = √(s(s−a)(s−b)(s−c))。',
+      fml('S ＝ √( s(s−a)(s−b)(s−c) )',
+        '√( ' + fx(c.s) + ' × ' + fx(c.ta[0]) + ' × ' + fx(c.ta[1]) + ' × ' + fx(c.ta[2]) +
+        ' ) ＝ ' + fx(her) + '　　面积 ＝ ' + fx(c.area));
+      return info('海伦公式：三角形面积只由三边决定。',
         '公式里那三个括号不是凑出来的 —— <b>s−a、s−b、s−c 就是三个顶点到内切圆的切线长</b>，' +
         '每一条在周界上都出现两次（刻度一道/两道/三道），三段加起来正好是半周长 s。<br>' +
-        's = ' + fx(c.s) + '　<span style="color:' + CL[0] + '">s−a = ' + fx(c.ta[0]) + '</span>' +
-        '　<span style="color:' + CL[1] + '">s−b = ' + fx(c.ta[1]) + '</span>' +
-        '　<span style="color:' + CL[2] + '">s−c = ' + fx(c.ta[2]) + '</span><br>' +
-        '面积 = ' + fx(c.area) + '，公式算出来 = ' + fx(her) + '。');
+        '<span style="color:' + CL[0] + '">s−a</span>、' +
+        '<span style="color:' + CL[1] + '">s−b</span>、' +
+        '<span style="color:' + CL[2] + '">s−c</span> 三段加起来正好是半周长 s。');
     },
     brahmagupta(g) {
       const c = cycQuad(g, bgState().th);
@@ -1040,11 +1077,14 @@
         Math.cos(bgState().th[i]) * 17, Math.sin(bgState().th[i]) * 17); });   // 画布 y 向下，朝外是 +sin
       const br = Math.sqrt(Math.max(0, (c.s - c.L[0]) * (c.s - c.L[1]) * (c.s - c.L[2]) * (c.s - c.L[3])));
       const dmin = Math.min(...c.L), small = dmin < 0.14 * c.s;
-      return info('Brahmagupta 公式：圆内接四边形的面积只由四条边决定，S = √((s−a)(s−b)(s−c)(s−d))。',
+      fml('S ＝ √( (s−a)(s−b)(s−c)(s−d) )',
+        '√( ' + c.L.map((x) => fx(c.s - x)).join(' × ') + ' ) ＝ ' + fx(br) +
+        '　　面积 ＝ ' + fx(c.area));
+      return info('Brahmagupta 公式：圆内接四边形的面积只由四条边决定。',
         '四个点都在圆上，所以拖它们永远是圆内接四边形，面积和公式一直相等。' +
         '<b>把某一个点拖到贴着相邻的点</b>，那条边趋于零，四边形塌成三角形，' +
         '(s−d) 就变成 s —— 公式退化成海伦公式。<br>' +
-        '四边 = ' + c.L.map(fx).join(' / ') + '　面积 = ' + fx(c.area) + '，公式 = ' + fx(br) +
+        '四边 = ' + c.L.map(fx).join(' / ') +
         (small ? '<br><b>最短的边已经快没了 —— 这时候算的就是海伦公式。</b>' : ''));
     },
     ptolemy(g) {
@@ -1073,6 +1113,9 @@
       const L = c.L, AC = len(sub(C2, A2)), BD = len(sub(D2, B2));
       // 圆内接四边形里「对角线等长」只说明是等腰梯形。<b>矩形要求两条对角线都是直径</b>
       const rect = Math.abs(AC - 2 * g.R) < 0.03 * g.R && Math.abs(BD - 2 * g.R) < 0.03 * g.R;
+      fml('AC·BD ＝ AB·CD + AD·BC',
+        fx(AC) + ' × ' + fx(BD) + ' ＝ ' + fx(AC * BD) + '　　' +
+        fx(L[0] * L[2]) + ' + ' + fx(L[3] * L[1]) + ' ＝ ' + fx(L[0] * L[2] + L[3] * L[1]));
       return info('托勒密定理：圆内接四边形中，两条对角线之积等于两组对边乘积之和。',
         '<b>橙色的对角线 AC 被 K 切成两段，这两段正好对应等式右边的两个乘积</b>：' +
         '∠ABK = ∠DBC 让 △ABK ∽ △DBC，给出 AK·BD = AB·CD；' +
@@ -1083,8 +1126,7 @@
             '，AB·CD = ' + fx(L[0] * L[2]) + '</span><br>'
           : '<span style="color:' + C_GRN + '">KC·BD = ' + fx(len(sub(C2, K || C2)) * BD) +
             '，AD·BC = ' + fx(L[3] * L[1]) + '</span><br>') +
-        'AC·BD = ' + fx(AC * BD) + '　AB·CD + AD·BC = ' + fx(L[0] * L[2] + L[3] * L[1]) +
-        (rect ? '<br><b>两条对角线一样长了 —— 这是矩形，此时托勒密就是勾股定理。</b>' : ''));
+        (rect ? '<b>两条对角线都成了直径 —— 这是矩形，此时托勒密就是勾股定理。</b>' : ''));
     },
     vanaubel(g) {
       const c = vanaubelCfg(g);
@@ -1148,16 +1190,19 @@
       const a = len(sub(B, C)), b = len(sub(C, A)), c = len(sub(A, B));
       seg(B, C, MTRIO[0], 3.0); seg(C, A, MTRIO[1], 3.0); seg(A, B, MTRIO[2], 3.0);
       const AA = angAt(A, B, C), AB = angAt(B, A, C), AC = angAt(C, A, B);
-      arcAng(A, B, C, 0.30, MTRIO[0]); arcAng(B, A, C, 0.30, MTRIO[1]); arcAng(C, A, B, 0.30, MTRIO[2]);
+      // 扇形 + 度数。原来三个都是固定半径 0.30 的细弧，角一小就戳到三角形外面去
+      angWedge(A, B, C, MTRIO[0], fx1(AA * 180 / Math.PI) + '°');
+      angWedge(B, A, C, MTRIO[1], fx1(AB * 180 / Math.PI) + '°');
+      angWedge(C, A, B, MTRIO[2], fx1(AC * 180 / Math.PI) + '°');
       // 直径：从 B 过圆心到对径点，说明那个共同的值就是 2R
       const Bp = { x: 2 * g.O.x - B.x, y: 2 * g.O.y - B.y };
       seg(B, Bp, C_ORG, 2.0, [7, 5]); dot(Bp, C_ORG, 5); lab2(mid(B, Bp), '2R', C_ORG, 0, -16);
-      [[A, 'A'], [B, 'B'], [C, 'C']].forEach(([q, n]) => { dot(q, col(C_WHT), 5); lab(q, n, 13, -9); });
       dot(g.O, css('--muted'), 3.5);
+      fml('a / sin A ＝ b / sin B ＝ c / sin C ＝ 2R',
+        fx(a / Math.sin(AA)) + ' ＝ ' + fx(b / Math.sin(AB)) + ' ＝ ' + fx(c / Math.sin(AC)) +
+        ' ＝ ' + fx(2 * g.R));
       return info('正弦定理：每条边与它对角的正弦之比都相等，而且<b>都等于外接圆的直径 2R</b>。',
-        '拖动 A、B、C。三条边和三个对角一一对色。' +
-        '<br>实测：<b>a/sin A = ' + fx(a / Math.sin(AA)) + '　b/sin B = ' + fx(b / Math.sin(AB)) +
-        '　c/sin C = ' + fx(c / Math.sin(AC)) + '　2R = ' + fx(2 * g.R) + '</b>');
+        '拖动 A、B、C。三条边和三个对角一一对色。');
     },
     lawcosines(g) {
       const G = { x: (g.A.x + g.B.x + g.C.x) / 3, y: (g.A.y + g.B.y + g.C.y) / 3 };
@@ -1172,25 +1217,29 @@
       const a = len(sub(g.B, g.C)), b = len(sub(g.C, g.A)), c = len(sub(g.A, g.B));
       const CC = angAt(g.C, g.A, g.B), deg = CC * 180 / Math.PI;
       const near = Math.abs(deg - 90) < 1.2;
-      arcAng(g.C, g.A, g.B, 0.34, near ? C_GRN : C_ORG);
+      angWedge(g.C, g.A, g.B, near ? C_GRN : C_ORG, fx1(deg) + '°');
+      const corr = 2 * a * b * Math.cos(CC);         // C 钝角时这项为负，写成「− −3.2」很难看
+      fml('c² ＝ a² + b² − 2ab·cos C',
+        fx(c * c) + ' ＝ ' + fx(a * a) + ' + ' + fx(b * b) +
+        (corr >= 0 ? ' − ' + fx(corr) : ' + ' + fx(-corr)) +
+        ' ＝ ' + fx(a * a + b * b - corr) +
+        '　（C = ' + fx1(deg) + '°' + (near ? '，修正项为零，已经是勾股定理' : '') + '）');
       return info('余弦定理：<b>c² = a² + b² − 2ab·cos C</b>。',
-        '拖动 A、B、C 改变角 C。<b>把 C 拖到 90°，修正项 −2ab·cos C 就为零，剩下的正是勾股定理</b>。' +
-        '<br>C = ' + fx(deg) + '°　实测：<b>c² = ' + fx(c * c) + '　a² + b² − 2ab·cos C = ' +
-        fx(a * a + b * b - 2 * a * b * Math.cos(CC)) + '</b>　（−2ab·cos C = ' +
-        fx(-2 * a * b * Math.cos(CC)) + (near ? '，<b>已经是勾股定理</b>' : '') + '）');
+        '拖动 A、B、C 改变角 C。<b>把 C 拖到 90°，修正项 −2ab·cos C 就为零，剩下的正是勾股定理</b>。');
     },
     bisector(g) {
       const k = bisCfg(g);
       if (!k) return info('角平分线定理', '两个顶点重合了，把它们拖开。');
       triSides(g, css('--muted'), 1.4);
       seg(g.A, k.D, css('--muted'), 1.5, [7, 5]);
-      arcAng(g.A, g.B, k.D, 0.30, C_ORG); arcAng(g.A, k.D, g.C, 0.37, C_ORG);
       seg(g.B, k.D, C_AMB, 3.4); seg(k.D, g.C, C_BLU, 3.4);
       seg(g.A, g.B, C_AMB, 2.8); seg(g.A, g.C, C_BLU, 2.8);
       dot(k.D, C_ORG, 6); lab(k.D, 'D', 2, 15);
-      return info('角平分线定理：内角平分线把对边分成的两段，与两条邻边成比例 —— <b>BD / DC = AB / AC</b>。',
-        '拖动 A、B、C。<b>琥珀是分子（BD、AB），蓝是分母（DC、AC）</b>，两个角弧一样大说明 AD 平分 ∠A。' +
-        '<br>实测：<b>BD / DC = ' + fx(k.BD / k.DC) + '　AB / AC = ' + fx(k.c / k.b) + '</b>');
+      fml('BD / DC ＝ AB / AC',
+        fx(k.BD) + ' / ' + fx(k.DC) + ' ＝ ' + fx(k.BD / k.DC) + '　　' +
+        fx(k.c) + ' / ' + fx(k.b) + ' ＝ ' + fx(k.c / k.b));
+      return info('角平分线定理：内角平分线把对边分成的两段，与两条邻边成比例。',
+        '拖动 A、B、C。<b>琥珀是分子（BD、AB），蓝是分母（DC、AC）</b>，虚线 AD 平分 ∠A。');
     },
     median(g) {
       const k = medCfg(g);
@@ -1203,10 +1252,11 @@
       lab2(lerpPt(g.A, k.Ap, 0.74), '2m', C_AMB, 16, 0);
       dot(k.M, C_ORG, 5.5); lab(k.M, 'M', -14, 10);
       dot(k.Ap, C_GRN, 5); lab(k.Ap, 'A′', 13, 11);
-      return info('中线长公式：<b>4m² = 2b² + 2c² − a²</b>。式子很丑，但把三角形绕 BC 的中点 M 转 180° 补成平行四边形之后，它就是<b>平行四边形定律</b>。',
-        '拖动 A、B、C。平行四边形的两条对角线：一条是 a，一条是 2m。' +
-        '<br>实测：<b>a² + (2m)² = ' + fx(k.a * k.a + 4 * k.m * k.m) +
-        '　2(b² + c²) = ' + fx(2 * (k.b * k.b + k.c * k.c)) + '</b>　移项即得 4m² = 2b² + 2c² − a²');
+      fml('4m² ＝ 2b² + 2c² − a²',
+        '4 × ' + fx(k.m * k.m) + ' ＝ ' + fx(4 * k.m * k.m) + '　　2(' + fx(k.b * k.b) + ' + ' +
+        fx(k.c * k.c) + ') − ' + fx(k.a * k.a) + ' ＝ ' + fx(2 * (k.b * k.b + k.c * k.c) - k.a * k.a));
+      return info('中线长公式：中线长可以只用三边表示。式子很丑，但把三角形绕 BC 的中点 M 转 180° 补成平行四边形之后，它就是<b>平行四边形定律</b>。',
+        '拖动 A、B、C。平行四边形的两条对角线：一条是 a，一条是 2m。');
     },
     stewart(g) {
       const k = stewCfg(g);
@@ -1219,11 +1269,11 @@
       lab2(lerpPt(g.A, k.D, 0.55), 'd', C_ORG, 14, 0);
       dot(k.D, C_ORG, 6.5); lab(k.D, 'D', 2, 16);
       const mid2 = Math.abs(k.t - 0.5) < 0.012;
-      return info('Stewart 定理：<b>b²m + c²n = a(d² + mn)</b>，其中塞瓦线 AD 把 BC 分成 m = BD、n = DC，d = AD，a = m + n。',
-        '拖动 D 让它在 BC 上滑，也可以拖 A、B、C。<b>把 D 拖到中点，式子就塌缩成中线长公式</b>。' +
-        '<br>实测：<b>b²m + c²n = ' + fx(k.b * k.b * k.m + k.c * k.c * k.n) +
-        '　a(d² + mn) = ' + fx(k.a * (k.d * k.d + k.m * k.n)) + '</b>' +
-        (mid2 ? '　<b>D 在中点：4d² = 2b² + 2c² − a²，这就是中线长公式</b>' : ''));
+      fml('b²m + c²n ＝ a(d² + mn)',
+        fx(k.b * k.b * k.m + k.c * k.c * k.n) + ' ＝ ' + fx(k.a * (k.d * k.d + k.m * k.n)) +
+        (mid2 ? '　（D 在中点：4d² = 2b² + 2c² − a²，就是中线长公式）' : ''));
+      return info('Stewart 定理：塞瓦线 AD 把 BC 分成 m = BD、n = DC，d = AD，a = m + n。',
+        '拖动 D 让它在 BC 上滑，也可以拖 A、B、C。<b>把 D 拖到中点，式子就塌缩成中线长公式</b>。');
     },
     napoleon(g) {
       const E = napTri(g.A, g.B, g.C), N = E.map((e) => e.cen);
@@ -2144,6 +2194,7 @@
                     // 这四条自己画主体：海伦的三边由切线长拼出来，另外三条画的是四边形
                     'heron', 'brahmagupta', 'ptolemy', 'vanaubel'];
     if (NO_TRI.indexOf(state.tab) < 0) tri(g.A, g.B, g.C, ink, 1.3);
+    FORMULA = '';
     const info = DRAW[state.tab](g);
     // Pascal / Brianchon 的六个点自己标了 A–F，三角形顶点再标一次 A、B、C 就成了
     // 一张图上两套 ABC；而且拖它们只是把那个圆挪一挪、缩一缩，和定理无关（要缩放
@@ -2160,6 +2211,7 @@
     } else {
       [[g.A, 'A'], [g.B, 'B'], [g.C, 'C']].forEach(([p, n]) => { dot(p, ink, 5.5); lab(p, n, -16, -9); });
     }
+    document.getElementById('formula').innerHTML = FORMULA;   // 公式栏和说明一起冲
     document.getElementById('info').innerHTML = info;
   }
 
