@@ -149,11 +149,11 @@ window.ATLAS = {
     { id: "K05", layer: "euc", family: "circle", name: "蝴蝶定理",
       statement: "过弦中点作两条弦，连出的两段被该中点平分。",
       deps: ["K01"],
-      source: "19 世纪初" },
+      source: "19 世纪初" , demo: "family/figures.html#butterfly" },
     { id: "K06", layer: "euc", family: "circle", name: "Descartes 圆定理",
       statement: "四个两两相切的圆，曲率满足 (k₁+k₂+k₃+k₄)² = 2(k₁²+k₂²+k₃²+k₄²)。",
       deps: ["T5"],
-      source: "René Descartes，1643；Soddy 1936 重新发现" },
+      source: "René Descartes，1643；Soddy 1936 重新发现" , demo: "family/figures.html#descartes" },
     { id: "K07", layer: "euc", family: "circle", name: "Soddy 圆",
       statement: "与三角形三个顶点圆都相切的两个圆（内、外 Soddy 圆），其心与内心、Gergonne 点共线。",
       deps: ["K06"],
@@ -161,7 +161,7 @@ window.ATLAS = {
     { id: "K08", layer: "euc", family: "circle", name: "Casey 定理",
       statement: "托勒密定理把四个点换成与同一个圆相切的四个圆、线段长换成公切线长之后，仍然成立。",
       deps: ["M09"],
-      source: "John Casey，1866" },
+      source: "John Casey，1866" , demo: "family/figures.html#casey" },
 
     // ── 射影 ─────────────────────────────────────────────
     { id: "P01", layer: "proj", family: "projective", name: "Pascal 定理",

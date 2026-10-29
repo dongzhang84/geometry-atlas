@@ -44,6 +44,9 @@
     // 9/17/34 是中间那一档，三个圆都还是圆，中心也没飞。
     K03: { A: { x: 52, y: 104 }, B: { x: 128, y: 96 }, C: { x: 88, y: 34 } },
     K04: { A: { x: 30, y: 116 }, B: { x: 178, y: 116 }, C: { x: 92, y: 24 } },
+    K05: { A: { x: 100, y: 18 }, B: { x: 26, y: 104 }, C: { x: 174, y: 104 } },
+    K06: { A: { x: 56, y: 92 }, B: { x: 150, y: 86 }, C: { x: 104, y: 30 } },
+    K08: { A: { x: 100, y: 20 }, B: { x: 28, y: 106 }, C: { x: 172, y: 106 } },
   };
   /** 等边位置：底边不动，A 抬到正上方 */
   const apexOf = (T) => ({ x: (T.B.x + T.C.x) / 2,
@@ -66,6 +69,9 @@
     `<circle class="pt ${cls || ''}" cx="${f(p.x)}" cy="${f(p.y)}" r="${r || 2.6}"/>`;
   const tri = (P, Q, R, cls) =>
     `<path class="${cls || 'tri'}" d="M${f(P.x)} ${f(P.y)}L${f(Q.x)} ${f(Q.y)}L${f(R.x)} ${f(R.y)}Z"/>`;
+  /** 填一块多边形（翅膀之类）。svg.thumb * 默认 fill:none，所以填充色要写在 class 里 */
+  const poly = (pts, cls) =>
+    `<path class="${cls}" d="${pts.map((p, i) => (i ? 'L' : 'M') + f(p.x) + ' ' + f(p.y)).join('')}Z"/>`;
   const ellipse = (el, cls) =>
     `<ellipse class="${cls}" cx="${f(el.cx)}" cy="${f(el.cy)}" rx="${f(el.rx)}" ry="${f(el.ry)}"` +
     ` transform="rotate(${f(el.ang)} ${f(el.cx)} ${f(el.cy)})"/>`;
@@ -423,6 +429,44 @@
       }
       return out.concat([G.A, G.B, G.C, X, Y, Z].map((q) => dot(q)));
     },
+    /* 蝴蝶：圆和弦钉死，<b>两条弦绕 M 转</b> —— 翅膀一张一合，X、Y 来回滑，MX = MY */
+    K05: (g, k) => {
+      const O = geom(0).circum, R = O.r, kk = k || 0;
+      const M = { x: O.x, y: O.y - R * 0.42 };      // 缩略图坐标里 y 向下，所以用减
+      const dm = sub(M, O), L = len(dm);
+      const u2 = { x: dm.x / L, y: dm.y / L }, nv = { x: -u2.y, y: u2.x };
+      const half = Math.sqrt(R * R - L * L);
+      const P = { x: M.x - nv.x * half, y: M.y - nv.y * half };
+      const Q = { x: M.x + nv.x * half, y: M.y + nv.y * half };
+      const hit = (a) => {
+        const d = { x: Math.cos(a), y: Math.sin(a) };
+        const f = sub(M, O), b = 2 * (f.x * d.x + f.y * d.y), c0 = f.x * f.x + f.y * f.y - R * R;
+        const sq = Math.sqrt(Math.max(b * b - 4 * c0, 0));
+        return [{ x: M.x + d.x * (-b - sq) / 2, y: M.y + d.y * (-b - sq) / 2 },
+                { x: M.x + d.x * (-b + sq) / 2, y: M.y + d.y * (-b + sq) / 2 }];
+      };
+      const [A, B] = hit(0.62 + kk * 1.0), [C, D] = hit(1.77 + kk * 0.55);
+      const X = xl2(A, D, P, Q), Y = xl2(B, C, P, Q);
+      const out = [circle(O, 'conic'), line(A, B, 'aux'), line(C, D, 'aux')];
+      out.push(poly([M, A, D], 'wingA'), poly([M, B, C], 'wingB'));
+      out.push(line(A, D, 'amb2'), line(B, C, 'medp2'), line(P, Q, 'ln'));
+      if (X) out.push(line(M, X, 'amb2'), dot(X, 'key', 3.4));
+      if (Y) out.push(line(M, Y, 'medp2'), dot(Y, 'key', 3.4));
+      return out.concat([A, B, C, D].map((q) => dot(q)), [dot(M, 'key', 3.8)]);
+    },
+    /* Descartes：三个两两相切的圆 + 两个解（嵌在缝里的、包住全部的）。
+       <b>形变动三角形是对的</b> —— 三个圆的半径 s−a、s−b、s−c 全由三角形决定，
+       三角形一动，四个曲率一起变，这正是这条定理的自由度 */
+    K06: (g) => {
+      const d = soddyData(g.A, g.B, g.C), V = [g.A, g.B, g.C];
+      const out = [];
+      [[0, 1], [1, 2], [2, 0]].forEach(([i, j]) => out.push(line(V[i], V[j], 'aux')));
+      d.radii.forEach((r, i) => out.push(circle({ x: V[i].x, y: V[i].y, r }, ['amb2', 'medp2', 'grnp2'][i])));
+      if (d.S1 && d.r1 > 0) out.push(circle({ x: d.S1.x, y: d.S1.y, r: d.r1 }, 'keyc'), dot(d.S1, 'key', 3.2));
+      if (d.S2 && d.r2 > 0 && d.r2 < 8 * Math.max(...d.radii))
+        out.push(circle({ x: d.S2.x, y: d.S2.y, r: d.r2 }, 'keyc'));
+      return out.concat(V.map((q) => dot(q)));
+    },
     /* ── 射影 ─────────────────────────────────────────────── */
     // Pascal：外接圆当圆锥曲线，内接交叉六边形，三组对边的交点共线
     P01: (g, k) => {
@@ -697,7 +741,49 @@
       const out = [tri(g.A, g.B, g.C, 'tri dim')];
       s.radii.forEach((r, i) => out.push(circle({ x: V[i].x, y: V[i].y, r }, 'alt')));
       if (s.S1 && s.r1 > 0) out.push(circle({ x: s.S1.x, y: s.S1.y, r: s.r1 }, 'hi'));
+      // <b>结论得画出来</b>：原来只有三个圆加一个内 Soddy 圆，看不出这条定理在说什么。
+      // Soddy 线和线上那几个点才是它要讲的事。三点挤在内心附近是这条定理本身的几何，
+      // 缩略图里只能让线穿过去、点标出来，细看留给大图（那里能缩放）
+      const P3 = [s.S1, s.I, s.Ge].filter(Boolean);
+      if (P3.length === 3) {
+        let bi = [0, 1], bd = -1;
+        [[0, 1], [1, 2], [0, 2]].forEach(([a, b]) => {
+          const q = len(sub(P3[a], P3[b])); if (q > bd) { bd = q; bi = [a, b]; }
+        });
+        const dd = sub(P3[bi[1]], P3[bi[0]]), LL = Math.max(len(dd), 1e-6);
+        const un = { x: dd.x / LL, y: dd.y / LL }, E = 78;
+        out.push(line({ x: P3[bi[0]].x - un.x * E, y: P3[bi[0]].y - un.y * E },
+                      { x: P3[bi[1]].x + un.x * E, y: P3[bi[1]].y + un.y * E }, 'halo'));
+        out.push(line({ x: P3[bi[0]].x - un.x * E, y: P3[bi[0]].y - un.y * E },
+                      { x: P3[bi[1]].x + un.x * E, y: P3[bi[1]].y + un.y * E }, 'ln'));
+        P3.forEach((q) => out.push(dot(q, 'key', 3.6)));
+      }
       return out.concat(V.map((p) => dot(p)));
+    },
+    /* Casey：四个点吹成圆。<b>动的是吹的程度</b> —— 这是 Casey 对托勒密的推广本身，
+       四个点在圆上的位置反倒是次要的 */
+    K08: (g, k) => {
+      const O = geom(0).circum, R = O.r, kk = k || 0;
+      const TH = [0.55, 1.95, 3.45, 5.25], RT = [0.17, 0.12, 0.20, 0.14];
+      const bl = 0.22 + 2.0 * kk;                 // 形变 0→0.38 对应吹 0.22→0.98
+      const rr = RT.map((r) => r * bl * R);
+      const cc = TH.map((t, i) => ({ x: O.x + (R - rr[i]) * Math.cos(t), y: O.y + (R - rr[i]) * Math.sin(t) }));
+      const tseg = (i, j) => {
+        const d = sub(cc[j], cc[i]), D = len(d);
+        if (D < 1e-9) return null;
+        const e = { x: d.x / D, y: d.y / D }, co = (rr[j] - rr[i]) / D;
+        if (Math.abs(co) > 1) return null;
+        const si = Math.sqrt(1 - co * co);
+        const n = { x: e.x * co - e.y * si, y: e.y * co + e.x * si };
+        return [{ x: cc[i].x - n.x * rr[i], y: cc[i].y - n.y * rr[i] },
+                { x: cc[j].x - n.x * rr[j], y: cc[j].y - n.y * rr[j] }];
+      };
+      const PR = [[0, 2], [1, 3], [0, 1], [2, 3], [0, 3], [1, 2]];
+      const CL = ['amb2', 'amb2', 'medp2', 'medp2', 'grnp2', 'grnp2'];
+      const out = [circle(O, 'conic')];
+      PR.forEach(([i, j], m) => { const z = tseg(i, j); if (z) out.push(line(z[0], z[1], CL[m])); });
+      cc.forEach((q, i) => out.push(circle({ x: q.x, y: q.y, r: rr[i] }, 'thinw')));
+      return out.concat(TH.map((t) => dot({ x: O.x + R * Math.cos(t), y: O.y + R * Math.sin(t) })));
     },
     // Mandart 圆：旁切点三角形的外接圆，过费尔巴哈点 F
     B04: (g) => {

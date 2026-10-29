@@ -67,6 +67,9 @@
     simson: [[C_WHT, '西姆松线'], [C_FOT, '三个垂足'], [C_RED, '三条高 → 垂心 H'], [C_AMB, '线段 PH'], [C_WHT, '九点圆']],
     ninepoint: [[C_WHT, '九点圆'], [C_ORG, '三边中点'], [C_FOT, '三个垂足'], [C_PUR, '三个欧拉点'], [C_RED, '三条高 → 垂心'], [C_GRY, '外接圆']],
     orthocentric: [[C_WHT, '当前三角形 · 九点圆'], [C_RED, '它的三条高 → 垂心'], [C_ORG, '三边中点'], [C_FOT, '三个垂足'], [C_PUR, '三个欧拉点']],
+    butterfly: [[C_WHT, '弦 PQ · 中点 M'], [C_AMB, '翅膀 AD 与 MX'], [C_BLU, '翅膀 BC 与 MY'], [C_ORG, 'M、X、Y']],
+    descartes: [[C_AMB, '圆①'], [C_BLU, '圆②'], [C_GRN, '圆③'], [C_ORG, '第四个圆（两个解）']],
+    casey: [[C_WHT, '大圆与四个小圆'], [C_AMB, '两条对角线'], [C_BLU, '一组对边'], [C_GRN, '另一组对边']],
     power: [[C_AMB, 'PA'], [C_BLU, 'PB'], [C_ORG, 'P · 切线 PT'], [C_WHT, '圆（圆锥曲线）']],
     radical: [[C_WHT, '三条根轴'], [C_ORG, '根心'], [C_AMB, '圆① 与它的切线'], [C_BLU, '圆②'], [C_GRN, '圆③']],
     monge: [[C_WHT, 'Monge 线'], [C_AMB, '第一对与它们的外位似中心'], [C_BLU, '第二对'], [C_GRN, '第三对']],
@@ -118,6 +121,21 @@
     if (degenerate()) return state.V;
     const g = geo();
     // 拿破仑那张的三个外接正三角形伸得比外接圆还远，不单独算进来会被切掉
+    if (state.tab === 'butterfly') {
+      const c = butterflyCfg(g);
+      return [{ x: g.O.x - g.R, y: g.O.y - g.R }, { x: g.O.x + g.R, y: g.O.y + g.R }].concat(c ? [c.M] : []);
+    }
+    if (state.tab === 'descartes') {
+      const d = soddyData(g.A, g.B, g.C), out = [];
+      [g.A, g.B, g.C].forEach((X, i) => out.push({ x: X.x - d.radii[i], y: X.y - d.radii[i] },
+                                                 { x: X.x + d.radii[i], y: X.y + d.radii[i] }));
+      if (d.S2 && d.r2 > 0 && d.r2 < 60 * g.R)
+        out.push({ x: d.S2.x - d.r2, y: d.S2.y - d.r2 }, { x: d.S2.x + d.r2, y: d.S2.y + d.r2 });
+      return out;
+    }
+    if (state.tab === 'casey') {
+      return [{ x: g.O.x - g.R, y: g.O.y - g.R }, { x: g.O.x + g.R, y: g.O.y + g.R }];
+    }
     if (state.tab === 'power') {
       // 圆是舞台，<b>整个圆要进画框</b> —— 只放 A、B、C 的话三点在圆上，
       // 包围盒装不下圆本身，圆会被裁掉（第一版就是这样）
@@ -204,6 +222,24 @@
     ctx.closePath();
     ctx.fillStyle = 'rgba(' + (n >> 16) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',' + alpha + ')';
     ctx.fill(); ctx.restore();
+  }
+  /** 两道刻度 */
+  function tick2(P, Q, c) {
+    const d = sub(Q, P), L = Math.max(len(d), 1e-9);
+    const u2 = { x: d.x / L, y: d.y / L }, nv = { x: -u2.y, y: u2.x };
+    const m = mid(P, Q), h = 0.055, gp = 0.045;
+    [-0.5, 0.5].forEach((k) => {
+      const c0 = { x: m.x + u2.x * k * gp, y: m.y + u2.y * k * gp };
+      seg({ x: c0.x - nv.x * h, y: c0.y - nv.y * h }, { x: c0.x + nv.x * h, y: c0.y + nv.y * h }, c, 2.0);
+    });
+  }
+  /** 带偏移的文字标签（像素偏移） */
+  function lab2(P, txt, c, dx, dy) {
+    const z = S(P); ctx.save();
+    ctx.font = '500 ' + Math.round(13 * Math.max(K, 0.85)) + 'px ' + getComputedStyle(document.body).fontFamily;
+    const w = ctx.measureText(txt).width;
+    ctx.fillStyle = col(c); ctx.fillText(txt, z.x + dx - w / 2, z.y + dy);
+    ctx.restore();
   }
   /** 一道刻度：一样多 = 一样长 */
   function tick(P, Q, c) {
@@ -476,6 +512,67 @@
   const defPpow = (g) => ({ x: g.O.x - g.R * 1.55, y: g.O.y - g.R * 0.28 });
   const fx = (v) => (Math.round(v * 1000) / 1000).toFixed(3);
 
+  /* ---------- 蝴蝶 / Descartes / Casey ----------
+     蝴蝶：M 是弦 PQ 的中点。<b>让 M 自由拖，PQ 取过 M 且垂直于 OM 的那条弦</b> ——
+     垂直于半径的弦必被该点平分，所以 M 自动就是中点，不用额外约束。
+     Descartes：三个两两相切的圆直接借 soddyData（以 A、B、C 为心、半径 s−a、s−b、s−c，
+     它们两两相切）。和 Soddy 那张同一个构型，但这张讲的是曲率恒等式，那张讲共线。
+     Casey：外接圆上四个可拖的点，再用一根滑杆把它们「吹」成圆。 */
+  // 默认角度用视频里验过的那一组：M 在圆心正上方 0.42R（PQ 水平、半弦 0.908R），
+  // 两条弦夹角 1.15 —— 这组的 X、Y 落在半弦的一半上，离 M 和 P/Q 都不挤
+  const bfState = () => { if (!state.bf) state.bf = { th: [0.62, 1.77] }; return state.bf; };
+  function butterflyCfg(g) {
+    const M = state.Pbf || { x: g.O.x, y: g.O.y + g.R * 0.42 };
+    const dm = sub(M, g.O), L = len(dm);
+    if (L > g.R * 0.97) return null;                 // M 太靠边，弦退化
+    // PQ：过 M 且垂直于 OM —— 这样 M 就是 PQ 的中点
+    const u2 = L < 1e-9 ? { x: 1, y: 0 } : { x: dm.x / L, y: dm.y / L };
+    const nv = { x: -u2.y, y: u2.x };
+    const half = Math.sqrt(g.R * g.R - L * L);
+    const P = { x: M.x - nv.x * half, y: M.y - nv.y * half };
+    const Q = { x: M.x + nv.x * half, y: M.y + nv.y * half };
+    const th = bfState().th;
+    const ch = th.map((a) => {
+      const d = { x: Math.cos(a), y: Math.sin(a) };
+      const hit = lineCircle(M, d, g.O, g.R);
+      return hit ? [hit[0], hit[1]] : null;
+    });
+    if (!ch.every(Boolean)) return null;
+    const [A, B] = ch[0], [C, D] = ch[1];
+    const onPQ = (p1, p2) => {                        // 直线 p1p2 与 PQ 的交点
+      const r = xl2(p1, p2, P, Q);
+      return r;
+    };
+    const X = onPQ(A, D), Y = onPQ(B, C);
+    if (!X || !Y) return null;
+    return { M, P, Q, A, B, C, D, X, Y, half };
+  }
+  const caseyState = () => {
+    if (!state.cs) state.cs = { th: [0.55, 1.95, 3.45, 5.25], blow: 0.62 };
+    return state.cs;
+  };
+  function caseyCfg(g) {
+    const c = caseyState(), RT = [0.17, 0.12, 0.20, 0.14];
+    const rr = RT.map((r) => r * c.blow * g.R);
+    const cc = c.th.map((t, i) => ({ x: g.O.x + (g.R - rr[i]) * Math.cos(t),
+                                     y: g.O.y + (g.R - rr[i]) * Math.sin(t) }));
+    const tseg = (i, j) => {
+      const d = sub(cc[j], cc[i]), D = len(d);
+      if (D < 1e-9) return null;
+      const e = { x: d.x / D, y: d.y / D }, co = (rr[j] - rr[i]) / D;
+      if (Math.abs(co) > 1) return null;
+      const si = Math.sqrt(1 - co * co);
+      const n = { x: e.x * co - e.y * si, y: e.y * co + e.x * si };
+      return [{ x: cc[i].x - n.x * rr[i], y: cc[i].y - n.y * rr[i] },
+              { x: cc[j].x - n.x * rr[j], y: cc[j].y - n.y * rr[j] }];
+    };
+    const PR = [[0, 2], [1, 3], [0, 1], [2, 3], [0, 3], [1, 2]];
+    const segs = PR.map(([i, j]) => tseg(i, j));
+    if (!segs.every(Boolean)) return null;
+    const tl = segs.map((z) => len(sub(z[0], z[1])));
+    return { cc, rr, segs, tl, PR, on: c.th.map((t) => ({ x: g.O.x + g.R * Math.cos(t), y: g.O.y + g.R * Math.sin(t) })) };
+  }
+
   const DRAW = {
     /* ── 共点与共线 ───────────────────────────────────────── */
     pascal(g) {
@@ -655,6 +752,86 @@
       return info('Miquel 定理：完全四边形的四个三角形，它们的外接圆<b>共点</b> —— 这点叫 Miquel 点。',
         '四条线是三角形的三条边加一条横截线。<b>拖动 X 和 Y</b> 让横截线动，' +
         '也可以拖 A、B、C。四个三角形各略去一条线：AXY、BXZ、CYZ、ABC，四个外接圆始终过同一点 M。');
+    },
+    butterfly(g) {
+      const c = butterflyCfg(g);
+      if (!c) return info('蝴蝶定理', '把 M 拖回圆内一点，或者把两条弦拖开。');
+      circle(g.O, g.R, css('--muted'), 1.5);
+      dot(g.O, css('--muted'), 3.2);
+      // 弦 PQ，和「M 是中点」的两道刻度
+      // 弦画粗一点，MX、MY 压在上面也还露得出两端
+      seg(c.P, c.Q, col(C_WHT), 3.2);
+      dot(c.P, col(C_WHT), 4.5); dot(c.Q, col(C_WHT), 4.5);
+      lab(c.P, 'P', -14, -8); lab(c.Q, 'Q', 14, -8);
+      // PM = MQ 不打刻度：这里 M 是<b>构造出来</b>的中点（PQ 取的是过 M 垂直于 OM 的弦），
+      // 本来就相等，再打刻度只会和 MX、MY 的刻度挤在同一条线上
+      // 过 M 的两条弦
+      [[c.A, c.B], [c.C, c.D]].forEach(([u1, u2]) => seg(u1, u2, css('--muted'), 1.4));
+      // 两只翅膀：AD 和 BC
+      fillPoly([c.M, c.A, c.D], C_AMB, 0.12); fillPoly([c.M, c.B, c.C], C_BLU, 0.12);
+      seg(c.A, c.D, C_AMB, 2.4); seg(c.B, c.C, C_BLU, 2.4);
+      // 四个点的标签朝圆外放，别和 P、Q、X、Y 撞在一起
+      [[c.A, 'A'], [c.B, 'B'], [c.C, 'C'], [c.D, 'D']].forEach(([q, n]) => {
+        dot(q, col(C_WHT), 4.2);
+        const o2 = sub(q, g.O), L2 = Math.max(len(o2), 1e-9);
+        lab(q, n, o2.x / L2 * 15, -o2.y / L2 * 15);
+      });
+      // MX、MY 各一道刻度 —— 一样多就是一样长
+      seg(c.M, c.X, C_AMB, 2.6); seg(c.M, c.Y, C_BLU, 2.6);
+      tick(c.M, c.X, C_AMB); tick(c.M, c.Y, C_BLU);
+      dot(c.X, C_ORG, 5.5); dot(c.Y, C_ORG, 5.5);
+      lab(c.X, 'X', -5, 13); lab(c.Y, 'Y', 5, 13);
+      ring(c.A, 9, C_ORG, 1.6); ring(c.C, 9, C_ORG, 1.6);
+      dot(c.M, C_ORG, 6.5); lab(c.M, 'M', 2, -13);
+      const mx = len(sub(c.M, c.X)), my = len(sub(c.M, c.Y));
+      return info('蝴蝶定理：M 是弦 PQ 的中点，过 M 再作两条弦 AB、CD，连 AD 和 BC 交 PQ 于 X、Y，则 <b>MX = MY</b>。',
+        '拖动 M（它永远是 PQ 的中点 —— PQ 取的是过 M 且垂直于 OM 的那条弦），' +
+        '也可以拖动圆上套圈的 A 和 C 让两条弦转动。两只「翅膀」就是三角形 MAD 和 MBC。' +
+        '<br>实测：<b>MX = ' + fx(mx) + '　MY = ' + fx(my) + '</b>（怎么拖都相等）');
+    },
+    descartes(g) {
+      const d = soddyData(g.A, g.B, g.C), V = [g.A, g.B, g.C];
+      // 三角形只是用来生成这三个圆，退到陪衬。<b>别用 sides()</b> —— 它画的是无限长的
+      // 点线，会横贯整个画面；这里要的是三条线段
+      [[g.A, g.B], [g.B, g.C], [g.C, g.A]].forEach(([u1, u2]) => seg(u1, u2, css('--muted'), 1.1));
+      V.forEach((X, i) => { circle(X, d.radii[i], KTRIO[i], 1.9); dot(X, KTRIO[i], 3.2); });
+      if (!d.S1) return info('Descartes 圆定理', '这个位置上第四个圆不存在，把顶点拖开一点。');
+      circle(d.S1, d.r1, C_ORG, 2.4);
+      const big = d.S2 && d.r2 > 0 && d.r2 < 60 * g.R;
+      if (big) circle(d.S2, d.r2, C_ORG, 1.8);
+      // 曲率标签<b>朝圆外放</b>：放在顶点上会和 A、B、C 三个字母叠在一起；
+      // 两个 k₄ 也要分开 —— 一个贴着内圆下缘，一个贴着外圆上缘
+      const G0 = mul(add(add(V[0], V[1]), V[2]), 1 / 3);
+      d.radii.forEach((r, i) => {
+        const o2 = sub(V[i], G0), L2 = Math.max(len(o2), 1e-9);
+        lab2({ x: V[i].x + o2.x / L2 * r * 0.55, y: V[i].y + o2.y / L2 * r * 0.55 },
+             'k' + '₁₂₃'[i] + ' = ' + fx(1 / r), KTRIO[i], 0, 0);
+      });
+      lab2({ x: d.S1.x, y: d.S1.y - d.r1 }, 'k₄ = ' + fx(1 / d.r1), C_ORG, 26, 14);
+      if (big) lab2({ x: d.S2.x, y: d.S2.y + d.r2 }, 'k₄′ = ' + fx(-1 / d.r2), C_ORG, 0, -12);
+      const k = d.radii.map((r) => 1 / r).concat([1 / d.r1]);
+      const lhs = k.reduce((a, b) => a + b, 0) ** 2, rhs = 2 * k.reduce((a, b) => a + b * b, 0);
+      return info('Descartes 圆定理：四个两两相切的圆，曲率 k = 1/r 满足 <b>(k₁+k₂+k₃+k₄)² = 2(k₁²+k₂²+k₃²+k₄²)</b>。',
+        '拖动 A、B、C。三个圆以顶点为心、半径 s−a、s−b、s−c（s 是半周长），这样它们一定两两相切。' +
+        '和它们都相切的第四个圆有<b>两个</b>：橙色小的那个嵌在缝里（k₄），大的那个把三个都包住（k₄′，' +
+        '包住时曲率按约定取负）—— 它们是同一个二次方程的两个根。' +
+        '<br>实测：<b>(Σk)² = ' + fx(lhs) + '　2Σk² = ' + fx(rhs) + '</b>' +
+        (big ? '　　k₄′ = ' + fx(-1 / d.r2) : '　（外圆太大，没画）'));
+    },
+    casey(g) {
+      const c = caseyCfg(g);
+      if (!c) return info('Casey 定理', '四个圆挤在一起了，把点拖开或者把半径调小。');
+      circle(g.O, g.R, css('--muted'), 1.5);
+      const CL = [C_AMB, C_AMB, C_BLU, C_BLU, C_GRN, C_GRN];
+      c.segs.forEach((z, i) => seg(z[0], z[1], CL[i], 2.2));
+      c.cc.forEach((q, i) => { if (c.rr[i] > 1e-4) circle(q, c.rr[i], col(C_WHT), 1.8); });
+      c.on.forEach((q, i) => { dot(q, col(C_WHT), 5); lab(q, 'ABCD'[i], Math.cos(caseyState().th[i]) * 14, -Math.sin(caseyState().th[i]) * 14); });
+      const t = c.tl;
+      const lhs = t[0] * t[1], rhs = t[2] * t[3] + t[4] * t[5];
+      return info('Casey 定理：四个圆都与同一个圆相切时，把托勒密等式里的线段长换成<b>两圆的公切线长</b>，等式仍然成立。',
+        '拖动圆上的 A、B、C、D，用下面的滑杆把四个点「吹」成圆。' +
+        '琥珀是两条对角线，蓝、绿是两组对边 —— 四个圆缩成点时它们就是弦，这时等式就是托勒密定理。' +
+        '<br>实测：<b>AC·BD = ' + fx(lhs) + '　AB·CD + AD·BC = ' + fx(rhs) + '</b>（吹多大都相等）');
     },
     napoleon(g) {
       const E = napTri(g.A, g.B, g.C), N = E.map((e) => e.cen);
@@ -1570,14 +1747,14 @@
     placed = [[g.A, 'A'], [g.B, 'B'], [g.C, 'C']].map(([p, n]) => { const r = labPos(p, n, -16, -9); return { x: r.x, y: r.y - r.h, w: r.w, h: r.h }; });
     // 射影那四条自己画舞台（圆、两条直线、两个三角形），默认的 ABC 三角形只会添乱
     const NO_TRI = ['orthocentric', 'conic', 'pascal', 'brianchon', 'pappus', 'desargues',
-                    'power', 'radical', 'monge', 'miquel'];
+                    'power', 'radical', 'monge', 'miquel', 'butterfly', 'casey', 'descartes'];
     if (NO_TRI.indexOf(state.tab) < 0) tri(g.A, g.B, g.C, ink, 1.3);
     const info = DRAW[state.tab](g);
     // Pascal / Brianchon 的六个点自己标了 A–F，三角形顶点再标一次 A、B、C 就成了
     // 一张图上两套 ABC；而且拖它们只是把那个圆挪一挪、缩一缩，和定理无关（要缩放
     // 有右上角的按钮）。<b>干脆不画、也不让拖。</b>
     // Pappus 不一样：拖顶点会改变两条直线的夹角，是有意义的，所以留着，但不标字母。
-    if (state.tab === 'pascal' || state.tab === 'brianchon' || state.tab === 'power') {
+    if (['pascal', 'brianchon', 'power', 'butterfly', 'casey'].indexOf(state.tab) >= 0) {
       /* 不画手柄 */
     } else if (state.tab === 'pappus') {
       [g.A, g.B, g.C].forEach((p) => ring(p, 5.5, css('--muted'), 1.5));
@@ -1640,6 +1817,19 @@
         c.onchange = () => { state.show[key] = c.checked; draw(); };
         l.append(c, '显示' + n); optsEl.appendChild(l);
       });
+    }
+    if (state.tab === 'casey') {
+      const c = caseyState();
+      const l = document.createElement('label');
+      l.style.cssText = 'display:flex;align-items:center;gap:8px;flex:1;min-width:240px';
+      const sl = document.createElement('input');
+      sl.type = 'range'; sl.min = 0; sl.max = 1; sl.step = 0.01; sl.value = c.blow; sl.style.flex = '1';
+      sl.setAttribute('aria-label', '把四个点吹成圆');
+      const out = document.createElement('span'); out.style.minWidth = '92px';
+      const show = () => { out.textContent = c.blow < 0.01 ? '四个点（托勒密）' : '吹成圆'; };
+      show();
+      sl.oninput = () => { c.blow = +sl.value; show(); draw(); };
+      l.append('点 → 圆', sl, out); optsEl.appendChild(l);
     }
     if (state.tab === 'homothety') {
       optsEl.append(
@@ -1770,7 +1960,7 @@
   /* ---------- 拖动 ---------- */
   let drag = null;
   const pos = (e) => { const r = cv.getBoundingClientRect(); return { x: (e.clientX - r.left) * W / r.width, y: (e.clientY - r.top) * H / r.height }; };
-  const draggablePoint = () => ['simson', 'homothety', 'conic', 'poncelet', 'ceva', 'fermat', 'desargues', 'power'].includes(state.tab);
+  const draggablePoint = () => ['simson', 'homothety', 'conic', 'poncelet', 'ceva', 'fermat', 'desargues', 'power', 'butterfly'].includes(state.tab);
   /** 拖六个点中的一个：沿圆滑动 */
   function moveHex(i, p) {
     const w = Wd(p), g = geo();
@@ -1794,6 +1984,7 @@
     else if (state.tab === 'poncelet' || state.tab === 'ceva' || state.tab === 'fermat') state.P = w;
     else if (state.tab === 'desargues') state.Pdes = w;
     else if (state.tab === 'power') state.Ppow = w;
+    else if (state.tab === 'butterfly') state.Pbf = w;
     draw();
   }
   /* 缩放：以画布中心为中心，倍数夹在 ZMIN–ZMAX；点、线宽、文字保持像素大小不变 */
@@ -1835,6 +2026,21 @@
       const h = papHit(geo(), p);
       if (h) { drag = { pap: h }; cv.setPointerCapture(e.pointerId); return; }
     }
+    if (state.tab === 'butterfly') {             // 圆上套圈的两个点：拖它们让两条弦绕 M 转
+      const g0 = geo(), th = bfState().th;
+      for (let i = 0; i < 2; i++) {
+        const z = S({ x: g0.O.x + g0.R * Math.cos(th[i]), y: g0.O.y + g0.R * Math.sin(th[i]) });
+        if (Math.hypot(z.x - p.x, z.y - p.y) < HIT()) { drag = { bf: i }; cv.setPointerCapture(e.pointerId); return; }
+      }
+    }
+    if (state.tab === 'casey') {                 // 圆上四个点
+      const g0 = geo(), th = caseyState().th;
+      for (let i = 0; i < 4; i++) {
+        const z = S({ x: g0.O.x + g0.R * Math.cos(th[i]), y: g0.O.y + g0.R * Math.sin(th[i]) });
+        if (Math.hypot(z.x - p.x, z.y - p.y) < HIT()) { drag = { cs: i }; cv.setPointerCapture(e.pointerId); return; }
+      }
+      return;                                    // 这张只拖这四个点和滑杆
+    }
     if (state.tab === 'power') {                 // 圆上套圈的那个点：拖它让割线绕 P 转
       const g0 = geo();
       const Q = { x: g0.O.x + g0.R * Math.cos(state.thPow === undefined ? 2.25 : state.thPow),
@@ -1862,6 +2068,10 @@
     if (!drag) return; const p = pos(e);
     if (drag.pinch) { if (touches.size >= 2) setZoom(drag.z0 * spread() / drag.d0); return; }
     if (drag.hex !== undefined) { moveHex(drag.hex, p); return; }
+    if (drag.bf !== undefined) { const w = Wd(p), g0 = geo();
+      bfState().th[drag.bf] = Math.atan2(w.y - g0.O.y, w.x - g0.O.x); draw(); return; }
+    if (drag.cs !== undefined) { const w = Wd(p), g0 = geo();
+      caseyState().th[drag.cs] = Math.atan2(w.y - g0.O.y, w.x - g0.O.x); draw(); return; }
     if (drag.thp) { const w = Wd(p), g0 = geo();
       state.thPow = Math.atan2(w.y - g0.O.y, w.x - g0.O.x); draw(); return; }
     if (drag.miq) { const w = Wd(p), g0 = geo(), m = miqParams();
