@@ -47,6 +47,13 @@
     K05: { A: { x: 100, y: 18 }, B: { x: 26, y: 104 }, C: { x: 174, y: 104 } },
     K06: { A: { x: 56, y: 92 }, B: { x: 150, y: 86 }, C: { x: 104, y: 30 } },
     K08: { A: { x: 100, y: 20 }, B: { x: 28, y: 106 }, C: { x: 172, y: 106 } },
+    // 度量这一族。勾股和余弦要给三边的正方形留地方，三角形画小一点
+    M01: { A: { x: 74, y: 44 }, B: { x: 74, y: 100 }, C: { x: 130, y: 100 } },
+    M02: { A: { x: 74, y: 26 }, B: { x: 32, y: 108 }, C: { x: 166, y: 92 } },
+    M03: { A: { x: 82, y: 48 }, B: { x: 60, y: 98 }, C: { x: 128, y: 92 } },
+    M04: { A: { x: 92, y: 20 }, B: { x: 24, y: 116 }, C: { x: 178, y: 116 } },
+    M05: { A: { x: 70, y: 28 }, B: { x: 34, y: 104 }, C: { x: 142, y: 104 } },
+    M06: { A: { x: 92, y: 22 }, B: { x: 22, y: 116 }, C: { x: 178, y: 116 } },
   };
   /** 等边位置：底边不动，A 抬到正上方 */
   const apexOf = (T) => ({ x: (T.B.x + T.C.x) / 2,
@@ -199,6 +206,23 @@
     return { x: o.x, y: o.y, r: len(sub(o, A)) };
   }
 
+  /* ---------- 度量这一族共用 ---------- */
+  /** 在线段 PQ 的「远离 G」那一侧作正方形 */
+  function sqOutT(P, Q, G) {
+    const d = sub(Q, P);
+    let n = { x: d.y, y: -d.x };
+    const m = { x: (P.x + Q.x) / 2, y: (P.y + Q.y) / 2 };
+    if (len(sub({ x: m.x + n.x, y: m.y + n.y }, G)) < len(sub({ x: m.x - n.x, y: m.y - n.y }, G)))
+      n = { x: -n.x, y: -n.y };
+    return [P, Q, { x: Q.x + n.x, y: Q.y + n.y }, { x: P.x + n.x, y: P.y + n.y }];
+  }
+  const polyOf = (pts, cls) => poly(pts, cls);
+  const cenOf = (a, b, c) => ({ x: (a.x + b.x + c.x) / 3, y: (a.y + b.y + c.y) / 3 });
+  const angT = (P, Q, R2) => {
+    const d1 = sub(Q, P), d2 = sub(R2, P);
+    return Math.abs(Math.atan2(d1.x * d2.y - d1.y * d2.x, d1.x * d2.x + d1.y * d2.y));
+  };
+
   /** 给定形变参数 k，把这张图要用到的点和圆都算出来 */
   function geom(k) {
     const { A, B, C } = verts(k);
@@ -324,6 +348,82 @@
       });
       return [tri(A, B, C), line(F, A, 'amb2'), line(F, B, 'amb2'), line(F, C, 'amb2')]
         .concat(arcs, [dot(F, 'key')]);
+    },
+    /* ── 度量 ─────────────────────────────────────────────── */
+    /* 勾股：直角三角形 + 三个正方形。<b>形变动的是两条直角边的比</b>，
+       直角始终保持 —— 形变三角形的话直角就没了，这条定理的前提都不在 */
+    M01: (g, k) => {
+      const G0 = geom(0), kk = k || 0;
+      const C = G0.B, q = len(sub(G0.C, G0.B)), p = len(sub(G0.A, G0.B)) * (1 + 1.15 * kk);
+      const e = { x: (G0.C.x - C.x) / q, y: (G0.C.y - C.y) / q }, nv = { x: -e.y, y: e.x };
+      const B2 = { x: C.x + e.x * q, y: C.y + e.y * q };
+      const A2 = { x: C.x + nv.x * p, y: C.y + nv.y * p };
+      const G = cenOf(A2, B2, C);
+      const out = [];
+      [[C, B2, 'medp2'], [A2, C, 'grnp2'], [B2, A2, 'amb2']].forEach(([P, Q, cls]) => {
+        const S4 = sqOutT(P, Q, G);
+        out.push(poly(S4, cls + ' fillsq'));
+        [0, 1, 2, 3].forEach((i) => out.push(line(S4[i], S4[(i + 1) % 4], cls)));
+      });
+      out.push(tri(A2, B2, C, 'tri'));
+      return out.concat([A2, B2, C].map((z) => dot(z)));
+    },
+    /* 正弦：外接圆 + 三角形 + 直径。<b>A 沿弧滑动</b>，边 a 和对角都不变 —— 比值当然不变 */
+    M02: (g, k) => {
+      const G0 = geom(0), O = G0.circum, R = O.r, kk = k || 0;
+      const B = G0.B, C = G0.C;
+      const th0 = Math.atan2(G0.A.y - O.y, G0.A.x - O.x);
+      const A = { x: O.x + R * Math.cos(th0 + kk * 1.1), y: O.y + R * Math.sin(th0 + kk * 1.1) };
+      const Bp = { x: 2 * O.x - B.x, y: 2 * O.y - B.y };
+      return [circle(O, 'conic'), line(A, B, 'aux'), line(A, C, 'aux'),
+              line(B, C, 'amb2'), line(B, Bp, 'keyd'),
+              dot(A, 'key'), dot(B), dot(C), dot(Bp, 'dimpt')];
+    },
+    /* 余弦：三个正方形。<b>形变动角 C</b> —— c² 跟着一个正方形变大变小，
+       这正是 −2ab·cos C 在起作用 */
+    M03: (g, k) => {
+      const G0 = geom(0), kk = k || 0;
+      const C = G0.C, b = len(sub(G0.A, C)), q = len(sub(G0.B, C));
+      const th0 = Math.atan2(G0.A.y - C.y, G0.A.x - C.x);
+      const A = { x: C.x + b * Math.cos(th0 + kk * 1.5), y: C.y + b * Math.sin(th0 + kk * 1.5) };
+      const B = G0.B, G = cenOf(A, B, C);
+      const out = [];
+      [[C, B, 'medp2'], [A, C, 'grnp2'], [B, A, 'amb2']].forEach(([P, Q, cls]) => {
+        const S4 = sqOutT(P, Q, G);
+        out.push(poly(S4, cls + ' fillsq'));
+        [0, 1, 2, 3].forEach((i) => out.push(line(S4[i], S4[(i + 1) % 4], cls)));
+      });
+      out.push(tri(A, B, C, 'tri'));
+      return out.concat([A, B, C].map((z) => dot(z)));
+    },
+    /* 角平分线：分子琥珀、分母蓝。形变动顶点 A，比值始终相等 */
+    M04: (g) => {
+      const b = len(sub(g.C, g.A)), c = len(sub(g.A, g.B));
+      if (b + c < 1e-6) return [tri(g.A, g.B, g.C)];
+      const D = { x: (b * g.B.x + c * g.C.x) / (b + c), y: (b * g.B.y + c * g.C.y) / (b + c) };
+      return [line(g.B, g.C, 'aux'), line(g.A, D, 'thin'),
+              line(g.B, D, 'amb2'), line(D, g.C, 'medp2'),
+              line(g.A, g.B, 'amb2'), line(g.A, g.C, 'medp2'),
+              dot(g.A), dot(g.B), dot(g.C), dot(D, 'key', 3.4)];
+    },
+    /* 中线长：补成平行四边形，两条对角线 a 和 2m */
+    M05: (g) => {
+      const M = { x: (g.B.x + g.C.x) / 2, y: (g.B.y + g.C.y) / 2 };
+      const Ap = { x: g.B.x + g.C.x - g.A.x, y: g.B.y + g.C.y - g.A.y };
+      return [poly([g.A, g.B, Ap, g.C], 'parafill'),
+              tri(g.A, g.B, g.C, 'tri'),
+              line(Ap, g.B, 'grnp2'), line(Ap, g.C, 'grnp2'),
+              line(g.B, g.C, 'medp2'), line(g.A, Ap, 'amb2'),
+              dot(g.A), dot(g.B), dot(g.C), dot(Ap, 'dimpt'), dot(M, 'key', 3.4)];
+    },
+    /* Stewart：塞瓦线 AD。<b>形变让 D 在 BC 上滑</b> —— m、n、d 全变，等式不变 */
+    M06: (g, k) => {
+      const t = 0.26 + 1.25 * (k || 0);
+      const D = { x: g.B.x + (g.C.x - g.B.x) * t, y: g.B.y + (g.C.y - g.B.y) * t };
+      return [line(g.A, g.B, 'amb2'), line(g.A, g.C, 'medp2'),
+              line(g.B, D, 'grnp2'), line(D, g.C, 'redp'),
+              line(g.A, D, 'keyd'),
+              dot(g.A), dot(g.B), dot(g.C), dot(D, 'key', 3.4)];
     },
     /* ── 圆 ─────────────────────────────────────────────── */
     /* 四张都遵守同一条：<b>舞台钉死（geom(0)），只动定理自己的自由度。</b>

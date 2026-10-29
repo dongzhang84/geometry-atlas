@@ -133,6 +133,12 @@ svg.thumb *{fill:none;stroke-linecap:round;stroke-linejoin:round}
 /* 圆锥曲线是 Pascal / Brianchon 的舞台，不是辅助线，比 .aux 亮一档 */
 .conic{stroke:#95a2b0;stroke-width:calc(1.35 / var(--k,1))}
 .pt.dimpt{fill:var(--s-aux)}
+/* 度量这一族 */
+.fillsq{fill-opacity:.13}
+.amb2.fillsq{fill:#e0b061}.medp2.fillsq{fill:#7fb2ee}.grnp2.fillsq{fill:#2fbf8a}
+.parafill{fill:rgba(47,191,138,.09);stroke:none}
+.keyd{stroke:var(--s-hi);stroke-width:calc(1.5 / var(--k,1))}
+.redp{stroke:#e0616a;stroke-width:calc(1.4 / var(--k,1))}
 /* 结论线的底：压在彩色的边上时也分得出是两条线 */
 .halo{stroke:var(--ink0);stroke-width:calc(5 / var(--k,1))}
 /* 细实线的三色：第二个三角形用，和 O 的灰虚线射线区分开 */
@@ -241,10 +247,10 @@ footer a{color:var(--faint)}
   <div class="bar"><b id="stageTitle"></b><button id="stageClose">关闭 Esc</button></div>
 </div>
 
-<script src="data/atlas.js?v=20261029y"></script>
-<script src="js/geometry.js?v=20261029y"></script>
-<script src="js/thumbs.js?v=20261029y"></script>
-<script src="vendor/d3.min.js?v=20261029y"></script>
+<script src="data/atlas.js?v=20261030e"></script>
+<script src="js/geometry.js?v=20261030e"></script>
+<script src="js/thumbs.js?v=20261030e"></script>
+<script src="vendor/d3.min.js?v=20261030e"></script>
 <script>
 (function () {
   var A = window.ATLAS, byId = {}, famOf = {};

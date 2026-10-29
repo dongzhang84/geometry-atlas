@@ -67,6 +67,12 @@
     simson: [[C_WHT, '西姆松线'], [C_FOT, '三个垂足'], [C_RED, '三条高 → 垂心 H'], [C_AMB, '线段 PH'], [C_WHT, '九点圆']],
     ninepoint: [[C_WHT, '九点圆'], [C_ORG, '三边中点'], [C_FOT, '三个垂足'], [C_PUR, '三个欧拉点'], [C_RED, '三条高 → 垂心'], [C_GRY, '外接圆']],
     orthocentric: [[C_WHT, '当前三角形 · 九点圆'], [C_RED, '它的三条高 → 垂心'], [C_ORG, '三边中点'], [C_FOT, '三个垂足'], [C_PUR, '三个欧拉点']],
+    pythagoras: [[C_BLU, 'a²'], [C_GRN, 'b²'], [C_AMB, 'c²'], [C_GRN, '直角']],
+    lawsines: [[C_BLU, '边 a 与角 A'], [C_GRN, '边 b 与角 B'], [C_AMB, '边 c 与角 C'], [C_ORG, '直径 2R']],
+    lawcosines: [[C_BLU, 'a²'], [C_GRN, 'b²'], [C_AMB, 'c²'], [C_ORG, '角 C（90° 时变绿）']],
+    bisector: [[C_AMB, '分子 BD、AB'], [C_BLU, '分母 DC、AC'], [C_ORG, '角平分线与 D']],
+    median: [[C_BLU, '对角线 a'], [C_AMB, '对角线 2m'], [C_GRN, '补出来的那一半'], [C_ORG, '中点 M']],
+    stewart: [[C_GRN, 'm = BD'], [C_RED, 'n = DC'], [C_ORG, 'd = AD 与 D'], [C_AMB, 'c'], [C_BLU, 'b']],
     butterfly: [[C_WHT, '弦 PQ · 中点 M'], [C_AMB, '翅膀 AD 与 MX'], [C_BLU, '翅膀 BC 与 MY'], [C_ORG, 'M、X、Y']],
     descartes: [[C_AMB, '圆①'], [C_BLU, '圆②'], [C_GRN, '圆③'], [C_ORG, '第四个圆（两个解）']],
     casey: [[C_WHT, '大圆与四个小圆'], [C_AMB, '两条对角线'], [C_BLU, '一组对边'], [C_GRN, '另一组对边']],
@@ -121,6 +127,14 @@
     if (degenerate()) return state.V;
     const g = geo();
     // 拿破仑那张的三个外接正三角形伸得比外接圆还远，不单独算进来会被切掉
+    if (state.tab === 'pythagoras' || state.tab === 'lawcosines') {
+      const k = state.tab === 'pythagoras' ? pyCfg(g) : { A: g.A, B: g.B, C: g.C };
+      const G = { x: (k.A.x + k.B.x + k.C.x) / 3, y: (k.A.y + k.B.y + k.C.y) / 3 };
+      const out = [];
+      [[k.C, k.B], [k.A, k.C], [k.B, k.A]].forEach(([P, Q]) => sqOut(P, Q, G).forEach((z) => out.push(z)));
+      return out;
+    }
+    if (state.tab === 'median') { const k = medCfg(g); return [g.A, g.B, g.C, k.Ap]; }
     if (state.tab === 'butterfly') {
       const c = butterflyCfg(g);
       return [{ x: g.O.x - g.R, y: g.O.y - g.R }, { x: g.O.x + g.R, y: g.O.y + g.R }].concat(c ? [c.M] : []);
@@ -222,6 +236,36 @@
     ctx.closePath();
     ctx.fillStyle = 'rgba(' + (n >> 16) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',' + alpha + ')';
     ctx.fill(); ctx.restore();
+  }
+  /** 三角形的三条边（线段）。<b>别用 sides()</b> —— 那是无限长的点虚线辅助线 */
+  function triSides(g, c, w) {
+    [[g.A, g.B], [g.B, g.C], [g.C, g.A]].forEach(([P, Q]) => seg(P, Q, c, w || 1.8));
+  }
+  /** ∠QPR 的大小 */
+  const angAt = (P, Q, R2) => {
+    const d1 = sub(Q, P), d2 = sub(R2, P);
+    return Math.abs(Math.atan2(d1.x * d2.y - d1.y * d2.x, d1.x * d2.x + d1.y * d2.y));
+  };
+  const lerpPt = (P, Q, t) => ({ x: P.x + (Q.x - P.x) * t, y: P.y + (Q.y - P.y) * t });
+  /** 在 P 处画夹 Q、R 的角弧 */
+  function arcAng(P, Q, R2, rad, c) {
+    const a1 = Math.atan2(Q.y - P.y, Q.x - P.x), a2 = Math.atan2(R2.y - P.y, R2.x - P.x);
+    let d = a2 - a1;
+    while (d > Math.PI) d -= 2 * Math.PI;
+    while (d < -Math.PI) d += 2 * Math.PI;
+    const z = S(P);
+    ctx.save(); ctx.beginPath();
+    ctx.arc(z.x, z.y, rad * K * 46, -a1, -(a1 + d), d > 0);
+    ctx.strokeStyle = col(c); ctx.lineWidth = 2.0 * Math.max(K, 0.8); ctx.stroke(); ctx.restore();
+  }
+  /** 直角记号 */
+  function rightAngle(P, Q, R2, c) {
+    const d1 = sub(Q, P), d2 = sub(R2, P), h = 0.13;
+    const u1 = { x: d1.x / len(d1) * h, y: d1.y / len(d1) * h };
+    const u2 = { x: d2.x / len(d2) * h, y: d2.y / len(d2) * h };
+    const a = { x: P.x + u1.x, y: P.y + u1.y }, b2 = { x: P.x + u1.x + u2.x, y: P.y + u1.y + u2.y };
+    const c2 = { x: P.x + u2.x, y: P.y + u2.y };
+    seg(a, b2, c, 1.8); seg(b2, c2, c, 1.8);
   }
   /** 两道刻度 */
   function tick2(P, Q, c) {
@@ -573,6 +617,50 @@
     return { cc, rr, segs, tl, PR, on: c.th.map((t) => ({ x: g.O.x + g.R * Math.cos(t), y: g.O.y + g.R * Math.sin(t) })) };
   }
 
+  /* ---------- 度量这一族 ----------
+     六条都挂在页面那个可拖三角形上。勾股那张要直角，用 C 处的两条边长
+     |CB|、|CA| 现搭一个直角三角形（拖 A 改一条腿，拖 B 改另一条腿加朝向）。
+     Stewart 的 D 可以沿 BC 拖。 */
+  const MTRIO = [C_BLU, C_GRN, C_AMB];         // a² 蓝、b² 绿、c² 琥珀，和视频一致
+  /** 在线段 PQ 的「远离 G」那一侧作正方形 */
+  function sqOut(P, Q, G) {
+    const d = sub(Q, P);
+    let n = { x: d.y, y: -d.x };
+    const m = mid(P, Q);
+    if (len(sub({ x: m.x + n.x, y: m.y + n.y }, G)) < len(sub({ x: m.x - n.x, y: m.y - n.y }, G)))
+      n = { x: -n.x, y: -n.y };
+    return [P, Q, { x: Q.x + n.x, y: Q.y + n.y }, { x: P.x + n.x, y: P.y + n.y }];
+  }
+  /** 勾股那张：用 C 处的两条边长搭一个直角三角形 */
+  function pyCfg(g) {
+    // 第二条直角边的长度单独存一份：A′ 是<b>转到垂直方向</b>的那个点，
+    // 和页面的 A 不在一处。不单独存的话，拖 A′ 没法反过来改页面的 A
+    const p = state.pyb !== undefined ? state.pyb : len(sub(g.A, g.C));
+    const qd = len(sub(g.B, g.C));
+    const e = qd < 1e-9 ? { x: 1, y: 0 } : { x: (g.B.x - g.C.x) / qd, y: (g.B.y - g.C.y) / qd };
+    const nv = { x: -e.y, y: e.x };
+    const Cc = g.C, Bb = { x: Cc.x + e.x * qd, y: Cc.y + e.y * qd };
+    const Aa = { x: Cc.x + nv.x * p, y: Cc.y + nv.y * p };
+    return { A: Aa, B: Bb, C: Cc, a: qd, b: p, c: Math.hypot(p, qd) };
+  }
+  const medCfg = (g) => {
+    const M = mid(g.B, g.C);
+    return { M, Ap: { x: g.B.x + g.C.x - g.A.x, y: g.B.y + g.C.y - g.A.y },
+             a: len(sub(g.B, g.C)), b: len(sub(g.C, g.A)), c: len(sub(g.A, g.B)), m: len(sub(g.A, M)) };
+  };
+  const stewState = () => { if (state.stw === undefined) state.stw = 0.34; return state.stw; };
+  function stewCfg(g) {
+    const t = stewState(), D = { x: g.B.x + (g.C.x - g.B.x) * t, y: g.B.y + (g.C.y - g.B.y) * t };
+    return { D, t, a: len(sub(g.B, g.C)), b: len(sub(g.C, g.A)), c: len(sub(g.A, g.B)),
+             m: len(sub(g.B, D)), n: len(sub(D, g.C)), d: len(sub(g.A, D)) };
+  }
+  function bisCfg(g) {
+    const b = len(sub(g.C, g.A)), c = len(sub(g.A, g.B));
+    if (b + c < 1e-9) return null;
+    const D = { x: (b * g.B.x + c * g.C.x) / (b + c), y: (b * g.B.y + c * g.C.y) / (b + c) };
+    return { D, b, c, BD: len(sub(g.B, D)), DC: len(sub(D, g.C)) };
+  }
+
   const DRAW = {
     /* ── 共点与共线 ───────────────────────────────────────── */
     pascal(g) {
@@ -832,6 +920,106 @@
         '拖动圆上的 A、B、C、D，用下面的滑杆把四个点「吹」成圆。' +
         '琥珀是两条对角线，蓝、绿是两组对边 —— 四个圆缩成点时它们就是弦，这时等式就是托勒密定理。' +
         '<br>实测：<b>AC·BD = ' + fx(lhs) + '　AB·CD + AD·BC = ' + fx(rhs) + '</b>（吹多大都相等）');
+    },
+    pythagoras(g) {
+      const k = pyCfg(g), G = { x: (k.A.x + k.B.x + k.C.x) / 3, y: (k.A.y + k.B.y + k.C.y) / 3 };
+      [[k.C, k.B, MTRIO[0], 'a²'], [k.A, k.C, MTRIO[1], 'b²'], [k.B, k.A, MTRIO[2], 'c²']]
+        .forEach(([P, Q, c, nm]) => {
+          const S4 = sqOut(P, Q, G);
+          fillPoly(S4, c, 0.13);
+          [0, 1, 2, 3].forEach((i) => seg(S4[i], S4[(i + 1) % 4], c, 1.8));
+          lab2({ x: (S4[0].x + S4[2].x) / 2, y: (S4[0].y + S4[2].y) / 2 }, nm, c, 0, 5);
+        });
+      [[k.C, k.B], [k.B, k.A], [k.A, k.C]].forEach(([P, Q]) => seg(P, Q, col(C_WHT), 2.2));
+      rightAngle(k.C, k.B, k.A, C_GRN);
+      dot(k.A, C_ORG, 6); ring(k.A, 10, C_ORG, 1.6); lab(k.A, "A′", 15, -9);
+      return info('勾股定理：直角三角形两条直角边的平方和等于斜边的平方 —— <b>a² + b² = c²</b>。',
+        '<b>拖套圈的 A′</b> 改一条直角边，拖 B、C 改另一条和整体位置。三个正方形的面积就是三项。' +
+        '<br>实测：<b>a² + b² = ' + fx(k.a * k.a + k.b * k.b) + '　c² = ' + fx(k.c * k.c) + '</b>');
+    },
+    lawsines(g) {
+      circle(g.O, g.R, css('--muted'), 1.5);
+      triSides(g, css('--muted'), 1.2);        // 不要用 sides()：那画的是无限长的点虚线
+      const A = g.A, B = g.B, C = g.C;
+      const a = len(sub(B, C)), b = len(sub(C, A)), c = len(sub(A, B));
+      seg(B, C, MTRIO[0], 3.0); seg(C, A, MTRIO[1], 3.0); seg(A, B, MTRIO[2], 3.0);
+      const AA = angAt(A, B, C), AB = angAt(B, A, C), AC = angAt(C, A, B);
+      arcAng(A, B, C, 0.30, MTRIO[0]); arcAng(B, A, C, 0.30, MTRIO[1]); arcAng(C, A, B, 0.30, MTRIO[2]);
+      // 直径：从 B 过圆心到对径点，说明那个共同的值就是 2R
+      const Bp = { x: 2 * g.O.x - B.x, y: 2 * g.O.y - B.y };
+      seg(B, Bp, C_ORG, 2.0, [7, 5]); dot(Bp, C_ORG, 5); lab2(mid(B, Bp), '2R', C_ORG, 0, -16);
+      [[A, 'A'], [B, 'B'], [C, 'C']].forEach(([q, n]) => { dot(q, col(C_WHT), 5); lab(q, n, 13, -9); });
+      dot(g.O, css('--muted'), 3.5);
+      return info('正弦定理：每条边与它对角的正弦之比都相等，而且<b>都等于外接圆的直径 2R</b>。',
+        '拖动 A、B、C。三条边和三个对角一一对色。' +
+        '<br>实测：<b>a/sin A = ' + fx(a / Math.sin(AA)) + '　b/sin B = ' + fx(b / Math.sin(AB)) +
+        '　c/sin C = ' + fx(c / Math.sin(AC)) + '　2R = ' + fx(2 * g.R) + '</b>');
+    },
+    lawcosines(g) {
+      const G = { x: (g.A.x + g.B.x + g.C.x) / 3, y: (g.A.y + g.B.y + g.C.y) / 3 };
+      [[g.C, g.B, MTRIO[0], 'a²'], [g.A, g.C, MTRIO[1], 'b²'], [g.B, g.A, MTRIO[2], 'c²']]
+        .forEach(([P, Q, c, nm]) => {
+          const S4 = sqOut(P, Q, G);
+          fillPoly(S4, c, 0.12);
+          [0, 1, 2, 3].forEach((i) => seg(S4[i], S4[(i + 1) % 4], c, 1.6));
+          lab2({ x: (S4[0].x + S4[2].x) / 2, y: (S4[0].y + S4[2].y) / 2 }, nm, c, 0, 5);
+        });
+      triSides(g, col(C_WHT), 2.2);
+      const a = len(sub(g.B, g.C)), b = len(sub(g.C, g.A)), c = len(sub(g.A, g.B));
+      const CC = angAt(g.C, g.A, g.B), deg = CC * 180 / Math.PI;
+      const near = Math.abs(deg - 90) < 1.2;
+      arcAng(g.C, g.A, g.B, 0.34, near ? C_GRN : C_ORG);
+      return info('余弦定理：<b>c² = a² + b² − 2ab·cos C</b>。',
+        '拖动 A、B、C 改变角 C。<b>把 C 拖到 90°，修正项 −2ab·cos C 就为零，剩下的正是勾股定理</b>。' +
+        '<br>C = ' + fx(deg) + '°　实测：<b>c² = ' + fx(c * c) + '　a² + b² − 2ab·cos C = ' +
+        fx(a * a + b * b - 2 * a * b * Math.cos(CC)) + '</b>　（−2ab·cos C = ' +
+        fx(-2 * a * b * Math.cos(CC)) + (near ? '，<b>已经是勾股定理</b>' : '') + '）');
+    },
+    bisector(g) {
+      const k = bisCfg(g);
+      if (!k) return info('角平分线定理', '两个顶点重合了，把它们拖开。');
+      triSides(g, css('--muted'), 1.4);
+      seg(g.A, k.D, css('--muted'), 1.5, [7, 5]);
+      arcAng(g.A, g.B, k.D, 0.30, C_ORG); arcAng(g.A, k.D, g.C, 0.37, C_ORG);
+      seg(g.B, k.D, C_AMB, 3.4); seg(k.D, g.C, C_BLU, 3.4);
+      seg(g.A, g.B, C_AMB, 2.8); seg(g.A, g.C, C_BLU, 2.8);
+      dot(k.D, C_ORG, 6); lab(k.D, 'D', 2, 15);
+      return info('角平分线定理：内角平分线把对边分成的两段，与两条邻边成比例 —— <b>BD / DC = AB / AC</b>。',
+        '拖动 A、B、C。<b>琥珀是分子（BD、AB），蓝是分母（DC、AC）</b>，两个角弧一样大说明 AD 平分 ∠A。' +
+        '<br>实测：<b>BD / DC = ' + fx(k.BD / k.DC) + '　AB / AC = ' + fx(k.c / k.b) + '</b>');
+    },
+    median(g) {
+      const k = medCfg(g);
+      triSides(g, col(C_WHT), 1.8);
+      // 绕 M 转 180° 补成平行四边形
+      fillPoly([k.Ap, g.C, g.B], C_GRN, 0.09);
+      [[k.Ap, g.B], [k.Ap, g.C]].forEach(([P, Q]) => seg(P, Q, C_GRN, 1.8));
+      seg(g.B, g.C, C_BLU, 3.0); seg(g.A, k.Ap, C_AMB, 3.0);
+      lab2(lerpPt(g.B, g.C, 0.26), 'a', C_BLU, 0, 18);
+      lab2(lerpPt(g.A, k.Ap, 0.74), '2m', C_AMB, 16, 0);
+      dot(k.M, C_ORG, 5.5); lab(k.M, 'M', -14, 10);
+      dot(k.Ap, C_GRN, 5); lab(k.Ap, 'A′', 13, 11);
+      return info('中线长公式：<b>4m² = 2b² + 2c² − a²</b>。式子很丑，但把三角形绕 BC 的中点 M 转 180° 补成平行四边形之后，它就是<b>平行四边形定律</b>。',
+        '拖动 A、B、C。平行四边形的两条对角线：一条是 a，一条是 2m。' +
+        '<br>实测：<b>a² + (2m)² = ' + fx(k.a * k.a + 4 * k.m * k.m) +
+        '　2(b² + c²) = ' + fx(2 * (k.b * k.b + k.c * k.c)) + '</b>　移项即得 4m² = 2b² + 2c² − a²');
+    },
+    stewart(g) {
+      const k = stewCfg(g);
+      triSides(g, css('--muted'), 1.2);
+      seg(g.A, g.B, C_AMB, 2.6); seg(g.A, g.C, C_BLU, 2.6);
+      seg(g.B, k.D, C_GRN, 3.0); seg(k.D, g.C, C_RED, 3.0);
+      seg(g.A, k.D, C_ORG, 2.8);
+      lab2(mid(g.A, g.B), 'c', C_AMB, -16, 0); lab2(mid(g.A, g.C), 'b', C_BLU, 16, 0);
+      lab2(mid(g.B, k.D), 'm', C_GRN, 0, 18); lab2(mid(k.D, g.C), 'n', C_RED, 0, 18);
+      lab2(lerpPt(g.A, k.D, 0.55), 'd', C_ORG, 14, 0);
+      dot(k.D, C_ORG, 6.5); lab(k.D, 'D', 2, 16);
+      const mid2 = Math.abs(k.t - 0.5) < 0.012;
+      return info('Stewart 定理：<b>b²m + c²n = a(d² + mn)</b>，其中塞瓦线 AD 把 BC 分成 m = BD、n = DC，d = AD，a = m + n。',
+        '拖动 D 让它在 BC 上滑，也可以拖 A、B、C。<b>把 D 拖到中点，式子就塌缩成中线长公式</b>。' +
+        '<br>实测：<b>b²m + c²n = ' + fx(k.b * k.b * k.m + k.c * k.c * k.n) +
+        '　a(d² + mn) = ' + fx(k.a * (k.d * k.d + k.m * k.n)) + '</b>' +
+        (mid2 ? '　<b>D 在中点：4d² = 2b² + 2c² − a²，这就是中线长公式</b>' : ''));
     },
     napoleon(g) {
       const E = napTri(g.A, g.B, g.C), N = E.map((e) => e.cen);
@@ -1747,14 +1935,17 @@
     placed = [[g.A, 'A'], [g.B, 'B'], [g.C, 'C']].map(([p, n]) => { const r = labPos(p, n, -16, -9); return { x: r.x, y: r.y - r.h, w: r.w, h: r.h }; });
     // 射影那四条自己画舞台（圆、两条直线、两个三角形），默认的 ABC 三角形只会添乱
     const NO_TRI = ['orthocentric', 'conic', 'pascal', 'brianchon', 'pappus', 'desargues',
-                    'power', 'radical', 'monge', 'miquel', 'butterfly', 'casey', 'descartes'];
+                    'power', 'radical', 'monge', 'miquel', 'butterfly', 'casey', 'descartes',
+                    'pythagoras', 'lawcosines'];
     if (NO_TRI.indexOf(state.tab) < 0) tri(g.A, g.B, g.C, ink, 1.3);
     const info = DRAW[state.tab](g);
     // Pascal / Brianchon 的六个点自己标了 A–F，三角形顶点再标一次 A、B、C 就成了
     // 一张图上两套 ABC；而且拖它们只是把那个圆挪一挪、缩一缩，和定理无关（要缩放
     // 有右上角的按钮）。<b>干脆不画、也不让拖。</b>
     // Pappus 不一样：拖顶点会改变两条直线的夹角，是有意义的，所以留着，但不标字母。
-    if (['pascal', 'brianchon', 'power', 'butterfly', 'casey'].indexOf(state.tab) >= 0) {
+    if (state.tab === 'pythagoras') {        // A 换成了 A′（由 DRAW 自己画），这里只画 B、C
+      [[g.B, 'B'], [g.C, 'C']].forEach(([p2, n]) => { dot(p2, ink, 5.5); lab(p2, n, -16, -9); });
+    } else if (['pascal', 'brianchon', 'power', 'butterfly', 'casey'].indexOf(state.tab) >= 0) {
       /* 不画手柄 */
     } else if (state.tab === 'pappus') {
       [g.A, g.B, g.C].forEach((p) => ring(p, 5.5, css('--muted'), 1.5));
@@ -2048,6 +2239,14 @@
       const z = S(Q);
       if (Math.hypot(z.x - p.x, z.y - p.y) < HIT()) { drag = { thp: true }; cv.setPointerCapture(e.pointerId); return; }
     }
+    if (state.tab === 'pythagoras') {
+      const g0 = geo(), k = pyCfg(g0), z = S(k.A);
+      if (Math.hypot(z.x - p.x, z.y - p.y) < HIT()) { drag = { pyb: true }; cv.setPointerCapture(e.pointerId); return; }
+    }
+    if (state.tab === 'stewart') {
+      const g0 = geo(), k = stewCfg(g0), z = S(k.D);
+      if (Math.hypot(z.x - p.x, z.y - p.y) < HIT()) { drag = { stw: true }; cv.setPointerCapture(e.pointerId); return; }
+    }
     if (state.tab === 'miquel') {
       const g0 = geo(), c = miquelCfg(g0);
       if (c) {
@@ -2068,6 +2267,12 @@
     if (!drag) return; const p = pos(e);
     if (drag.pinch) { if (touches.size >= 2) setZoom(drag.z0 * spread() / drag.d0); return; }
     if (drag.hex !== undefined) { moveHex(drag.hex, p); return; }
+    if (drag.pyb) { const w = Wd(p), g0 = geo();
+      state.pyb = Math.max(0.25, Math.min(4.2, len(sub(w, g0.C)))); draw(); return; }
+    if (drag.stw) { const w = Wd(p), g0 = geo();
+      const d = sub(g0.C, g0.B), L2 = d.x * d.x + d.y * d.y;
+      if (L2 > 1e-12) state.stw = Math.max(0.08, Math.min(0.92, ((w.x - g0.B.x) * d.x + (w.y - g0.B.y) * d.y) / L2));
+      draw(); return; }
     if (drag.bf !== undefined) { const w = Wd(p), g0 = geo();
       bfState().th[drag.bf] = Math.atan2(w.y - g0.O.y, w.x - g0.O.x); draw(); return; }
     if (drag.cs !== undefined) { const w = Wd(p), g0 = geo();
