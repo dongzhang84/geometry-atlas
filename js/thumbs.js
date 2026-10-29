@@ -38,9 +38,11 @@
     // 圆这一族：三角形只是用来摆圆心（K02 / K03）或给出外接圆（K01）、三条边（K04）
     K01: { A: { x: 118, y: 26 }, B: { x: 170, y: 104 }, C: { x: 74, y: 112 } },
     K02: { A: { x: 46, y: 96 }, B: { x: 158, y: 96 }, C: { x: 104, y: 24 } },
-    // K03 的三角形和半径是一起搜出来的：要求 <b>Monge 线穿过图形</b>（重心到线 ≤ 18），
-    // 否则那条线吊在三个圆下面，和圆一点关系都看不出来
-    K03: { A: { x: 82.3, y: 104.2 }, B: { x: 116.7, y: 102.4 }, C: { x: 42.2, y: 62.9 } },
+    // K03 是排了四个方案挨个看出来的，不是搜出来的 —— 盲搜一直在两头撞墙：
+    // 半径接近 ⟹ 分母 (r₂−r₁) 小 ⟹ 外位似中心飞远 ⟹ 画框大 ⟹ 三个圆缩成小点；
+    // 半径悬殊 ⟹ 中心近、画框紧，可读起来是「一个大圆加两个点」。
+    // 9/17/34 是中间那一档，三个圆都还是圆，中心也没飞。
+    K03: { A: { x: 52, y: 104 }, B: { x: 128, y: 96 }, C: { x: 88, y: 34 } },
     K04: { A: { x: 30, y: 116 }, B: { x: 178, y: 116 }, C: { x: 92, y: 24 } },
   };
   /** 等边位置：底边不动，A 抬到正上方 */
@@ -58,8 +60,10 @@
     `<line class="${cls}" x1="${f(p.x)}" y1="${f(p.y)}" x2="${f(q.x)}" y2="${f(q.y)}"/>`;
   const circle = (c, cls) =>
     `<circle class="${cls}" cx="${f(c.x)}" cy="${f(c.y)}" r="${f(c.r)}"/>`;
-  const dot = (p, cls) =>
-    `<circle class="pt ${cls || ''}" cx="${f(p.x)}" cy="${f(p.y)}" r="2.6"/>`;
+  /** 第三个参数是半径。画框被一条长线撑大时，写死的 2.6 缩放后只剩 1 像素，
+      点就看不见了（Monge 那张的画框 357 宽，橙点只剩 1.4px）。 */
+  const dot = (p, cls, r) =>
+    `<circle class="pt ${cls || ''}" cx="${f(p.x)}" cy="${f(p.y)}" r="${r || 2.6}"/>`;
   const tri = (P, Q, R, cls) =>
     `<path class="${cls || 'tri'}" d="M${f(P.x)} ${f(P.y)}L${f(Q.x)} ${f(Q.y)}L${f(R.x)} ${f(R.y)}Z"/>`;
   const ellipse = (el, cls) =>
@@ -144,7 +148,7 @@
 
   /* ---------- 圆这一族共用的小工具 ---------- */
   const RADR = [17, 22, 15.5];                 // K02 三个圆的半径（缩略图尺度）
-  const MONR = [4.7, 12.8, 47.5];              // K03：必须按比例拉开，否则外位似中心飞出画面
+  const MONR = [9, 17, 34];                    // K03：理由见 SHAPES.K03 那段注释
   const tanPtT = (P, c, r, sgn) => {
     const d = sub(c, P), L = len(d);
     if (L <= r + 1e-6) return null;
@@ -369,11 +373,23 @@
       const R = [MONR[0] * (1 + 0.42 * kk), MONR[1] * (1 + 0.10 * kk), MONR[2] * (1 - 0.14 * kk)];
       const E = [[0, 1], [1, 2], [0, 2]].map(([i, j]) => extCenT(C3[i], R[i], C3[j], R[j]));
       const out = [];
+      // <b>外公切线要画。</b>不画的话三个橙点就孤零零浮在一条线上，看不出它们和圆有
+      // 什么关系 —— 切线一扇出去，「这两个圆的两条外公切线交在这里」就说清楚了。
+      if (E.every(Boolean)) {
+        [[0, 1], [1, 2], [0, 2]].forEach(([i, j], m) => {
+          [+1, -1].forEach((sg) => {
+            const a = tanPtT(E[m], C3[i], R[i], sg), b = tanPtT(E[m], C3[j], R[j], sg);
+            if (!a || !b) return;
+            const far = len(sub(a, E[m])) > len(sub(b, E[m])) ? a : b;
+            out.push(line(E[m], far, ['amb', 'medp', 'grnp'][m]));
+          });
+        });
+      }
       C3.forEach((c, i) => out.push(circle({ x: c.x, y: c.y, r: R[i] }, ['amb2', 'medp2', 'grnp2'][i])));
       if (!E.every(Boolean)) return out;
       const e2 = thru(E, 0.18);
       out.push(line(e2[0], e2[1], 'halo'), line(e2[0], e2[1], 'ln'));
-      E.forEach((q, i) => out.push(dot(q, 'key')));
+      E.forEach((q) => out.push(dot(q, 'key', 5.2)));   // 画框大，点要跟着放大
       return out;
     },
     // Miquel：三角形三条边钉死，<b>横截线转</b> —— 四个外接圆全变，Miquel 点不动
