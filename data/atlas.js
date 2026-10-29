@@ -141,7 +141,7 @@ window.ATLAS = {
     { id: "K03", layer: "euc", family: "circle", name: "Monge 定理",
       statement: "三个圆两两的外位似中心共线。",
       deps: ["T4"],
-      source: "Gaspard Monge" },
+      source: "Gaspard Monge（1746–1818）；文献只写「以 Monge 命名」，未见发表年份" },
     { id: "K04", layer: "euc", family: "circle", name: "Miquel 定理",
       statement: "完全四边形的四个三角形的外接圆共点。",
       deps: ["T2"],
