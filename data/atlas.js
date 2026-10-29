@@ -219,7 +219,7 @@ window.ATLAS = {
       deps: [],
       source: "Gaspard Monge" },
     { id: "S02", layer: "euc", family: "solid", name: "十二点球",
-      statement: "四面体的四个面重心、四条高与对面的交点等十二个点共球。",
+      statement: "垂心四面体的四个面重心、四条高的垂足、垂心到四个顶点的三等分点，这十二个点共球，半径是外接球的三分之一。",
       deps: ["S01", "T4"],
       source: "经典" }
   ],
