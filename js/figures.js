@@ -9,10 +9,19 @@
   /* 画布按容器实际宽度绘制（单位：CSS 像素）。K 是相对原设计宽度 680 的缩放，
    * 线宽、点、字号、偏移都乘 K，并设下限，保证手机上看得清、点得中。 */
   let W = 680, H = 480, K = 1;
+  /** 画布底部给公式栏留的那条带（CSS 像素）。<b>所有图一律留</b>，哪怕这张没有公式 ——
+      不然在页签之间切换时图会忽大忽小。两行（公式 + 数值）约 56px，加内边距取 66。 */
+  const BAND = 66;
   function resizeCanvas() {
     const dpr = window.devicePixelRatio || 1;
     W = Math.max(240, Math.round(cv.clientWidth || 680));
     H = Math.round(W < 500 ? W : W * 480 / 680);   // 窄屏用 1:1，宽屏保持 680:480
+    // <b>再压一道视口高度上限</b>：原来高度只跟页面宽度走，窗口一宽画布就顶出首屏。
+    // 上限<b>按画布在文档里的实际位置</b>算，不要用视口高度的固定比例 ——
+    // 画布上面那段说明会随窗口宽度换行，占的高度本身就是变的
+    const topY = cv.getBoundingClientRect().top + (window.scrollY || 0);
+    const avail = (window.innerHeight || 800) - topY - 22;   // 22 留一线，暗示下面还有内容
+    H = Math.max(300, Math.min(H, Math.round(avail)));
     K = W / 680;
     cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
@@ -150,6 +159,14 @@
       if (d.S2 && d.r2 > 0 && d.r2 < 60 * g.R)
         out.push({ x: d.S2.x - d.r2, y: d.S2.y - d.r2 }, { x: d.S2.x + d.r2, y: d.S2.y + d.r2 });
       return out;
+    }
+    if (state.tab === 'heron') {
+      // 默认分支会把<b>外接圆和垂心</b>算进来，可这张图一个都没画 ——
+      // 取景框按看不见的东西撑开，图就缩在中间一小团
+      const c = heronCfg(g);
+      if (!c) return [g.A, g.B, g.C];
+      return [g.A, g.B, g.C,
+              { x: c.I.x - c.r, y: c.I.y - c.r }, { x: c.I.x + c.r, y: c.I.y + c.r }];
     }
     if (state.tab === 'brahmagupta' || state.tab === 'ptolemy') {
       return [{ x: g.O.x - g.R, y: g.O.y - g.R }, { x: g.O.x + g.R, y: g.O.y + g.R }];
@@ -293,8 +310,10 @@
     const xs = pts.map((p) => p.x), ys = pts.map((p) => p.y);
     const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
     if (!(x1 - x0 > 1e-9 || y1 - y0 > 1e-9)) return;
-    const s = state.zoom * Math.min((W - 80 * K) / Math.max(x1 - x0, 1e-9), (H - 60 * K) / Math.max(y1 - y0, 1e-9));
-    view = { s, ox: W / 2 - s * (x0 + x1) / 2, oy: H / 2 - s * (y0 + y1) / 2 };
+    const hh = H - BAND;                       // 可画的高度：底部那条带留给公式栏
+    const s = state.zoom * Math.min((W - 80 * K) / Math.max(x1 - x0, 1e-9),
+                                    (hh - 60 * K) / Math.max(y1 - y0, 1e-9));
+    view = { s, ox: W / 2 - s * (x0 + x1) / 2, oy: hh / 2 - s * (y0 + y1) / 2 };
   }
 
   /* ---------- 画图小工具 ---------- */
@@ -2576,8 +2595,21 @@
   new MutationObserver(draw).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 
   let lastW = W;
-  const onResize = () => { const w = Math.round(cv.clientWidth); if (w && w !== lastW) { lastW = w; resizeCanvas(); fit(); draw(); } };
-  if (window.ResizeObserver) new ResizeObserver(onResize).observe(cv.parentElement); else window.addEventListener('resize', onResize);
+  let lastVH = window.innerHeight, lastTop = -1;
+  const onResize = () => {
+    // 高度上限跟视口和<b>画布自己的位置</b>走，所以不能只盯宽度。
+    // 首次 resizeCanvas() 是在布局定稿前跑的，位置偏小，load 之后要再算一次
+    const w = Math.round(cv.clientWidth), vh = window.innerHeight;
+    const top = Math.round(cv.getBoundingClientRect().top + (window.scrollY || 0));
+    if ((w && w !== lastW) || vh !== lastVH || top !== lastTop) {
+      lastW = w || lastW; lastVH = vh; lastTop = top;
+      resizeCanvas(); fit(); draw();
+    }
+  };
+  if (window.ResizeObserver) new ResizeObserver(onResize).observe(cv.parentElement);
+  window.addEventListener('resize', onResize);   // 只改窗口高度时 ResizeObserver 不响
+  window.addEventListener('load', onResize);
+  requestAnimationFrame(() => requestAnimationFrame(onResize));
 
   fit();
   setTab(location.hash.slice(1) || TABS[0][0], false);
