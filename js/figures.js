@@ -67,10 +67,10 @@
     simson: [[C_WHT, '西姆松线'], [C_FOT, '三个垂足'], [C_RED, '三条高 → 垂心 H'], [C_AMB, '线段 PH'], [C_WHT, '九点圆']],
     ninepoint: [[C_WHT, '九点圆'], [C_ORG, '三边中点'], [C_FOT, '三个垂足'], [C_PUR, '三个欧拉点'], [C_RED, '三条高 → 垂心'], [C_GRY, '外接圆']],
     orthocentric: [[C_WHT, '当前三角形 · 九点圆'], [C_RED, '它的三条高 → 垂心'], [C_ORG, '三边中点'], [C_FOT, '三个垂足'], [C_PUR, '三个欧拉点']],
-    pascal: [[C_WHT, '内接六边形 · Pascal 线'], [C_ORG, '三组对边的交点'], [C_AMB, '第一组'], [C_BLU, '第二组'], [C_GRN, '第三组']],
+    pascal: [[C_WHT, 'Pascal 线'], [C_ORG, '三组对边的交点'], [C_AMB, '第一组对边'], [C_BLU, '第二组'], [C_GRN, '第三组']],
     brianchon: [[C_WHT, '外切六边形'], [C_ORG, 'Brianchon 点'], [C_AMB, '第一条对角线'], [C_BLU, '第二条'], [C_GRN, '第三条']],
     pappus: [[C_WHT, '六个点 · Pappus 线'], [C_ORG, '三个交点'], [C_AMB, '第一组交叉连线'], [C_BLU, '第二组'], [C_GRN, '第三组']],
-    desargues: [[C_WHT, '两个三角形 · 透视轴'], [C_ORG, '透视中心 O 与三个交点'], [C_AMB, '第一组对应边'], [C_BLU, '第二组'], [C_GRN, '第三组']],
+    desargues: [[C_WHT, '透视轴'], [C_ORG, '透视中心 O（空心）与三个交点（实心）'], [C_AMB, '第一组对应边'], [C_BLU, '第二组'], [C_GRN, '第三组']],
     napoleon: [[C_WHT, '拿破仑三角形'], [C_ORG, '三个正三角形的中心'], [C_AMB, '三个外接正三角形与刻度']],
     morley: [[C_WHT, 'Morley 三角形'], [C_ORG, '相邻三等分线的交点'], [C_AMB, '六条三等分线与刻度']],
     gergonne: [[C_ORG, 'Gergonne 点'], [C_GRN, '内切圆'], [C_AMB, '切点与切线长的刻度'], [C_BLU, '三条连线']],
@@ -162,11 +162,11 @@
     x = Math.min(Math.max(x, pad), W - pad - w); y = Math.min(Math.max(y, fs + pad / 2), H - pad);
     return { x, y, w, h: fs };
   }
-  function lab(P, txt, dx, dy) {
+  function lab(P, txt, dx, dy, colr) {
     const q = S(P); if (!(q.x >= 0 && q.x <= W && q.y >= 0 && q.y <= H)) return;   // 点在画面外（比如放大后）就不标
     const r = labPos(P, txt, dx, dy);
     placed.push({ x: r.x, y: r.y - r.h, w: r.w, h: r.h });
-    ctx.fillStyle = css('--ink'); ctx.fillText(txt, r.x, r.y);
+    ctx.fillStyle = colr || css('--ink'); ctx.fillText(txt, r.x, r.y);
   }
   /* 标签防重叠：本次绘制已占用的文字框（屏幕坐标）。每个标签依次试点周围的候选位置，
    * 选第一个不出画布、不压到已有文字和这组点的；都不行就用第一个候选。 */
@@ -237,7 +237,11 @@
      Pappus 用 AB、AC 两条边当两条直线，Desargues 用 ABC 加一个可拖的透视中心。
      这样拖 A、B、C 就能改变整个构型，不用另造一套交互。 */
   const PJ_TRIO = [C_AMB, C_BLU, C_GRN];           // 三组对应元素：琥珀 / 蓝 / 绿
-  const PJ_BASE = [0.45, 1.35, 2.25, 3.25, 4.25, 5.35];
+  // 六个角度是搜出来的，三条硬条件：(1) 间隔别太小 —— 间隔一小那两条切线就快平行，
+  // Brianchon 的顶点甩得老远；(2) <b>Pascal 线不能和任何一条边近乎平行</b> —— 否则白色的
+  // 结论线整条压在一条彩色的边上，看着像边断了；现在最小夹角 41°；(3) 可拖的那个点不能
+  // 贴着某个交点，圈和橙点叠在一起分不清。交点全在 0.51R 以内。
+  const PJ_BASE = [-0.083, 0.852, 2.341, 3.219, 4.011, 5.36];
   const PJ_ORD = [0, 4, 1, 3, 5, 2];               // 交叉六边形：扫过所有连法挑出来的，
                                                    // 三个交点全落在 0.75R 以内（凸六边形会甩到十万八千里）
   const xl2 = (P1, P2, P3, P4) => {
@@ -286,8 +290,18 @@
     return { A3, B3, X, pair };
   }
   function desarguesCfg(g) {
-    const O = state.P || { x: g.A.x + 1.3 * g.R, y: g.A.y + 0.4 * g.R };
-    const KK = [0.52, 0.76, 0.36];                 // 三个比例必须互不相同，相等则对应边平行、交点在无穷远
+    // 透视中心默认放在三角形<b>内部</b>（重心坐标），这样第二个三角形是嵌在第一个
+    // 里面的。O 在外面时两个三角形互相穿插，根本看不出是「两个三角形」。
+    // 单独存一份，不跟 Ceva / Fermat 共用 state.P —— 从那边切过来会继承一个乱七八糟的位置。
+    // U 和 KK 是按大图自己的标准三角形搜出来的。硬条件：小三角形最小角 ≥ 22°（否则扁成
+    // 一条）、三个交点互相分得开、<b>透视轴不能和六条边里任何一条近乎平行</b>（贴上了白轴
+    // 就压在彩色的边上）。打分<b>不是</b>「交点别太远」—— 那样搜出来是一条巨大的轴配两个
+    // 挤在角落的小三角形；打分要用<b>自动取景之后大三角形还剩多大</b>。现在轴与各边最小
+    // 夹角 24°，小/大面积比 0.28，取景后大三角形占画面 24%。
+    const U = [0.27, 0.378, 0.351];
+    const O = state.Pdes || { x: U[0] * g.A.x + U[1] * g.B.x + U[2] * g.C.x,
+                              y: U[0] * g.A.y + U[1] * g.B.y + U[2] * g.C.y };
+    const KK = [0.531, 0.283, 0.814];              // 三个比例必须互不相同，相等则对应边平行、交点在无穷远
     const V = [g.A, g.B, g.C];
     const V2 = V.map((q, i) => ({ x: O.x + (q.x - O.x) * KK[i], y: O.y + (q.y - O.y) * KK[i] }));
     const pair = [[0, 1], [1, 2], [2, 0]];
@@ -319,19 +333,22 @@
       const c = pascalCfg(g);
       if (!c.X.every(Boolean)) return info('Pascal 定理', '这个位置上有两条对边平行，交点跑到无穷远。把点拖开一点。');
       circle(g.O, g.R, css('--muted'), 1.4);
-      c.side.forEach(([p, q]) => seg(p, q, col(C_WHT), 1.5));
+      // 六条边按三组对边上色（第 k 条和第 k+3 条同色，k % 3 刚好配对）。
+      // 之前六条全白、只给延长线上色 —— 可交点几乎总落在边的内部，extSeg 就跳过，
+      // 结果一条彩线都不画，图例列着三种颜色，图上一种都没有。颜色要给边本身。
+      c.side.forEach(([p, q], k) => seg(p, q, PJ_TRIO[k % 3], 1.8));
       c.pair.forEach(([m, n], i) => {
-        [m, n].forEach((k) => extSeg(c.side[k][0], c.side[k][1], c.X[i], PJ_TRIO[i], 1.3));
+        [m, n].forEach((k) => extSeg(c.side[k][0], c.side[k][1], c.X[i], PJ_TRIO[i], 1.2));
       });
-      const e = thruLine(c.X, 0.16);
+      const e = thruLine(c.X, 0.22);
       seg(e[0], e[1], col(C_WHT), 3.0);
       c.X.forEach((q) => dot(q, C_ORG, 6));
       c.P.forEach((q) => dot(q, col(C_WHT), 4.5));
       ring(c.P[0], 9, C_ORG, 1.8);        // 能拖的那个套个圈，别和三个交点一样是橙点
       return info('Pascal 定理：圆锥曲线的内接六边形，三组对边的交点共线 —— 这条线叫 Pascal 线。',
-        '在画面上拖动（顶点以外的地方）让第一个点沿圆走，也可以拖动 A、B、C 改变这个圆。' +
+        '在画面上拖动（顶点以外的地方）让套圈的那个点沿圆走，也可以拖动 A、B、C 改变这个圆。' +
         '圆就是这里的圆锥曲线；六边形是交叉的（凸六边形的对边几乎平行，三个交点会跑到画面外）。' +
-        '琥珀、蓝、绿是三组对边各自的延长线，橙点是它们的交点，白粗线是 Pascal 线。');
+        '<b>同色的两条边是一组对边</b>，虚线是它们的延长线，橙点是交点，白粗线是 Pascal 线。');
     },
     brianchon(g) {
       if (state.theta === undefined) state.theta = PJ_BASE[0];
@@ -354,8 +371,8 @@
       const sec = css('--muted');
       lineInf(g.A, g.B, sec, 1.3); lineInf(g.A, g.C, sec, 1.3);
       c.pair.forEach((two, i) => two.forEach(([p, q]) => seg(p, q, PJ_TRIO[i], 1.5)));
-      const e = thruLine(c.X, 0.16);
-      seg(e[0], e[1], col(C_WHT), 3.0);
+      const e = thruLine(c.X, 0.30);
+      seg(e[0], e[1], col(C_WHT), 3.2);
       c.X.forEach((q) => dot(q, C_ORG, 6));
       c.A3.concat(c.B3).forEach((q) => dot(q, col(C_WHT), 4.5));
       return info('Pappus 定理：两条直线上各取三点，三组交叉连线的交点共线。' +
@@ -369,22 +386,23 @@
       if (!c.X.every(Boolean)) return info('Desargues 定理', '这个位置上有两条对应边平行，交点跑到无穷远。把透视中心拖开一点。');
       const sec = css('--muted');
       c.V.forEach((q) => seg(c.O, q, sec, 1.1, [6, 5]));
-      [0, 1, 2].forEach((k) => {
-        seg(c.V[k], c.V[(k + 1) % 3], col(C_WHT), 1.6);
-        seg(c.V2[k], c.V2[(k + 1) % 3], col(C_WHT), 1.6);
-      });
+      // 三组对应边直接上色（大三角形粗、小三角形细）。两个三角形原来都是白实线、
+      // 同样粗细，叠在一起根本分不出谁是谁，白色还跟结论线（透视轴）撞了。
       c.pair.forEach(([m, n], i) => {
-        extSeg(c.V[m], c.V[n], c.X[i], PJ_TRIO[i], 1.3);
-        extSeg(c.V2[m], c.V2[n], c.X[i], PJ_TRIO[i], 1.3);
+        seg(c.V[m], c.V[n], PJ_TRIO[i], 2.0);
+        seg(c.V2[m], c.V2[n], PJ_TRIO[i], 1.4);
+        extSeg(c.V[m], c.V[n], c.X[i], PJ_TRIO[i], 1.1);
+        extSeg(c.V2[m], c.V2[n], c.X[i], PJ_TRIO[i], 1.1);
       });
       const e = thruLine(c.X, 0.16);
-      seg(e[0], e[1], col(C_WHT), 3.0);
+      seg(e[0], e[1], col(C_WHT), 3.2);
       c.X.forEach((q) => dot(q, C_ORG, 6));
-      dot(c.O, C_ORG, 7); lab(c.O, 'O', 10, -10);
+      ring(c.O, 8, C_ORG, 2.2); lab(c.O, 'O', 11, -11);   // 中心是空心圈，交点是实心点
       c.V2.forEach((q) => dot(q, col(C_WHT), 4.5));
       return info('Desargues 定理：两个三角形透视于一点 O，当且仅当它们透视于一条线 —— 三组对应边的交点共线，这条线叫透视轴。',
         '在画面上拖动（顶点以外的地方）移动透视中心 O，也可以拖动 A、B、C。' +
-        '灰虚线是 O 到三个顶点的射线，第二个三角形就长在上面；琥珀、蓝、绿是三组对应边的延长线，橙点是交点，白粗线是透视轴。' +
+        '灰虚线是 O 到三个顶点的射线，第二个三角形（细线）就长在上面；<b>同色的两条边是一组对应边</b>，' +
+        '橙<b>圈</b>是透视中心 O，橙<b>点</b>是三个交点，白粗线是透视轴。O 拖到三角形外面时两个三角形会互相穿插，拖回内部就恢复嵌套。' +
         '<br>这是四条射影定理里唯一把<b>点和线的对偶同时放在一张图上</b>的：一个中心 O，一条轴。');
     },
     napoleon(g) {
@@ -1303,7 +1321,17 @@
     const NO_TRI = ['orthocentric', 'conic', 'pascal', 'brianchon', 'pappus', 'desargues'];
     if (NO_TRI.indexOf(state.tab) < 0) tri(g.A, g.B, g.C, ink, 1.3);
     const info = DRAW[state.tab](g);
-    [[g.A, 'A'], [g.B, 'B'], [g.C, 'C']].forEach(([p, n]) => { dot(p, ink, 5.5); lab(p, n, -16, -9); });
+    // Pascal / Brianchon / Pappus 里 A、B、C 不是图的一部分，只是改变舞台的控制点。
+    // 画成实心白点的话，圆上就有九个一模一样的白点（六个是六边形顶点，三个是手柄），
+    // 读图的人没法分辨。改成淡灰空心圈。
+    const HANDLE = ['pascal', 'brianchon', 'pappus'];
+    if (HANDLE.indexOf(state.tab) >= 0) {
+      [[g.A, 'A'], [g.B, 'B'], [g.C, 'C']].forEach(([p, n]) => {
+        ring(p, 5.5, css('--muted'), 1.5); lab(p, n, -16, -9, css('--muted'));
+      });
+    } else {
+      [[g.A, 'A'], [g.B, 'B'], [g.C, 'C']].forEach(([p, n]) => { dot(p, ink, 5.5); lab(p, n, -16, -9); });
+    }
     document.getElementById('info').innerHTML = info;
   }
 
@@ -1496,7 +1524,8 @@
     if (state.tab === 'simson' || state.tab === 'homothety' || state.tab === 'pascal' || state.tab === 'brianchon')
       state.theta = Math.atan2(w.y - g.O.y, w.x - g.O.x);
     else if (state.tab === 'conic') state.P = state.onCircle ? onCircumcircle(w, g) : w;
-    else if (state.tab === 'poncelet' || state.tab === 'ceva' || state.tab === 'fermat' || state.tab === 'desargues') state.P = w;
+    else if (state.tab === 'poncelet' || state.tab === 'ceva' || state.tab === 'fermat') state.P = w;
+    else if (state.tab === 'desargues') state.Pdes = w;
     draw();
   }
   /* 缩放：以画布中心为中心，倍数夹在 ZMIN–ZMAX；点、线宽、文字保持像素大小不变 */

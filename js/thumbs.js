@@ -103,7 +103,7 @@
   }
 
   /* ---------- 射影四条共用的小工具 ---------- */
-  const PJ_BASE6 = [0.45, 1.35, 2.25, 3.25, 4.25, 5.35];
+  const PJ_BASE6 = [-0.083, 0.852, 2.341, 3.219, 4.011, 5.36];   // 和大图同一组，理由见 figures.js
   const PJ_ORD6 = [0, 4, 1, 3, 5, 2];        // 交叉六边形：三个交点全落在 0.75R 以内
   const xl2 = (P1, P2, P3, P4) => {
     const d1 = sub(P2, P1), d2 = sub(P4, P3), den = d1.x * d2.y - d1.y * d2.x;
@@ -264,12 +264,14 @@
         xl2(side[m][0], side[m][1], side[n][0], side[n][1]));
       if (!X.every(Boolean)) return [circle(O, 'conic')];
       const out = [circle(O, 'conic')];
-      side.forEach(([p, q]) => out.push(line(p, q, 'thinw')));
+      // 六条边按三组对边上色（k 和 k+3 同色）。全画白的话图上没有一点颜色 ——
+      // 彩色延长线只在交点落到边外时才画，而这里交点全在边内，一条都不会画。
+      side.forEach(([p, q], k) => out.push(line(p, q, ['amb2', 'medp2', 'grnp2'][k % 3])));
       [[0, 3], [1, 4], [2, 5]].forEach(([m, n], i) => {
         const cls = ['amb', 'medp', 'grnp'][i];
         [m, n].forEach((k) => { const e = extS(side[k][0], side[k][1], X[i], cls); if (e) out.push(e); });
       });
-      const e2 = thru(X, 0.14);
+      const e2 = thru(X, 0.45);   // 三个交点挨得近，不往两头多延一点，白线短得看不出是条线
       out.push(line(e2[0], e2[1], 'ln'));
       return out.concat(P.map((q) => dot(q)), X.map((q) => dot(q, 'key')));
     },
