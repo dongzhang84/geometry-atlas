@@ -67,6 +67,8 @@
     simson: [[C_WHT, '西姆松线'], [C_FOT, '三个垂足'], [C_RED, '三条高 → 垂心 H'], [C_AMB, '线段 PH'], [C_WHT, '九点圆']],
     ninepoint: [[C_WHT, '九点圆'], [C_ORG, '三边中点'], [C_FOT, '三个垂足'], [C_PUR, '三个欧拉点'], [C_RED, '三条高 → 垂心'], [C_GRY, '外接圆']],
     orthocentric: [[C_WHT, '当前三角形 · 九点圆'], [C_RED, '它的三条高 → 垂心'], [C_ORG, '三边中点'], [C_FOT, '三个垂足'], [C_PUR, '三个欧拉点']],
+    napoleon: [[C_WHT, '拿破仑三角形'], [C_ORG, '三个正三角形的中心'], [C_AMB, '三个外接正三角形与刻度']],
+    morley: [[C_WHT, 'Morley 三角形'], [C_ORG, '相邻三等分线的交点'], [C_AMB, '六条三等分线与刻度']],
     gergonne: [[C_ORG, 'Gergonne 点'], [C_GRN, '内切圆'], [C_AMB, '切点与切线长的刻度'], [C_BLU, '三条连线']],
     nagelpoint: [[C_ORG, 'Nagel 点'], [C_GRN, '三个旁切圆'], [C_AMB, '切点与三种长度的刻度'], [C_BLU, '三条连线']],
     fermat: [[C_ORG, 'Fermat 点 F 与三个 120° 角'], [C_AMB, 'PA、PB、PC']],
@@ -107,7 +109,22 @@
   function fitPoints() {
     if (degenerate()) return state.V;
     const g = geo();
+    // 拿破仑那张的三个外接正三角形伸得比外接圆还远，不单独算进来会被切掉
+    if (state.tab === 'napoleon') {
+      return [g.A, g.B, g.C].concat(napTri(g.A, g.B, g.C).map((t) => t.apex));
+    }
     return [g.A, g.B, g.C, g.H, { x: g.O.x - g.R, y: g.O.y - g.R }, { x: g.O.x + g.R, y: g.O.y + g.R }];
+  }
+  /** 三边向外各作一个正三角形：顶点在中点沿「背离第三个顶点」的法向、距离 |UW|·√3/2 处 */
+  function napTri(A, B, C) {
+    const one = (U, W, V) => {
+      const m = mid(U, W), d = sub(W, U), L = Math.max(len(d), 1e-9);
+      let n = { x: -d.y / L, y: d.x / L };
+      if ((V.x - m.x) * n.x + (V.y - m.y) * n.y > 0) n = { x: -n.x, y: -n.y };
+      const apex = { x: m.x + n.x * L * Math.sqrt(3) / 2, y: m.y + n.y * L * Math.sqrt(3) / 2 };
+      return { U, W, apex, cen: { x: (U.x + W.x + apex.x) / 3, y: (U.y + W.y + apex.y) / 3 } };
+    };
+    return [one(B, C, A), one(C, A, B), one(A, B, C)];
   }
   function fit() {
     const pts = fitPoints();
@@ -208,6 +225,67 @@
   /* ---------- 各标签页 ---------- */
   const DRAW = {
     /* ── 共点与共线 ───────────────────────────────────────── */
+    napoleon(g) {
+      const E = napTri(g.A, g.B, g.C), N = E.map((e) => e.cen);
+      E.forEach((e) => { seg(e.U, e.apex, C_AMB, 1.2); seg(e.W, e.apex, C_AMB, 1.2); });
+      // 结论填色加粗，输入退到细淡线 —— 两个三角形都画成白实线会叠成一个六角星
+      ctx.globalAlpha = 0.16;
+      const q = N.map(S); ctx.beginPath(); ctx.moveTo(q[0].x, q[0].y);
+      ctx.lineTo(q[1].x, q[1].y); ctx.lineTo(q[2].x, q[2].y); ctx.closePath();
+      ctx.fillStyle = col(C_WHT); ctx.fill(); ctx.globalAlpha = 1;
+      tri(N[0], N[1], N[2], col(C_WHT), 2.8);
+      // 三条边各一道刻度：一样多 = 一样长
+      [[0, 1], [1, 2], [2, 0]].forEach(([m, n]) => ticks(N[m], N[n], 1, C_AMB));
+      N.forEach((P1) => dot(P1, C_ORG, 6));
+      E.forEach((e) => dot(e.apex, C_AMB, 4));
+      labelPoints([[N[0], 'Na'], [N[1], 'Nb'], [N[2], 'Nc']], sub(N[1], N[0]));
+      const L = [len(sub(N[0], N[1])), len(sub(N[1], N[2])), len(sub(N[2], N[0]))];
+      return info('拿破仑定理：在三边向外各作一个正三角形，它们的中心 Na、Nb、Nc 又构成一个正三角形 —— 和原三角形的形状完全无关。',
+        '拖动顶点 A、B、C 改变三角形。琥珀细线是三个外接正三角形，橙点是它们的中心，白色实心三角形就是拿破仑三角形；' +
+        '三条边各一道刻度，意思是三边等长。' +
+        '<br>实测三边：' + fmt(L[0], 3) + '、' + fmt(L[1], 3) + '、' + fmt(L[2], 3) +
+        '，<b style="color:' + C_ORG + '">最大差 ' + fmt(Math.max(...L) - Math.min(...L), 4) + '</b>。');
+    },
+    morley(g) {
+      const rot = (d, th) => ({ x: d.x * Math.cos(th) - d.y * Math.sin(th),
+                                y: d.x * Math.sin(th) + d.y * Math.cos(th) });
+      const un = (d) => { const L = Math.max(len(d), 1e-9); return { x: d.x / L, y: d.y / L }; };
+      const tri3 = (V, U, W) => {
+        const d1 = un(sub(U, V)), d2 = un(sub(W, V));
+        const a = Math.atan2(d1.x * d2.y - d1.y * d2.x, d1.x * d2.x + d1.y * d2.y);
+        return { d1, d2, a, t1: rot(d1, a / 3), t2: rot(d1, 2 * a / 3) };
+      };
+      const xl = (P1, d1, P2, d2) => {
+        const den = d1.x * d2.y - d1.y * d2.x;
+        if (Math.abs(den) < 1e-12) return null;
+        const w = sub(P2, P1);
+        return { x: P1.x + d1.x * (w.x * d2.y - w.y * d2.x) / den,
+                 y: P1.y + d1.y * (w.x * d2.y - w.y * d2.x) / den };
+      };
+      const tA = tri3(g.A, g.B, g.C), tB = tri3(g.B, g.C, g.A), tC = tri3(g.C, g.A, g.B);
+      const P = [xl(g.B, tB.t1, g.C, tC.t2), xl(g.C, tC.t1, g.A, tA.t2), xl(g.A, tA.t1, g.B, tB.t2)];
+      if (!P.every(Boolean)) return info('Morley 定理', '这个位置上三等分线平行，交点跑到无穷远。把顶点拖开一点。');
+      // 三等分线只画到对边为止，不满屏延伸
+      const ray = (V, d, U, W) => xl(V, d, U, un(sub(W, U))) || add(V, mul(d, 2));
+      [[g.A, tA, g.B, g.C], [g.B, tB, g.C, g.A], [g.C, tC, g.A, g.B]].forEach(([V, t, U, W]) => {
+        seg(V, ray(V, t.t1, U, W), C_AMB, 1.1, [5, 4]);
+        seg(V, ray(V, t.t2, U, W), C_AMB, 1.1, [5, 4]);
+      });
+      ctx.globalAlpha = 0.16;
+      const q = P.map(S); ctx.beginPath(); ctx.moveTo(q[0].x, q[0].y);
+      ctx.lineTo(q[1].x, q[1].y); ctx.lineTo(q[2].x, q[2].y); ctx.closePath();
+      ctx.fillStyle = col(C_WHT); ctx.fill(); ctx.globalAlpha = 1;
+      tri(P[0], P[1], P[2], col(C_WHT), 2.8);
+      [[0, 1], [1, 2], [2, 0]].forEach(([m, n]) => ticks(P[m], P[n], 1, C_AMB));
+      P.forEach((p1) => dot(p1, C_ORG, 6));
+      labelPoints([[P[0], 'Pa'], [P[1], 'Pb'], [P[2], 'Pc']], sub(P[1], P[0]));
+      const L = [len(sub(P[0], P[1])), len(sub(P[1], P[2])), len(sub(P[2], P[0]))];
+      return info('Morley 定理：三个内角的三等分线，相邻两条的交点 Pa、Pb、Pc 构成一个正三角形 —— 和原三角形的形状无关。',
+        '拖动顶点 A、B、C 改变三角形。琥珀虚线是六条三等分线（只画到对边为止），橙点是相邻两条的交点，白色实心三角形就是 Morley 三角形；' +
+        '三条边各一道刻度，意思是三边等长。' +
+        '<br>实测三边：' + fmt(L[0], 3) + '、' + fmt(L[1], 3) + '、' + fmt(L[2], 3) +
+        '，<b style="color:' + C_ORG + '">最大差 ' + fmt(Math.max(...L) - Math.min(...L), 4) + '</b>。');
+    },
     gergonne(g) {
       const sec = css('--muted'), V = [g.A, g.B, g.C];
       const a = len(sub(g.C, g.B)), b = len(sub(g.A, g.C)), c = len(sub(g.B, g.A));

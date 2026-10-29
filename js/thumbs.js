@@ -27,6 +27,9 @@
     C04: { A: { x: 96, y: 12 }, B: { x: 16, y: 130 }, C: { x: 186, y: 130 } },
     C05: { A: { x: 60, y: 16 }, B: { x: 20, y: 128 }, C: { x: 192, y: 128 } },
     C06: { A: { x: 130, y: 18 }, B: { x: 14, y: 126 }, C: { x: 184, y: 126 } },
+    // 拿破仑那张要装下三个外接正三角形，三角形本身得画小一点
+    B01: { A: { x: 104, y: 44 }, B: { x: 52, y: 110 }, C: { x: 152, y: 108 } },
+    B02: { A: { x: 76, y: 14 }, B: { x: 18, y: 128 }, C: { x: 188, y: 128 } },
   };
   /** 等边位置：底边不动，A 抬到正上方 */
   const apexOf = (T) => ({ x: (T.B.x + T.C.x) / 2,
@@ -219,6 +222,52 @@
       });
       return [tri(A, B, C), line(F, A, 'amb2'), line(F, B, 'amb2'), line(F, C, 'amb2')]
         .concat(arcs, [dot(F, 'key')]);
+    },
+    // 拿破仑：三边向外各作正三角形，三个中心又成正三角形
+    B01: (g) => {
+      const { A, B, C } = g;
+      const one = (U, W, V) => {
+        const m = mid(U, W), d = sub(W, U), L = Math.max(len(d), 1e-9);
+        let n = { x: -d.y / L, y: d.x / L };
+        if ((V.x - m.x) * n.x + (V.y - m.y) * n.y > 0) n = { x: -n.x, y: -n.y };
+        const ap = { x: m.x + n.x * L * Math.sqrt(3) / 2, y: m.y + n.y * L * Math.sqrt(3) / 2 };
+        return { U, W, ap, c: { x: (U.x + W.x + ap.x) / 3, y: (U.y + W.y + ap.y) / 3 } };
+      };
+      const E = [one(B, C, A), one(C, A, B), one(A, B, C)], N = E.map((e) => e.c);
+      const out = [tri(A, B, C, 'tri dim')];
+      E.forEach((e) => { out.push(line(e.U, e.ap, 'amb2'), line(e.W, e.ap, 'amb2')); });
+      out.push(tri(N[0], N[1], N[2], 'ln'));
+      return out.concat(ticks(N[0], N[1], 1), ticks(N[1], N[2], 1), ticks(N[2], N[0], 1),
+                        N.map((q) => dot(q, 'key')));
+    },
+    // Morley：三个内角的三等分线，相邻两条的交点成正三角形
+    B02: (g) => {
+      const { A, B, C } = g;
+      const rot = (d, th) => ({ x: d.x * Math.cos(th) - d.y * Math.sin(th),
+                                y: d.x * Math.sin(th) + d.y * Math.cos(th) });
+      const un = (d) => { const L = Math.max(len(d), 1e-9); return { x: d.x / L, y: d.y / L }; };
+      const t3 = (V, U, W) => {
+        const d1 = un(sub(U, V)), d2 = un(sub(W, V));
+        const a = Math.atan2(d1.x * d2.y - d1.y * d2.x, d1.x * d2.x + d1.y * d2.y);
+        return { d1, t1: rot(d1, a / 3), t2: rot(d1, 2 * a / 3) };
+      };
+      const xl = (P1, d1, P2, d2) => {
+        const den = d1.x * d2.y - d1.y * d2.x;
+        if (Math.abs(den) < 1e-12) return null;
+        const w = sub(P2, P1), k = (w.x * d2.y - w.y * d2.x) / den;
+        return { x: P1.x + d1.x * k, y: P1.y + d1.y * k };
+      };
+      const tA = t3(A, B, C), tB = t3(B, C, A), tC = t3(C, A, B);
+      const P = [xl(B, tB.t1, C, tC.t2), xl(C, tC.t1, A, tA.t2), xl(A, tA.t1, B, tB.t2)];
+      if (!P.every(Boolean)) return [tri(A, B, C)];
+      const ray = (V, d, U, W) => xl(V, d, U, un(sub(W, U))) || V;
+      const out = [tri(A, B, C, 'tri dim')];
+      [[A, tA, B, C], [B, tB, C, A], [C, tC, A, B]].forEach(([V, t, U, W]) => {
+        out.push(line(V, ray(V, t.t1, U, W), 'amb'), line(V, ray(V, t.t2, U, W), 'amb'));
+      });
+      out.push(tri(P[0], P[1], P[2], 'ln'));
+      return out.concat(ticks(P[0], P[1], 1), ticks(P[1], P[2], 1), ticks(P[2], P[0], 1),
+                        P.map((q) => dot(q, 'key')));
     },
     N01: (g) => {
       const { A, B, C, T } = g;
