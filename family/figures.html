@@ -27,13 +27,13 @@ body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);f
 /* <b>宽屏把说明挪到图的右边。</b>原来是 980px 定宽的单栏，1920 的窗口白空 940px，
    而说明文字却在图下面跟它抢高度 —— 最长的一段 300px，图被压到比现在还小。
    挪到旁边之后，图和文字各自拿满高度，首屏一次看完。 */
-@media (min-width:1180px){
+@media (min-width:980px){
   .wrap{max-width:min(1560px, 95vw);
     display:grid; align-items:start; column-gap:26px; row-gap:14px;
     /* 文字栏<b>宽一点</b>：画布是高度受限的（高度上限 < 宽度算出来的高），
-       让出宽度一点不亏，而文字栏一宽，同样的字就矮一截 —— 390px 时最长的几段
-       还会超出首屏约 20px，440px 就进去了 */
-    grid-template-columns:minmax(0,1fr) 440px;
+       让出宽度一点不亏，而文字栏一宽，同样的字就矮一截。
+       用 clamp 而不是定宽：弹窗里的 iframe 窄一些，定宽会把图那一列挤死 */
+    grid-template-columns:minmax(0,1fr) clamp(320px, 28%, 440px);
     grid-template-areas:"head head" "tabs tabs" "opts opts" "stage side" "foot foot";}
   .wrap > header{grid-area:head} #tabs{grid-area:tabs} .opts{grid-area:opts}
   .stage{grid-area:stage} .side{grid-area:side} .wrap > footer{grid-area:foot}
@@ -151,8 +151,8 @@ footer ul{margin:0;padding-left:18px}
   document.documentElement.classList.add('embed');
   document.documentElement.setAttribute('data-theme', 'dark');
 }</script>
-<script src="../data/atlas.js?v=20261031p"></script>
-<script src="../js/geometry.js?v=20261031p"></script>
-<script src="../js/figures.js?v=20261031p"></script>
+<script src="../data/atlas.js?v=20261031q"></script>
+<script src="../js/geometry.js?v=20261031q"></script>
+<script src="../js/figures.js?v=20261031q"></script>
 </body>
 </html>

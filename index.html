@@ -250,10 +250,10 @@ footer a{color:var(--faint)}
   <div class="bar"><b id="stageTitle"></b><button id="stageClose">关闭 Esc</button></div>
 </div>
 
-<script src="data/atlas.js?v=20261031p"></script>
-<script src="js/geometry.js?v=20261031p"></script>
-<script src="js/thumbs.js?v=20261031p"></script>
-<script src="vendor/d3.min.js?v=20261031p"></script>
+<script src="data/atlas.js?v=20261031q"></script>
+<script src="js/geometry.js?v=20261031q"></script>
+<script src="js/thumbs.js?v=20261031q"></script>
+<script src="vendor/d3.min.js?v=20261031q"></script>
 <script>
 (function () {
   var A = window.ATLAS, byId = {}, famOf = {};
@@ -498,8 +498,11 @@ footer a{color:var(--faint)}
     stageTitle.textContent = fig.dataset.name;
     void stage.offsetWidth;                       // 先定在原位，再长大
     var pad = Math.min(44, innerWidth * .05);
-    var w = Math.min(1040, innerWidth - pad * 2);
-    var h = Math.min(innerHeight - pad * 2, Math.round(w * .8));
+    // 原来宽度卡 1040、高度又被「宽 × 0.8」封顶，1920 的窗口左右各空 440px。
+    // 更要命的是 1040 的 iframe 触发不了 figures.html 的两栏断点，
+    // 说明文字只能退回图下面，直接被挤出可视区。
+    var w = Math.min(1760, innerWidth - pad * 2);
+    var h = innerHeight - pad * 2;
     stage.style.left = Math.round((innerWidth - w) / 2) + 'px';
     stage.style.top = Math.round((innerHeight - h) / 2) + 'px';
     stage.style.width = w + 'px'; stage.style.height = h + 'px';
