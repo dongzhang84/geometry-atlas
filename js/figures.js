@@ -115,7 +115,8 @@
     sevenpoint: [[C_PUR, '七点球'], [C_GRY, '外接球'], [C_ORG, '七个点'], [C_AMB, 'V0、G、A、C 共线'], [C_BLU, '欧拉线上的 O、G、E、4G−3O'], [C_GRN, 'O、O′、B、4O′−3O 共线']],
     thirteen: [[C_PUR, '十三点球 Σ'], [C_GRY, '外接球'], [C_GRN, '对面、它的九点圆和三条高'], [C_ORG, '十三个点'], [C_AMB, '直线 HG′ → P'], [C_BLU, 'HX → Q1'], [C_RED, '高线 V0H → Y → Q2']],
     eulerplane: [[C_GRN, '欧拉线 H、G、O'], [C_BLU, '欧拉线上的点 P'], [C_ORG, '等角共轭 P*、等截共轭 Pᵗ'], [C_AMB, '过欧拉线和 P*、Pᵗ 的平面'], [C_GRY, '外接球']],
-    poncelet: [[C_PUR, '过 A、B、C、P 的等轴双曲线'], [C_ORG, '两条渐近线、中心 Po'], [C_BLU, 'ABC 的九点圆'], [C_GRN, 'PBC、PCA、PAB 的九点圆']],
+    poncelet: [[C_GRY, '外接圆'], [C_GRN, '内切圆'], [C_ORG, '线段 OI、起点 P₁'],
+               [C_AMB, '从 P₁ 切出来的另一个三角形']],
     conic: [[C_WHT, '九点二次曲线'], [C_BLU, '6 条连线的中点'], [C_AMB, '3 个对角点、渐近线'], [C_ORG, '第四点 P'], ['rgba(29,158,117,.45)', '背景绿：P 在此处时是椭圆'], ['rgba(216,90,48,.4)', '背景橙：P 在此处时是双曲线']],
   };
 
@@ -164,7 +165,7 @@
         out.push({ x: d.S2.x - d.r2, y: d.S2.y - d.r2 }, { x: d.S2.x + d.r2, y: d.S2.y + d.r2 });
       return out;
     }
-    if (state.tab === 'eulerformula' || state.tab === 'eulerineq') {
+    if (state.tab === 'poncelet' || state.tab === 'eulerformula' || state.tab === 'eulerineq') {
       return [{ x: g.O.x - g.R, y: g.O.y - g.R }, { x: g.O.x + g.R, y: g.O.y + g.R }];
     }
     if (state.tab === 'heron') {
@@ -247,6 +248,33 @@
     const d1 = sub(Q, P), d2 = sub(V2, U), den = d1.x * d2.y - d1.y * d2.x;
     if (Math.abs(den) < 1e-12) return null;
     return add(P, mul(d1, ((U.x - P.x) * d2.y - (U.y - P.y) * d2.x) / den));
+  }
+  /* Poncelet 闭合：从外接圆上的 P₁ 出发，沿内切圆连切三次。
+     用页面三角形自己的外接圆和内切圆 —— <b>欧拉条件由构造自动满足</b>，
+     不用手配半径，拖 A、B、C 换一副圆也照样闭合 */
+  // 默认角度要挑在<b>两个顶点中间的弧上</b>：落在顶点附近的话，切出来的三角形
+  // 和原三角形几乎重合，看不出「这是另一个」
+  const ponState = () => { if (state.pon === undefined) state.pon = 0.62; return state.pon; };
+  function ponCfg(g) {
+    const R = g.R, r = g.r, O = g.O, I = g.I;
+    if (!(R > 1e-9) || !(r > 1e-9)) return null;
+    const th = ponState();
+    // 从 P 作内切圆的切线，<b>始终取同一侧</b>，否则图形会在某个角度突然翻面
+    const stepT = (P) => {
+      const d = sub(I, P), L = len(d);
+      if (L <= r + 1e-9) return null;
+      const a = Math.asin(Math.min(1, r / L)), ca = Math.cos(a), sa = Math.sin(a);
+      const u = { x: (d.x * ca - d.y * sa) / L, y: (d.x * sa + d.y * ca) / L };
+      const w = sub(P, O);
+      const b = w.x * u.x + w.y * u.y, cc = w.x * w.x + w.y * w.y - R * R;
+      const disc = b * b - cc;
+      if (disc < 0) return null;
+      const t = -b + Math.sqrt(disc);
+      return t > 1e-9 ? add(P, mul(u, t)) : null;
+    };
+    const pts = [{ x: O.x + R * Math.cos(th), y: O.y + R * Math.sin(th) }];
+    for (let i = 0; i < 3; i++) { const nx = stepT(pts[pts.length - 1]); if (!nx) return null; pts.push(nx); }
+    return { pts, th, err: len(sub(pts[3], pts[0])) };
   }
   /* 欧拉公式：X 是直线 AI 与外接圆的第二个交点，也就是弧 BC 的中点（鸡爪定理） */
   function eulerICfg(g) {
@@ -1837,46 +1865,28 @@
           : '实测：Mandart 圆半径 ' + fmt(M.r, 3) + '，圆心 M 到 F 的距离 ' + fmt(len(sub(F, M)), 3) + '，两者相等即 F 在圆上。'));
     },
     poncelet(g) {
-      const sec = css('--muted'), ink = css('--ink'), R = g.R;
-      if (!state.P) state.P = { x: g.G.x + 0.45 * R, y: g.G.y - 0.3 * R };
-      const P = state.P, V = [g.A, g.B, g.C];
-      const nrm = (p) => ({ x: (p.x - g.O.x) / R, y: (p.y - g.O.y) / R });   // 归一化，避免数值问题
-      const un = (p) => ({ x: g.O.x + p.x * R, y: g.O.y + p.y * R });
-      sides(g, sec);
-      [g.A, g.B, g.C].forEach((X) => seg(X, P, sec, 0.9, [4, 3]));
-
-      const thm = 'Poncelet 点：过 A、B、C、P 的二次曲线有一整族，其中渐近线互相垂直的（等轴双曲线）恰有一条，' +
-        '它的中心就是这四点的 Poncelet 点 Po。等价的定义是：A、B、C、P 组成四个三角形 ABC、PBC、PCA、PAB，它们的四个九点圆交于一点，这个点也是 Po。';
-      const base = '在画面上拖动（顶点以外的地方）移动 P，也可以拖动顶点。紫色是那条等轴双曲线，橙色虚线是它的两条渐近线，交点就是中心 Po；绿色是 ABC 的九点圆，蓝色是另外三个三角形的九点圆。<br>';
-
-      // 四个三角形的九点圆
-      const tris = [[g.A, g.B, g.C], [P, g.B, g.C], [P, g.C, g.A], [P, g.A, g.B]];
-      const nps = tris.map(([X, Y, Z]) => {
-        const M = [mid(Y, Z), mid(Z, X), mid(X, Y)];
-        const d = (M[1].x - M[0].x) * (M[2].y - M[0].y) - (M[1].y - M[0].y) * (M[2].x - M[0].x);
-        return Math.abs(d) < 1e-12 * R * R ? null : circumcircle(M[0], M[1], M[2]);
-      });
-      if (nps.some((c) => !c)) { dot(P, ink, 6.5); lab(P, 'P', 9, -9); return info(thm, base + 'P 与一个顶点重合或落在一条边所在的直线上，有的三角形退化，九点圆不存在。把 P 拖开一点。'); }
-      nps.forEach((c, i) => circle({ x: c.x, y: c.y }, c.r, i ? C_GRN : C_BLU, i ? 1.4 : 2.2));
-
-      const co = rectHyperbolaThrough([g.A, g.B, g.C, P].map(nrm));
-      const big = Math.max(...co.map(Math.abs));
-      const Po = big > 1e-12 && co.every(isFinite) ? conicCenter(co) : null;
-      if (!Po) { dot(P, ink, 6.5); lab(P, 'P', 9, -9); return info(thm, base + 'P 落在垂心附近：过 A、B、C、H 的二次曲线全是等轴双曲线，中心铺满整个九点圆，Po 不再唯一。把 P 拖开一点。'); }
-
-      ctx.strokeStyle = C_PUR; ctx.lineWidth = LW(2.4);
-      traceImplicit(ctx, (sx, sy) => evalConic(co, nrm(Wd({ x: sx, y: sy }))), W, H, 3);
-      const Pw = un(Po);
-      asymptoteSlopes(co).forEach((m) => lineInf(Pw, un(add(Po, { x: 1, y: m })), C_ORG, 1.1, [7, 5]));
-      dot(P, ink, 6.5); dot(Pw, C_ORG, 6.5);
-      labelPoints([[P, 'P'], [Pw, 'Po']], sub(P, Pw));
-
-      // 实测：Po 到四个九点圆心的距离应等于各自半径
-      const errs = nps.map((c) => Math.abs(len(sub(Pw, { x: c.x, y: c.y })) - c.r) / c.r);
-      const worst = Math.max(...errs);
-      return info(thm, base +
-        '实测：Po 到四个九点圆心的距离与各自半径之差，相对误差最大 ' + worst.toExponential(1) + '，即 Po 同时落在这四个圆上。' +
-        '<br>把 P 放到内心，Po 就是 费尔巴哈点；把 P 放到垂心，这条双曲线不再唯一。');
+      const c = ponCfg(g);
+      if (!c) return info('Poncelet 闭合定理', '三点快要共线了，把它们拖开。');
+      circle(g.O, g.R, css('--muted'), 1.6);
+      circle(g.I, g.r, C_GRN, 2.0);
+      seg(g.O, g.I, C_ORG, 2.0);
+      dot(g.O, C_ORG, 4.5); lab(g.O, 'O', 12, -8);
+      dot(g.I, C_GRN, 4.5); lab(g.I, 'I', -12, 9);
+      // 新的那一个：从 P₁ 沿内切圆切三次，正好回到 P₁
+      for (let i = 0; i < 3; i++) seg(c.pts[i], c.pts[i + 1], C_AMB, 3.0);
+      c.pts.slice(1, 3).forEach((q) => dot(q, C_AMB, 5.5));
+      dot(c.pts[0], C_ORG, 7);
+      lab(c.pts[0], 'P₁', Math.cos(c.th) * 17, Math.sin(c.th) * 17, C_ORG);
+      fml('OI² ＝ R² − 2Rr',
+        fx(len(sub(g.O, g.I)) ** 2) + ' ＝ ' + fx(g.R * g.R - 2 * g.R * g.r) +
+        '　　闭合误差 ' + c.err.toExponential(1));
+      return info('Poncelet 闭合定理：两个圆之间的内接外切折线，<b>只要有一条闭合，从任何起点出发都闭合</b>。',
+        '白色三角形内接于外接圆、外切于内切圆 —— 它本身就是这一族里的一个。' +
+        '<b>拖橙色的 P₁ 沿外接圆走</b>：从它出发沿内切圆切三次，每一次都正好回到 P₁，' +
+        '琥珀色就是这样得到的另一个三角形，这样的三角形有无穷多个。<br>' +
+        '之所以能闭合，是因为这两个圆满足 <b>OI² = R² − 2Rr</b>（欧拉公式）—— ' +
+        '那正是 n = 3 的闭合条件。拖 A、B、C 换一副圆，条件自动还成立，所以照样闭合。<br>' +
+        '实测闭合误差 |P₄ − P₁| = ' + c.err.toExponential(2) + '。');
     },
   };
 
@@ -2472,11 +2482,6 @@
       c.onchange = () => { state.showCircum = c.checked; draw(); };
       lc.append(c, '显示外接球'); optsEl.appendChild(lc);
     }
-    if (state.tab === 'poncelet') {
-      optsEl.append(
-        chip('把 P 放到内心', false, () => { const g = geo(); state.P = { x: g.I.x, y: g.I.y }; draw(); }),
-        chip('把 P 放到垂心', false, () => { const g = geo(); state.P = { x: g.H.x, y: g.H.y }; draw(); }));
-    }
     if (state.tab === 'conic') {
       optsEl.appendChild(chip('把 P 放到垂心', false, () => { state.onCircle = false; const g = geo(); state.P = { x: g.H.x, y: g.H.y }; renderOpts(); draw(); }));
       const l = document.createElement('label'); l.className = 'ck';
@@ -2501,7 +2506,8 @@
   /* ---------- 拖动 ---------- */
   let drag = null;
   const pos = (e) => { const r = cv.getBoundingClientRect(); return { x: (e.clientX - r.left) * W / r.width, y: (e.clientY - r.top) * H / r.height }; };
-  const draggablePoint = () => ['simson', 'homothety', 'conic', 'poncelet', 'ceva', 'fermat', 'desargues', 'power', 'butterfly'].includes(state.tab);
+  // poncelet 换成闭合定理之后不再有自由点 state.P，它只拖外接圆上的 P₁
+  const draggablePoint = () => ['simson', 'homothety', 'conic', 'ceva', 'fermat', 'desargues', 'power', 'butterfly'].includes(state.tab);
   /** 拖六个点中的一个：沿圆滑动 */
   function moveHex(i, p) {
     const w = Wd(p), g = geo();
@@ -2522,7 +2528,7 @@
     if (state.tab === 'simson' || state.tab === 'homothety')
       state.theta = Math.atan2(w.y - g.O.y, w.x - g.O.x);
     else if (state.tab === 'conic') state.P = state.onCircle ? onCircumcircle(w, g) : w;
-    else if (state.tab === 'poncelet' || state.tab === 'ceva' || state.tab === 'fermat') state.P = w;
+    else if (state.tab === 'ceva' || state.tab === 'fermat') state.P = w;
     else if (state.tab === 'desargues') state.Pdes = w;
     else if (state.tab === 'power') state.Ppow = w;
     else if (state.tab === 'butterfly') state.Pbf = w;
@@ -2573,6 +2579,11 @@
         const z = S({ x: g0.O.x + g0.R * Math.cos(th[i]), y: g0.O.y + g0.R * Math.sin(th[i]) });
         if (Math.hypot(z.x - p.x, z.y - p.y) < HIT()) { drag = { bf: i }; cv.setPointerCapture(e.pointerId); return; }
       }
+    }
+    if (state.tab === 'poncelet') {              // 外接圆上的起点 P₁
+      const g0 = geo();
+      const z = S({ x: g0.O.x + g0.R * Math.cos(ponState()), y: g0.O.y + g0.R * Math.sin(ponState()) });
+      if (Math.hypot(z.x - p.x, z.y - p.y) < HIT()) { drag = { pon: true }; cv.setPointerCapture(e.pointerId); return; }
     }
     if (state.tab === 'brahmagupta' || state.tab === 'ptolemy') {   // 圆上四个点
       const g0 = geo(), st = state.tab === 'brahmagupta' ? bgState() : ptState();
@@ -2637,6 +2648,8 @@
       draw(); return; }
     if (drag.bf !== undefined) { const w = Wd(p), g0 = geo();
       bfState().th[drag.bf] = Math.atan2(w.y - g0.O.y, w.x - g0.O.x); draw(); return; }
+    if (drag.pon) { const w = Wd(p), g0 = geo();
+      state.pon = Math.atan2(w.y - g0.O.y, w.x - g0.O.x); draw(); return; }
     if (drag.cyc !== undefined) { const w = Wd(p), g0 = geo();
       (state.tab === 'brahmagupta' ? bgState() : ptState()).th[drag.cyc] =
         Math.atan2(w.y - g0.O.y, w.x - g0.O.x); draw(); return; }

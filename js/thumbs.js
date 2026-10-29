@@ -1016,23 +1016,31 @@
                    tri(U[0], U[1], U[2], 'amb2'), circle(circumcircle(U[0], U[1], U[2]), 'ln')];
       return out.concat(U.map((p) => dot(p, 'amb')), [dot(F, 'key')]);
     },
-    // Poncelet 闭合：另一个内接外切三角形
-    I03: (g) => {
-      const out = [circle(g.circum, 'aux'), circle(g.incir, 'alt'), tri(g.A, g.B, g.C)];
-      const P0 = { x: g.circum.x + g.circum.r * Math.cos(-2.2),
-                   y: g.circum.y + g.circum.r * Math.sin(-2.2) };
-      const tang = (P) => {
-        const d = sub(g.incir, P), L = len(d), a = Math.asin(Math.min(g.incir.r / L, 1));
-        const base = Math.atan2(d.y, d.x);
-        return [base - a, base + a].map((th) => {
-          const u = { x: Math.cos(th), y: Math.sin(th) };
-          const e = sub(P, g.circum);
-          return add(P, mul(u, -2 * (e.x * u.x + e.y * u.y)));
-        });
+    /* Poncelet 闭合：舞台（两个圆 + 原三角形）<b>钉死</b>，
+       形变动的是起点 P₁ —— 它沿外接圆转，切出来的三角形跟着转，而且一直闭合。
+       原来那版把起点固定、改动原三角形，结果两个三角形几乎重合，看不出是两个 */
+    I03: (g, k) => {
+      const G0 = geom(0), O = G0.circum, In = G0.incir;
+      const stepT = (P) => {
+        const d = sub(In, P), L = len(d);
+        if (L <= In.r + 1e-9) return null;
+        const a = Math.asin(Math.min(1, In.r / L)), ca = Math.cos(a), sa = Math.sin(a);
+        const u = { x: (d.x * ca - d.y * sa) / L, y: (d.x * sa + d.y * ca) / L };
+        const w = sub(P, O);
+        const b = w.x * u.x + w.y * u.y, cc = w.x * w.x + w.y * w.y - O.r * O.r;
+        const disc = b * b - cc;
+        if (disc < 0) return null;
+        const t = -b + Math.sqrt(disc);
+        return t > 1e-9 ? add(P, mul(u, t)) : null;
       };
-      const [P1] = tang(P0), [, P2] = tang(P1);
-      out.push(tri(P0, P1, P2, 'tri hi2'));
-      return out;
+      const th = 1.15 + 2.3 * (k || 0);
+      const pts = [{ x: O.x + O.r * Math.cos(th), y: O.y + O.r * Math.sin(th) }];
+      for (let i = 0; i < 3; i++) { const nx = stepT(pts[pts.length - 1]); if (!nx) break; pts.push(nx); }
+      const out = [circle(O, 'conic'), circle(In, 'grnp2'),
+                   tri(G0.A, G0.B, G0.C, 'tri')];
+      for (let i = 0; i + 1 < pts.length; i++) out.push(line(pts[i], pts[i + 1], 'amb2'));
+      return out.concat([G0.A, G0.B, G0.C].map((z) => dot(z, 'dimpt', 2.4)),
+                        [dot(pts[0], 'key', 3.6)]);
     },
   };
 
