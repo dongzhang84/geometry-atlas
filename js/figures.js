@@ -346,33 +346,6 @@
   };
   const lerpPt = (P, Q, t) => ({ x: P.x + (Q.x - P.x) * t, y: P.y + (Q.y - P.y) * t });
   /** 在 P 处画夹 Q、R 的角弧 */
-  /** 角标记：<b>扇形填充 + 弧线 + 度数</b>。半径按两条邻边里短的那条取，
-      所以角小的时候弧不会戳出三角形外面 —— 原来固定半径的 arcAng 就是这么难看的。 */
-  function angWedge(P, Q, R2, c, lbl) {
-    const a1 = Math.atan2(Q.y - P.y, Q.x - P.x), a2 = Math.atan2(R2.y - P.y, R2.x - P.x);
-    let d = a2 - a1;
-    while (d > Math.PI) d -= 2 * Math.PI;
-    while (d < -Math.PI) d += 2 * Math.PI;
-    const L = Math.min(len(sub(Q, P)), len(sub(R2, P))) * view.s;
-    const r = Math.max(20 * K, Math.min(0.26 * L, 62 * K));
-    const z = S(P), cc = col(c);
-    ctx.save();
-    ctx.beginPath(); ctx.moveTo(z.x, z.y);
-    ctx.arc(z.x, z.y, r, a1, a1 + d, d < 0); ctx.closePath();
-    ctx.fillStyle = cc; ctx.globalAlpha = 0.17; ctx.fill(); ctx.globalAlpha = 1;
-    ctx.beginPath(); ctx.arc(z.x, z.y, r, a1, a1 + d, d < 0);
-    ctx.strokeStyle = cc; ctx.lineWidth = 1.9 * Math.max(K, 0.8); ctx.stroke();
-    ctx.restore();
-    if (lbl) {
-      const am = a1 + d / 2, L2 = r + 19 * K;
-      ctx.save();
-      ctx.font = '500 ' + Math.round(13 * Math.max(K, 0.85)) + 'px ' + getComputedStyle(document.body).fontFamily;
-      const w = ctx.measureText(lbl).width;
-      ctx.fillStyle = cc;
-      ctx.fillText(lbl, z.x + Math.cos(am) * L2 - w / 2, z.y + Math.sin(am) * L2 + 4.5 * K);
-      ctx.restore();
-    }
-  }
   function arcAng(P, Q, R2, rad, c) {
     const a1 = Math.atan2(Q.y - P.y, Q.x - P.x), a2 = Math.atan2(R2.y - P.y, R2.x - P.x);
     let d = a2 - a1;
@@ -1190,17 +1163,20 @@
       const a = len(sub(B, C)), b = len(sub(C, A)), c = len(sub(A, B));
       seg(B, C, MTRIO[0], 3.0); seg(C, A, MTRIO[1], 3.0); seg(A, B, MTRIO[2], 3.0);
       const AA = angAt(A, B, C), AB = angAt(B, A, C), AC = angAt(C, A, B);
-      // 扇形 + 度数。原来三个都是固定半径 0.30 的细弧，角一小就戳到三角形外面去
-      angWedge(A, B, C, MTRIO[0], fx1(AA * 180 / Math.PI) + '°');
-      angWedge(B, A, C, MTRIO[1], fx1(AB * 180 / Math.PI) + '°');
-      angWedge(C, A, B, MTRIO[2], fx1(AC * 180 / Math.PI) + '°');
+      // <b>不画角弧。</b>图里已经有三条彩色边、外接圆、虚线直径和三个字母，角标记没地方待 ——
+      // 无论细弧还是扇形都是糊上去的。度数放进公式栏，和各自的对边同色
       // 直径：从 B 过圆心到对径点，说明那个共同的值就是 2R
       const Bp = { x: 2 * g.O.x - B.x, y: 2 * g.O.y - B.y };
       seg(B, Bp, C_ORG, 2.0, [7, 5]); dot(Bp, C_ORG, 5); lab2(mid(B, Bp), '2R', C_ORG, 0, -16);
       dot(g.O, css('--muted'), 3.5);
-      fml('a / sin A ＝ b / sin B ＝ c / sin C ＝ 2R',
-        fx(a / Math.sin(AA)) + ' ＝ ' + fx(b / Math.sin(AB)) + ' ＝ ' + fx(c / Math.sin(AC)) +
-        ' ＝ ' + fx(2 * g.R));
+      const cw = (c2, t) => '<span style="color:' + col(c2) + '">' + t + '</span>';
+      fml(cw(MTRIO[0], 'a / sin A') + ' ＝ ' + cw(MTRIO[1], 'b / sin B') + ' ＝ ' +
+          cw(MTRIO[2], 'c / sin C') + ' ＝ 2R',
+        cw(MTRIO[0], fx(a / Math.sin(AA))) + ' ＝ ' + cw(MTRIO[1], fx(b / Math.sin(AB))) + ' ＝ ' +
+        cw(MTRIO[2], fx(c / Math.sin(AC))) + ' ＝ ' + fx(2 * g.R) + '　　（' +
+        cw(MTRIO[0], 'A = ' + fx1(AA * 180 / Math.PI) + '°') + '　' +
+        cw(MTRIO[1], 'B = ' + fx1(AB * 180 / Math.PI) + '°') + '　' +
+        cw(MTRIO[2], 'C = ' + fx1(AC * 180 / Math.PI) + '°') + '）');
       return info('正弦定理：每条边与它对角的正弦之比都相等，而且<b>都等于外接圆的直径 2R</b>。',
         '拖动 A、B、C。三条边和三个对角一一对色。');
     },
@@ -1217,13 +1193,13 @@
       const a = len(sub(g.B, g.C)), b = len(sub(g.C, g.A)), c = len(sub(g.A, g.B));
       const CC = angAt(g.C, g.A, g.B), deg = CC * 180 / Math.PI;
       const near = Math.abs(deg - 90) < 1.2;
-      angWedge(g.C, g.A, g.B, near ? C_GRN : C_ORG, fx1(deg) + '°');
       const corr = 2 * a * b * Math.cos(CC);         // C 钝角时这项为负，写成「− −3.2」很难看
       fml('c² ＝ a² + b² − 2ab·cos C',
         fx(c * c) + ' ＝ ' + fx(a * a) + ' + ' + fx(b * b) +
         (corr >= 0 ? ' − ' + fx(corr) : ' + ' + fx(-corr)) +
         ' ＝ ' + fx(a * a + b * b - corr) +
-        '　（C = ' + fx1(deg) + '°' + (near ? '，修正项为零，已经是勾股定理' : '') + '）');
+        '　　（<span style="color:' + col(near ? C_GRN : C_ORG) + '">C = ' + fx1(deg) + '°' +
+        (near ? '，修正项为零，已经是勾股定理' : '') + '</span>）');
       return info('余弦定理：<b>c² = a² + b² − 2ab·cos C</b>。',
         '拖动 A、B、C 改变角 C。<b>把 C 拖到 90°，修正项 −2ab·cos C 就为零，剩下的正是勾股定理</b>。');
     },
