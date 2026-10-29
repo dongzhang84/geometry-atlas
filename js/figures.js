@@ -2659,7 +2659,20 @@
     }
     if (drag.pt) movePoint(p); else { state.V[drag.v] = Wd(p); draw(); }
   });
-  const endPointer = (e) => { touches.delete(e.pointerId); const wasVertex = drag && drag.v !== undefined; drag = null; if (wasVertex) { fit(); draw(); } };
+  /** 内容是不是已经跑出画框了（留一点边） */
+  function outOfFrame() {
+    const pts = fitPoints(), m = 6 * K;
+    return pts.some((p) => { const z = S(p);
+      return z.x < m || z.y < m || z.x > W - m || z.y > H - BAND - m; });
+  }
+  const endPointer = (e) => {
+    touches.delete(e.pointerId);
+    const wasVertex = drag && drag.v !== undefined;
+    drag = null;
+    // <b>松手不要无条件 fit()。</b>原来拖完顶点一松手就重新取景，整幅图又缩又移 ——
+    // 顶点其实留在原地，但看起来像「弹回默认状态」。只有内容真跑出画框才重新取景。
+    if (wasVertex && outOfFrame()) { fit(); draw(); }
+  };
   cv.addEventListener('pointerup', endPointer);
   cv.addEventListener('pointercancel', endPointer);
 
