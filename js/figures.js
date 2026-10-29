@@ -117,6 +117,10 @@
     eulerplane: [[C_GRN, '欧拉线 H、G、O'], [C_BLU, '欧拉线上的点 P'], [C_ORG, '等角共轭 P*、等截共轭 Pᵗ'], [C_AMB, '过欧拉线和 P*、Pᵗ 的平面'], [C_GRY, '外接球']],
     poncelet: [[C_GRY, '外接圆'], [C_GRN, '内切圆'], [C_ORG, '线段 OI、起点 P₁'],
                [C_AMB, '从 P₁ 切出来的另一个三角形']],
+    mongept: [[C_BLU, '前三个平面'], [C_GRY, '后三个平面'], [C_AMB, '六条棱的中点'],
+              [C_PUR, '两面的交线、线段 OM'], [C_ORG, '蒙日点 M']],
+    twelvept: [[C_ORG, '十二点球、四条高、垂心 H'], [C_GRN, '四个面重心'],
+               [C_BLU, '四条高的垂足'], [C_PUR, 'H 到顶点的三等分点'], [C_GRY, '外接球']],
     conic: [[C_WHT, '九点二次曲线'], [C_BLU, '6 条连线的中点'], [C_AMB, '3 个对角点、渐近线'], [C_ORG, '第四点 P'], ['rgba(29,158,117,.45)', '背景绿：P 在此处时是椭圆'], ['rgba(216,90,48,.4)', '背景橙：P 在此处时是双曲线']],
   };
 
@@ -125,6 +129,9 @@
     V: [{ x: -2.0, y: 1.2 }, { x: 2.2, y: 1.2 }, { x: -1.0, y: -1.5 }],
     show: { pb: true, md: true, al: true },
     k: 1, center: 'H', theta: -0.6, tri: 0, P: null, onCircle: false,
+    // 俯仰取 −0.4 左右，和两条视频里的视角一致；−1.1 接近 −π/2，几乎是正俯视，
+    // 四面体会看着像个风筝
+    rotM: { yaw: -0.75, pitch: -0.42 }, rotT: { yaw: 0.35, pitch: -0.40 },
     rot: { yaw: -0.6, pitch: -1.15 }, rot13: { yaw: -2.09, pitch: -0.7 }, rotE: { yaw: -1.67, pitch: -0.19 }, tet: null, tet13: null, tetE: null, tE: 1, v0: 0, showCircum: true,
     zoom: 1,   // 用户缩放倍数，所有标签共用（二维、三维都乘在自动取景的比例上）
   };
@@ -1928,7 +1935,10 @@
   DRAW.sevenpoint = () => '';
   DRAW.thirteen = () => '';
   DRAW.eulerplane = () => '';
-  const is3D = () => ['sevenpoint', 'thirteen', 'eulerplane'].includes(state.tab);
+  /* 三维页签不进 DRAW —— 它们在 draw() 里提前 return。<b>setTab 的合法性判断也要认这张表</b>，
+     否则点过去会被打回第一张（老的 sevenpoint / thirteen / eulerplane 一直就是这样进不去的） */
+  const TABS3D = ['sevenpoint', 'thirteen', 'eulerplane', 'mongept', 'twelvept'];
+  const is3D = () => TABS3D.includes(state.tab);
 
   /* ---------- 七点球：一套只在这个标签里用的三维工具 ---------- */
   const S3 = {
@@ -2001,7 +2011,8 @@
      七个点连同顶点的包围盒只有 1.85 R，整张图不会被巨大的球撑开。 */
   const TET0 = [[0.479, 0.858, 0.185], [0.118, -0.766, 0.632], [-0.987, -0.14, 0.082], [-0.354, 0.675, 0.647]];
   /* 两个三维标签各记各的视角：十三点球的默认视角挑过，从侧面看，十三个点在屏幕上分得开 */
-  const curRot = () => (state.tab === 'thirteen' ? state.rot13 : state.tab === 'eulerplane' ? state.rotE : state.rot);
+  const curRot = () => (state.tab === 'thirteen' ? state.rot13 : state.tab === 'eulerplane' ? state.rotE
+                      : state.tab === 'mongept' ? state.rotM : state.tab === 'twelvept' ? state.rotT : state.rot);
   function rot3(p) {
     const { yaw, pitch } = curRot();
     const cy = Math.cos(yaw), sy = Math.sin(yaw), cp = Math.cos(pitch), sp = Math.sin(pitch);
@@ -2070,6 +2081,147 @@
     ctx.fillStyle = col; ctx.fillText(txt, best.x, best.y + fs * 0.82);
   }
 
+
+  /* ---------- 空间两条：蒙日点 / 十二点球 ---------- */
+  /* 一般四面体（外接球归一化、重心在原点）。整圈扫过关键点最小屏幕间距 0.077R */
+  const TETM = [[-0.3772, -0.2321, -0.7474], [-0.0113, -0.8357, 1.0002],
+                [0.3944, 0.2989, -0.4234], [-0.0059, 0.7689, 0.1706]];
+  /* 垂心四面体。最长/最短棱 1.49，同组内最小间距 0.137R。
+     <b>D 要在代码里算</b>：把顶点坐标四舍五入写死的话，四面体就不再精确垂心，
+     十二点到球心的偏差会从 1e-16 掉到 5e-6。底面三点定死，D 取「ABC 的垂心正上方」。 */
+  const TETT = (function () {
+    const z0 = -0.3639, A = [0.4125, -0.6632, z0], B = [-0.7257, -0.1382, z0], C = [0.4036, 0.9361, z0];
+    // ABC 的垂心：解 (H−A)·(B−C) = 0、(H−B)·(A−C) = 0
+    const m = [[B[0] - C[0], B[1] - C[1]], [A[0] - C[0], A[1] - C[1]]];
+    const r = [A[0] * (B[0] - C[0]) + A[1] * (B[1] - C[1]),
+               B[0] * (A[0] - C[0]) + B[1] * (A[1] - C[1])];
+    const dt = m[0][0] * m[1][1] - m[0][1] * m[1][0];
+    const hx = (r[0] * m[1][1] - m[0][1] * r[1]) / dt;
+    const hy = (m[0][0] * r[1] - r[0] * m[1][0]) / dt;
+    return [A, B, C, [hx, hy, z0 + 1.4555]];
+  })();
+  const E6 = [[0, 1], [0, 2], [0, 3], [1, 2], [1, 3], [2, 3]];
+  const OPP6 = [[2, 3], [1, 3], [1, 2], [0, 3], [0, 2], [0, 1]];
+  const F4 = [[1, 2, 3], [0, 2, 3], [0, 1, 3], [0, 1, 2]];
+  const v3 = (a) => ({ x: a[0], y: a[1], z: a[2] });
+  function circum3(P) {
+    const M = [1, 2, 3].map((i) => [2 * (P[i][0] - P[0][0]), 2 * (P[i][1] - P[0][1]), 2 * (P[i][2] - P[0][2])]);
+    const q = (p) => p[0] * p[0] + p[1] * p[1] + p[2] * p[2];
+    const b = [1, 2, 3].map((i) => q(P[i]) - q(P[0]));
+    const det = (m) => m[0][0]*(m[1][1]*m[2][2]-m[1][2]*m[2][1])
+                     - m[0][1]*(m[1][0]*m[2][2]-m[1][2]*m[2][0])
+                     + m[0][2]*(m[1][0]*m[2][1]-m[1][1]*m[2][0]);
+    const d = det(M);
+    const col = (k) => M.map((r, i) => r.map((v, j) => (j === k ? b[i] : v)));
+    return [det(col(0)) / d, det(col(1)) / d, det(col(2)) / d];
+  }
+  const vAdd = (a, b) => [a[0]+b[0], a[1]+b[1], a[2]+b[2]];
+  const vSub = (a, b) => [a[0]-b[0], a[1]-b[1], a[2]-b[2]];
+  const vMul = (a, s) => [a[0]*s, a[1]*s, a[2]*s];
+  const vDot = (a, b) => a[0]*b[0] + a[1]*b[1] + a[2]*b[2];
+  const vCrs = (a, b) => [a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]];
+  const vLen = (a) => Math.sqrt(vDot(a, a));
+  const vUnit = (a) => { const L = vLen(a) || 1; return vMul(a, 1 / L); };
+  const vMid = (a, b) => vMul(vAdd(a, b), 0.5);
+  /** 过 p、法向 n 的一片平面，<b>朝 aim 撑开</b> —— 必须大到盖住那个交点，
+      否则「六个平面过同一点」在画面上根本没发生 */
+  function plane3(p, n, aim, pad, col, alpha) {
+    const nn = vUnit(n);
+    let a = vSub(aim, p);
+    a = vSub(a, vMul(nn, vDot(a, nn)));
+    const L = vLen(a);
+    const e1 = L > 1e-6 ? vUnit(a) : vUnit(vCrs(nn, Math.abs(nn[0]) < 0.9 ? [1,0,0] : [0,1,0]));
+    const e2 = vCrs(nn, e1);
+    const half = L / 2 + pad, c = vAdd(p, vMul(e1, L / 2));
+    const q = [[-1,-1],[1,-1],[1,1],[-1,1]].map(([x, y]) =>
+      P3(vAdd(c, vAdd(vMul(e1, x * half), vMul(e2, y * (pad + 0.12) * 2)))));
+    ctx.save(); ctx.beginPath();
+    q.forEach((z, i) => (i ? ctx.lineTo(z.x, z.y) : ctx.moveTo(z.x, z.y)));
+    ctx.closePath();
+    ctx.globalAlpha = alpha * 0.16; ctx.fillStyle = col; ctx.fill();
+    ctx.globalAlpha = alpha * 0.8; ctx.strokeStyle = col; ctx.lineWidth = LW(1.4); ctx.stroke();
+    ctx.restore();
+  }
+  /** 四面体的棱：<b>一律实线</b>，深浅只靠线宽；虚线留给构造出来的线 */
+  function tetEdges(V, ink) {
+    E6.forEach(([i, j]) => {
+      const far = (rot3(V[i])[1] + rot3(V[j])[1]) / 2 > 0;
+      seg3(V[i], V[j], ink, far ? 1.2 : 1.9);
+    });
+  }
+  /** 一个半透明的面：立体感来自它，不是来自虚线 */
+  function tetFace(V, f, hex, al) {
+    ctx.save(); ctx.beginPath();
+    f.forEach((i, k) => { const z = P3(V[i]); k ? ctx.lineTo(z.x, z.y) : ctx.moveTo(z.x, z.y); });
+    ctx.closePath(); ctx.globalAlpha = al; ctx.fillStyle = hex; ctx.fill(); ctx.restore();
+  }
+
+  function drawMonge3(ink) {
+    const V = TETM, G = vMul(V.reduce(vAdd, [0,0,0]), 0.25), O = circum3(V);
+    const M = vSub(vMul(G, 2), O);
+    const MIDS = E6.map(([i, j]) => vMid(V[i], V[j]));
+    const NRM = OPP6.map(([k, l]) => vSub(V[k], V[l]));
+    const n = state.mongeN === undefined ? 6 : state.mongeN;
+    fit3(V.concat([O, M, G], MIDS)); placed3 = [];
+    tetFace(V, [1, 2, 3], C_BLU, 0.10);
+    tetEdges(V, ink);
+    for (let e = 0; e < n; e++) plane3(MIDS[e], NRM[e], M, 0.30, e < 3 ? C_BLU : C_GRY, 1);
+    MIDS.slice(0, n).forEach((m) => dot3(m, C_AMB, 4));
+    if (n >= 2) {                                   // 前两个平面的交线
+      const d = vUnit(vCrs(NRM[0], NRM[1]));
+      seg3(vSub(M, vMul(d, 0.95)), vAdd(M, vMul(d, 0.95)), C_PUR, 1.6, [7, 5]);
+    }
+    V.forEach((p, i) => { dot3(p, ink, 5); lab3(p, 'ABCD'[i], ink); });
+    seg3(O, M, C_PUR, 2.2);
+    dot3(O, C_GRN, 5); lab3(O, 'O', C_GRN);
+    dot3(G, C_AMB, 5); lab3(G, 'G', C_AMB);
+    dot3(M, C_ORG, 7); lab3(M, 'M', C_ORG);
+    const err = Math.max(...MIDS.map((m, e) => Math.abs(vDot(vSub(M, m), vUnit(NRM[e])))));
+    fml('M ＝ 2G − O',
+      '|OG| = ' + fx(vLen(vSub(O, G))) + '　|GM| = ' + fx(vLen(vSub(M, G))) +
+      '　　六个平面到 M 的距离 ≤ ' + err.toExponential(1));
+    return info('蒙日点：四面体六条「过一棱中点且垂直于对棱」的平面共点。',
+      '<b>按住拖动可以转动整个图形</b>，双指捏合或 ⌘/Ctrl＋滚轮缩放。' +
+      '用上面的按钮先看两个平面 —— 它们交成一条<span style="color:' + C_PUR + '">紫色的直线</span>；' +
+      '再加第三个，它和这条直线交于<b>一点</b>；六个全加上，也都过这一点。<br>' +
+      '琥珀点是六条棱的中点，每个平面过其中一个中点、垂直于它的对棱。<br>' +
+      '<b>M 还是外心 O 关于重心 G 的对称点</b>：O、G、M 共线且 |OG| = |GM|。');
+  }
+
+  function drawTwelve3(ink) {
+    const V = TETT, G = vMul(V.reduce(vAdd, [0,0,0]), 0.25), O = circum3(V);
+    const R = vLen(vSub(V[0], O)), H = vSub(vMul(G, 2), O);
+    const CENT = F4.map((f) => vMul(f.reduce((a, i) => vAdd(a, V[i]), [0,0,0]), 1/3));
+    const FEET = F4.map((f, i) => {
+      const nn = vUnit(vCrs(vSub(V[f[1]], V[f[0]]), vSub(V[f[2]], V[f[0]])));
+      return vSub(V[i], vMul(nn, vDot(vSub(V[i], V[f[0]]), nn)));
+    });
+    const TH = V.map((p) => vAdd(H, vMul(vSub(p, H), 1/3)));
+    const C12 = circum3(CENT), R12 = vLen(vSub(CENT[0], C12));
+    const sh = state.t12 || (state.t12 = { g: [true, true, true], circ: false });
+    fit3(V.concat([O], CENT, FEET, TH)); placed3 = [];
+    if (sh.circ) sphere3(O, R, C_GRY, 1.1, true);
+    tetFace(V, [1, 2, 3], C_BLU, 0.10);
+    tetEdges(V, ink);
+    V.forEach((p, i) => seg3(p, FEET[i], C_ORG, 1.2, [6, 5]));     // 四条高（构造线，用虚线）
+    sphere3(C12, R12, C_ORG, 2.2, true);
+    const GRP = [[CENT, C_GRN, '面重心'], [FEET, C_BLU, '垂足'], [TH, C_PUR, '三等分点']];
+    GRP.forEach(([P4, col], gi) => { if (sh.g[gi]) P4.forEach((p) => dot3(p, col, 5.5)); });
+    V.forEach((p, i) => { dot3(p, ink, 5); lab3(p, 'ABCD'[i], ink); });
+    dot3(H, C_ORG, 6.5); lab3(H, 'H', C_ORG);
+    const all = CENT.concat(FEET, TH);
+    const dev = Math.max(...all.map((p) => Math.abs(vLen(vSub(p, C12)) - R12)));
+    fml('r₁₂ ＝ R ÷ 3',
+      fx(R12) + ' ＝ ' + fx(R) + ' ÷ 3　　十二点到球心的偏差 ≤ ' + dev.toExponential(1));
+    return info('十二点球：<b>垂心四面体</b>的四个面重心、四条高的垂足、垂心到四个顶点的三等分点，这十二个点共球。',
+      '<b>按住拖动可以转动整个图形</b> —— 转起来才看得出这十二个点真在一个球面上，' +
+      '而不是投影巧合。用上面的按钮逐组显示：' +
+      '<span style="color:' + C_GRN + '">绿＝四个面重心</span>、' +
+      '<span style="color:' + C_BLU + '">蓝＝四条高的垂足</span>、' +
+      '<span style="color:' + C_PUR + '">紫＝H 到四个顶点的三等分点</span>。<br>' +
+      '这条定理<b>要求垂心四面体</b>（三组对棱两两垂直）：一般四面体里四条高根本不共点，' +
+      '也就没有这个球。球的半径恰是外接球的三分之一。');
+  }
 
   /** 七点球标签的绘制；返回图下说明 */
   function drawSeven(ink) {
@@ -2269,9 +2421,14 @@
   function draw() {
     ctx.clearRect(0, 0, W, H); placed = [];
     const ink = css('--ink');
-    if (state.tab === 'sevenpoint') { document.getElementById('info').innerHTML = drawSeven(ink); return; }
-    if (state.tab === 'thirteen') { document.getElementById('info').innerHTML = drawThirteen(ink); return; }
-    if (state.tab === 'eulerplane') { document.getElementById('info').innerHTML = drawEulerPlane(ink); return; }
+    FORMULA = '';                                // 三维分支是提前 return 的，公式栏也得在这儿冲
+    const flush3 = (txt) => { document.getElementById('formula').innerHTML = FORMULA;
+                              document.getElementById('info').innerHTML = txt; };
+    if (state.tab === 'mongept') { flush3(drawMonge3(ink)); return; }
+    if (state.tab === 'twelvept') { flush3(drawTwelve3(ink)); return; }
+    if (state.tab === 'sevenpoint') { flush3(drawSeven(ink)); return; }
+    if (state.tab === 'thirteen') { flush3(drawThirteen(ink)); return; }
+    if (state.tab === 'eulerplane') { flush3(drawEulerPlane(ink)); return; }
     if (degenerate()) {
       const [A, B, C] = state.V; tri(A, B, C, ink, 1.3);
       [[A, 'A'], [B, 'B'], [C, 'C']].forEach(([p, n]) => { dot(p, ink, 5.5); lab(p, n, -16, -9); });
@@ -2361,6 +2518,21 @@
         c.onchange = () => { state.show[key] = c.checked; draw(); };
         l.append(c, '显示' + n); optsEl.appendChild(l);
       });
+    }
+    if (state.tab === 'mongept') {
+      const n = state.mongeN === undefined ? 6 : state.mongeN;
+      [[2, '两个平面'], [3, '加第三个'], [6, '六个全加上']].forEach(([k, t]) =>
+        optsEl.appendChild(chip(t, n === k, () => { state.mongeN = k; renderOpts(); draw(); })));
+      optsEl.appendChild(chip('回到默认视角', false, () => {
+        state.rotM = { yaw: -0.75, pitch: -0.42 }; base3.key = ''; setZoom(1); }));
+    }
+    if (state.tab === 'twelvept') {
+      const sh = state.t12 || (state.t12 = { g: [true, true, true], circ: false });
+      ['面重心', '垂足', '三等分点'].forEach((t, i) =>
+        optsEl.appendChild(chip(t, sh.g[i], () => { sh.g[i] = !sh.g[i]; renderOpts(); draw(); })));
+      optsEl.appendChild(chip('外接球', sh.circ, () => { sh.circ = !sh.circ; renderOpts(); draw(); }));
+      optsEl.appendChild(chip('回到默认视角', false, () => {
+        state.rotT = { yaw: 0.35, pitch: -0.40 }; base3.key = ''; setZoom(1); }));
     }
     if (state.tab === 'ptolemy') {
       const pp = state.ptp === undefined ? 0 : state.ptp;
@@ -2494,7 +2666,7 @@
     LEG[state.tab].forEach(([c, n]) => { const s = document.createElement('span'); s.innerHTML = '<i style="background:' + col(c) + '"></i>' + n; legendEl.appendChild(s); });
   }
   function setTab(id, pushHash) {
-    if (!DRAW[id]) id = TABS[0][0];
+    if (!DRAW[id] && TABS3D.indexOf(id) < 0) id = TABS[0][0];
     state.tab = id; if (id === 'homothety') state.k = 1;
     if (pushHash && location.hash !== '#' + id) history.replaceState(null, '', '#' + id);
     renderTabs(); renderOpts(); renderRelated();

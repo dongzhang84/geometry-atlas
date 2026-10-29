@@ -217,11 +217,11 @@ window.ATLAS = {
     { id: "S01", layer: "euc", family: "solid", name: "蒙日点",
       statement: "四面体六条「过一棱中点且垂直于对棱」的平面共点。",
       deps: [],
-      source: "Gaspard Monge" },
+      source: "Gaspard Monge", demo: "family/figures.html#mongept" },
     { id: "S02", layer: "euc", family: "solid", name: "十二点球",
       statement: "垂心四面体的四个面重心、四条高的垂足、垂心到四个顶点的三等分点，这十二个点共球，半径是外接球的三分之一。",
       deps: ["S01", "T4"],
-      source: "经典" }
+      source: "经典", demo: "family/figures.html#twelvept" }
   ],
 
   relations: [

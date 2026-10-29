@@ -213,6 +213,45 @@
     return { x: o.x, y: o.y, r: len(sub(o, A)) };
   }
 
+  /* ---------- 空间两条：正交投影，<b>形变就是转动相机</b> ---------- */
+  const T3 = (function () {
+    const a3 = (a, b) => [a[0]+b[0], a[1]+b[1], a[2]+b[2]];
+    const s3 = (a, b) => [a[0]-b[0], a[1]-b[1], a[2]-b[2]];
+    const m3 = (a, t) => [a[0]*t, a[1]*t, a[2]*t];
+    const d3 = (a, b) => a[0]*b[0] + a[1]*b[1] + a[2]*b[2];
+    const c3 = (a, b) => [a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]];
+    const l3 = (a) => Math.sqrt(d3(a, a));
+    const u3 = (a) => { const L = l3(a) || 1; return m3(a, 1 / L); };
+    function circ3(P) {
+      const M = [1, 2, 3].map((i) => [2*(P[i][0]-P[0][0]), 2*(P[i][1]-P[0][1]), 2*(P[i][2]-P[0][2])]);
+      const q = (p) => d3(p, p);
+      const b = [1, 2, 3].map((i) => q(P[i]) - q(P[0]));
+      const det = (m) => m[0][0]*(m[1][1]*m[2][2]-m[1][2]*m[2][1])
+                       - m[0][1]*(m[1][0]*m[2][2]-m[1][2]*m[2][0])
+                       + m[0][2]*(m[1][0]*m[2][1]-m[1][1]*m[2][0]);
+      const dd = det(M), col = (k) => M.map((r, i) => r.map((v, j) => (j === k ? b[i] : v)));
+      return [det(col(0))/dd, det(col(1))/dd, det(col(2))/dd];
+    }
+    return { a3, s3, m3, d3, c3, l3, u3, circ3 };
+  })();
+  /** 投影到缩略图坐标：中心 (100, 70)，比例 54 */
+  function pr3(p, yaw, pit) {
+    const cy = Math.cos(yaw), sy = Math.sin(yaw), cp = Math.cos(pit), sp = Math.sin(pit);
+    const x = p[0]*cy - p[1]*sy, y = p[0]*sy + p[1]*cy;
+    return { x: 100 + x * 54, y: 70 - (y*sp + p[2]*cp) * 54 };
+  }
+  const TET_M = [[-0.3772, -0.2321, -0.7474], [-0.0113, -0.8357, 1.0002],
+                 [0.3944, 0.2989, -0.4234], [-0.0059, 0.7689, 0.1706]];
+  const TET_T = (function () {
+    const z0 = -0.3639, A = [0.4125, -0.6632, z0], B = [-0.7257, -0.1382, z0], C = [0.4036, 0.9361, z0];
+    const m = [[B[0]-C[0], B[1]-C[1]], [A[0]-C[0], A[1]-C[1]]];
+    const r = [A[0]*(B[0]-C[0]) + A[1]*(B[1]-C[1]), B[0]*(A[0]-C[0]) + B[1]*(A[1]-C[1])];
+    const dt = m[0][0]*m[1][1] - m[0][1]*m[1][0];
+    return [A, B, C, [(r[0]*m[1][1] - m[0][1]*r[1])/dt, (m[0][0]*r[1] - r[0]*m[1][0])/dt, z0 + 1.4555]];
+  })();
+  const E6T = [[0,1],[0,2],[0,3],[1,2],[1,3],[2,3]];
+  const OPP6T = [[2,3],[1,3],[1,2],[0,3],[0,2],[0,1]];
+
   /** 内心和内切圆半径 */
   function incirc(g) {
     const a = len(sub(g.C, g.B)), b = len(sub(g.A, g.C)), c = len(sub(g.B, g.A));
@@ -365,6 +404,57 @@
       });
       return [tri(A, B, C), line(F, A, 'amb2'), line(F, B, 'amb2'), line(F, C, 'amb2')]
         .concat(arcs, [dot(F, 'key')]);
+    },
+    /* ── 空间 ─────────────────────────────────────────────── */
+    /* 蒙日点：三个「过棱中点、垂直于对棱」的平面，都伸到 M。
+       <b>形变就是转动相机</b> —— 三维图的立体感只能靠转出来 */
+    S01: (g, k) => {
+      const yaw = -0.75 + 1.5 * (k || 0), pit = -0.42;
+      const V = TET_M, P = (p) => pr3(p, yaw, pit);
+      const G = T3.m3(V.reduce(T3.a3, [0,0,0]), 0.25), O = T3.circ3(V);
+      const M = T3.s3(T3.m3(G, 2), O);
+      const out = [poly([P(V[1]), P(V[2]), P(V[3])], 'tetface')];
+      // <b>只画两片</b>：缩略图这个尺寸下三片就糊成一团了。
+      // 两片半透明方片 + 它们的交线 + 一个亮点，是能认出来的最小组合
+      [0, 1].forEach((e) => {
+        const mid = T3.m3(T3.a3(V[E6T[e][0]], V[E6T[e][1]]), 0.5);
+        const nn = T3.u3(T3.s3(V[OPP6T[e][0]], V[OPP6T[e][1]]));
+        let a = T3.s3(M, mid); a = T3.s3(a, T3.m3(nn, T3.d3(a, nn)));
+        const L = T3.l3(a), e1 = L > 1e-6 ? T3.u3(a) : T3.u3(T3.c3(nn, [1,0,0]));
+        const e2 = T3.c3(nn, e1), half = L / 2 + 0.26, c = T3.a3(mid, T3.m3(e1, L / 2));
+        out.push(poly([[-1,-1],[1,-1],[1,1],[-1,1]].map(([x, y]) =>
+          P(T3.a3(c, T3.a3(T3.m3(e1, x * half), T3.m3(e2, y * 0.40))))), 'planep'));
+      });
+      E6T.forEach(([i, j]) => out.push(line(P(V[i]), P(V[j]), 'tri')));
+      // 两片的交线：方向是两个法向的叉积，过 M
+      const n1 = T3.s3(V[OPP6T[0][0]], V[OPP6T[0][1]]), n2 = T3.s3(V[OPP6T[1][0]], V[OPP6T[1][1]]);
+      const dd = T3.u3(T3.c3(n1, n2));
+      out.push(line(P(T3.s3(M, T3.m3(dd, 0.85))), P(T3.a3(M, T3.m3(dd, 0.85))), 'purd'));
+      return out.concat(V.map((p) => dot(P(p), '', 2.6)),
+                        [dot(P(O), 'dimpt', 2.4), dot(P(M), 'key', 3.6)]);
+    },
+    /* 十二点球：三组各四个点 + 那个球。形变同样是转动相机 */
+    S02: (g, k) => {
+      const yaw = 0.35 + 1.5 * (k || 0), pit = -0.40;
+      const V = TET_T, P = (p) => pr3(p, yaw, pit);
+      const G = T3.m3(V.reduce(T3.a3, [0,0,0]), 0.25), O = T3.circ3(V);
+      const H = T3.s3(T3.m3(G, 2), O);
+      const F4T = [[1,2,3],[0,2,3],[0,1,3],[0,1,2]];
+      const CEN = F4T.map((f) => T3.m3(f.reduce((a, i) => T3.a3(a, V[i]), [0,0,0]), 1/3));
+      const FT = F4T.map((f, i) => {
+        const nn = T3.u3(T3.c3(T3.s3(V[f[1]], V[f[0]]), T3.s3(V[f[2]], V[f[0]])));
+        return T3.s3(V[i], T3.m3(nn, T3.d3(T3.s3(V[i], V[f[0]]), nn)));
+      });
+      const TH = V.map((p) => T3.a3(H, T3.m3(T3.s3(p, H), 1/3)));
+      const C12 = T3.circ3(CEN), R12 = T3.l3(T3.s3(CEN[0], C12));
+      const out = [poly([P(V[1]), P(V[2]), P(V[3])], 'tetface')];
+      E6T.forEach(([i, j]) => out.push(line(P(V[i]), P(V[j]), 'tri')));
+      V.forEach((p, i) => out.push(line(P(p), P(FT[i]), 'altd')));
+      const c = P(C12);
+      out.push(circle({ x: c.x, y: c.y, r: R12 * 54 }, 'keyd'));
+      [[CEN, 'grnp2'], [FT, 'medp2'], [TH, 'purp2']].forEach(([P4, cls]) =>
+        P4.forEach((p) => out.push(dot(P(p), cls.replace('p2', 'g'), 2.8))));
+      return out.concat(V.map((p) => dot(P(p), '', 2.6)), [dot(P(H), 'key', 3.2)]);
     },
     /* ── 不等式 ───────────────────────────────────────────── */
     /* 欧拉公式：外接圆 + 内切圆 + 线段 OI，再加过 I 的那条弦 AX。
