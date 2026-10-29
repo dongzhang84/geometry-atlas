@@ -24,6 +24,26 @@ html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.6;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px 40px}
 .wrap{max-width:980px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+/* <b>宽屏把说明挪到图的右边。</b>原来是 980px 定宽的单栏，1920 的窗口白空 940px，
+   而说明文字却在图下面跟它抢高度 —— 最长的一段 300px，图被压到比现在还小。
+   挪到旁边之后，图和文字各自拿满高度，首屏一次看完。 */
+@media (min-width:1180px){
+  .wrap{max-width:min(1560px, 95vw);
+    display:grid; align-items:start; column-gap:26px; row-gap:14px;
+    /* 文字栏<b>宽一点</b>：画布是高度受限的（高度上限 < 宽度算出来的高），
+       让出宽度一点不亏，而文字栏一宽，同样的字就矮一截 —— 390px 时最长的几段
+       还会超出首屏约 20px，440px 就进去了 */
+    grid-template-columns:minmax(0,1fr) 440px;
+    grid-template-areas:"head head" "tabs tabs" "opts opts" "stage side" "foot foot";}
+  .wrap > header{grid-area:head} #tabs{grid-area:tabs} .opts{grid-area:opts}
+  .stage{grid-area:stage} .side{grid-area:side} .wrap > footer{grid-area:foot}
+  .side #info{max-width:none}
+  /* 页头压扁：省下的每一像素都变成画布高度 */
+  h1{font-size:30px;margin:2px 0 0}
+  header p{margin:3px 0 0}
+}
+.side{display:flex;flex-direction:column;gap:14px;min-width:0}
+.opts:empty{display:none}
 .back{font-size:13px;color:var(--proj);text-decoration:none}
 .back:hover{text-decoration:underline}
 header h1{font-family:var(--serif);font-weight:700;font-size:clamp(24px,3.4vw,32px);margin:4px 0 0;letter-spacing:.02em;text-wrap:balance}
@@ -45,7 +65,10 @@ canvas{width:100%;height:auto;display:block;touch-action:none}
    放在页面流里的话，宽窗口下画布一高，它就被顶到首屏外面，没人会去滚。
    fit() 在画布底部留出同样高的一条带，所以图不会压上来。 */
 #formula{position:absolute;left:9px;right:9px;bottom:9px;text-align:center;
-  pointer-events:none;padding-top:7px;border-top:1px solid var(--rule)}
+  pointer-events:none;padding-top:7px;border-top:1px solid var(--rule);
+  /* 要底色：有无限长辅助线的图（根轴、Pappus、Menelaus…），线本来就该跑出画框，
+     会从这条带底下穿过去，没底色的话公式和线糊在一起 */
+  background:var(--panel)}
 #formula:empty{display:none}
 #formula .f{display:block;font-family:"Times New Roman","STIX Two Text",serif;
   font-style:italic;font-size:20px;line-height:1.45;color:var(--ink)}
@@ -93,7 +116,7 @@ footer ul{margin:0;padding-left:18px}
   <header>
     <a class="back" href="../index.html#nine-point">← 返回几何图谱</a>
     <h1>动态图</h1>
-    <p>图谱里带「可拖动」标记的定理都画在这里。每一张都可以拖动三角形的顶点 A、B、C，看关系始终成立；用上面的按钮或 ← → 在定理之间切换。所有图都可以用双指捏合、⌘/Ctrl＋滚轮或图右上角的按钮缩放。</p>
+    <p>拖动顶点 A、B、C，看关系始终成立；← → 切换定理；⌘/Ctrl＋滚轮或右上角按钮缩放。</p>
   </header>
 
   <nav class="navbar" id="tabs" aria-label="这一族里的定理"></nav>
@@ -106,9 +129,11 @@ footer ul{margin:0;padding-left:18px}
     </div>
     <div id="formula" aria-live="polite"></div>
   </div>
-  <div id="info" aria-live="polite"></div>
-  <div class="legend" id="legend"></div>
-  <div class="related" id="related" hidden></div>
+  <aside class="side">
+    <div id="info" aria-live="polite"></div>
+    <div class="legend" id="legend"></div>
+    <div class="related" id="related" hidden></div>
+  </aside>
 
   <footer>
     <h2>来源</h2>
@@ -126,8 +151,8 @@ footer ul{margin:0;padding-left:18px}
   document.documentElement.classList.add('embed');
   document.documentElement.setAttribute('data-theme', 'dark');
 }</script>
-<script src="../data/atlas.js?v=20261031i"></script>
-<script src="../js/geometry.js?v=20261031i"></script>
-<script src="../js/figures.js?v=20261031i"></script>
+<script src="../data/atlas.js?v=20261031p"></script>
+<script src="../js/geometry.js?v=20261031p"></script>
+<script src="../js/figures.js?v=20261031p"></script>
 </body>
 </html>

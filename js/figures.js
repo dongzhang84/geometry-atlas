@@ -207,7 +207,14 @@
     if (state.tab === 'napoleon') {
       return [g.A, g.B, g.C].concat(napTri(g.A, g.B, g.C).map((t) => t.apex));
     }
-    return [g.A, g.B, g.C, g.H, { x: g.O.x - g.R, y: g.O.y - g.R }, { x: g.O.x + g.R, y: g.O.y + g.R }];
+    // 默认取景框会把外接圆的包围盒算进来。<b>可这些图根本没画外接圆</b>，
+    // 于是画框按看不见的东西撑开，图只占到画布的 57% 高 —— 逐张量过像素，
+    // 去掉之后没有任何一张被裁，才敢列在这里
+    const NO_CIRCUM = ['bisector', 'stewart', 'centers', 'ceva', 'gergonne', 'morley',
+                       'nagelpoint', 'fermat', 'orthocentric'];
+    const base = [g.A, g.B, g.C, g.H];
+    if (NO_CIRCUM.indexOf(state.tab) >= 0) return base;
+    return base.concat([{ x: g.O.x - g.R, y: g.O.y - g.R }, { x: g.O.x + g.R, y: g.O.y + g.R }]);
   }
   /** n 道刻度：一样多 = 一样长。tick / tick2 只有一道两道，海伦要三道 */
   function tickN(P, Q, n, c) {
@@ -2403,9 +2410,11 @@
   function setTab(id, pushHash) {
     if (!DRAW[id]) id = TABS[0][0];
     state.tab = id; if (id === 'homothety') state.k = 1;
-    fit();
     if (pushHash && location.hash !== '#' + id) history.replaceState(null, '', '#' + id);
-    renderTabs(); renderOpts(); renderRelated(); draw();
+    renderTabs(); renderOpts(); renderRelated();
+    // <b>选项行会随定理出现或消失</b>（有按钮的那几张多占一行），画布顶跟着上下移，
+    // 高度上限是按画布顶算的，所以<b>每次换页签都要重算</b> —— 必须排在 renderOpts 之后
+    resizeCanvas(); fit(); draw();
   }
 
   /* ---------- 拖动 ---------- */
