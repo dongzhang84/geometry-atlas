@@ -159,7 +159,7 @@ window.ATLAS = {
       deps: ["K06"],
       source: "Frederick Soddy，1936", demo: "family/figures.html#soddy" },
     { id: "K08", layer: "euc", family: "circle", name: "Casey 定理",
-      statement: "托勒密定理把四个点换成与同一个圆相切的四个圆、线段长换成<b>公切线长</b>之后，仍然成立。",
+      statement: "托勒密定理把四个点换成与同一个圆相切的四个圆、线段长换成公切线长之后，仍然成立。",
       deps: ["M09"],
       source: "John Casey，1866" },
 
