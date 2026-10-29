@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>动态图 · 几何图谱</title>
+<title>动态图 · 几何有名定理图谱</title>
 <meta name="description" content="可拖动的动态几何图：九点圆与欧拉线、外接圆、费尔巴哈定理、西姆松线、垂心组、九点二次曲线之间的联系。">
 <style>
 [hidden]{display:none!important}
@@ -11,7 +11,8 @@ html{-webkit-text-size-adjust:100%}
 :root{
   --paper:#f6f7f9; --panel:#ffffff; --ink:#1b2333; --muted:#5d6678; --rule:#dde1e8;
   --proj:#2f5aa8; --aff:#b07a1e; --euc:#2f8a73; --hi:#d9e3f5;
-  --serif:"Songti SC","SimSun","Noto Serif CJK SC",serif;
+  /* 和首页同一套宋体栈 */
+  --serif:"Songti SC","STSong","Source Han Serif SC","Noto Serif CJK SC","STZhongsong",SimSun,serif;
   --sans:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans CJK SC",sans-serif;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
@@ -114,7 +115,7 @@ footer ul{margin:0;padding-left:18px}
 <body>
 <div class="wrap">
   <header>
-    <a class="back" href="../index.html#nine-point">← 返回几何图谱</a>
+    <a class="back" href="../index.html#nine-point">← 返回图谱</a>
     <h1>动态图</h1>
     <p>拖动顶点 A、B、C，看关系始终成立；← → 切换定理；⌘/Ctrl＋滚轮或右上角按钮缩放。</p>
   </header>
@@ -151,8 +152,8 @@ footer ul{margin:0;padding-left:18px}
   document.documentElement.classList.add('embed');
   document.documentElement.setAttribute('data-theme', 'dark');
 }</script>
-<script src="../data/atlas.js?v=20261101j"></script>
-<script src="../js/geometry.js?v=20261101j"></script>
-<script src="../js/figures.js?v=20261101j"></script>
+<script src="../data/atlas.js?v=20261101k"></script>
+<script src="../js/geometry.js?v=20261101k"></script>
+<script src="../js/figures.js?v=20261101k"></script>
 </body>
 </html>

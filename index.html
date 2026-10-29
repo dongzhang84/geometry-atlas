@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>几何图谱 · 有名定理的家族与关系</title>
+<title>几何有名定理图谱</title>
 <meta name="description" content="四十多条有名的平面几何定理，按家族排成一张图谱，标出它们之间的推广、特例与对偶关系；十来条可以拖动顶点看动态图。">
 <style>
 :root{
@@ -13,6 +13,9 @@
   --s-tri:#e8eaec; --s-aux:#5a6470; --s-hi:#ff8a4c; --s-alt:#7b9cff; --s-pt:#f2f4f6;
   --sans:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB",
          "Microsoft YaHei","Noto Sans CJK SC",sans-serif;
+  /* 标题用宋体：和公式栏的斜体衬线是一路，也给「图谱」该有的分量。
+     只用系统字体 —— 这个站不引用任何外部资源 */
+  --serif:"Songti SC","STSong","Source Han Serif SC","Noto Serif CJK SC","STZhongsong",SimSun,serif;
   --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Noto Sans Mono CJK SC",monospace;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
@@ -29,7 +32,10 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
 .wrap{max-width:1560px;margin:0 auto;padding:32px 24px 70px}
 
 header{margin-bottom:22px}
-h1{font-size:26px;line-height:1.3;margin:0 0 8px;letter-spacing:.5px}
+h1{font-family:var(--serif);font-size:40px;font-weight:600;line-height:1.22;
+  margin:0 0 10px;letter-spacing:2px}
+@media (max-width:760px){ h1{font-size:30px;letter-spacing:1.2px} }
+@media (max-width:420px){ h1{font-size:25px;letter-spacing:.8px} }
 h1::after{content:"";display:block;height:2px;width:72px;margin-top:10px;
   background:var(--accent);transform-origin:left;animation:wipe .6s cubic-bezier(.2,.7,.2,1) .4s both}
 .lede{color:var(--dim);margin:0 0 14px;max-width:46em}
@@ -229,7 +235,7 @@ footer a{color:var(--faint)}
 <div class="wrap">
 
 <header>
-  <h1>几何图谱</h1>
+  <h1>几何有名定理图谱</h1>
   <p class="lede">四十多条有名的平面几何定理，按家族排成一张图谱，标出它们之间的推广、特例与对偶关系。
      点图上任意一瓣跳到那一族；点卡片展开看陈述和出处；带图的可以就地放大，拖动顶点自己试。</p>
   <div class="chips" id="chips"><span class="lbl">几何层次</span></div>
@@ -256,10 +262,10 @@ footer a{color:var(--faint)}
   <div class="bar"><b id="stageTitle"></b><button id="stageClose">关闭 Esc</button></div>
 </div>
 
-<script src="data/atlas.js?v=20261101j"></script>
-<script src="js/geometry.js?v=20261101j"></script>
-<script src="js/thumbs.js?v=20261101j"></script>
-<script src="vendor/d3.min.js?v=20261101j"></script>
+<script src="data/atlas.js?v=20261101k"></script>
+<script src="js/geometry.js?v=20261101k"></script>
+<script src="js/thumbs.js?v=20261101k"></script>
+<script src="vendor/d3.min.js?v=20261101k"></script>
 <script>
 (function () {
   var A = window.ATLAS, byId = {}, famOf = {};

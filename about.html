@@ -3,14 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>关于 · 几何图谱</title>
-<meta name="description" content="几何图谱：这个项目是什么、数据从哪里来、许可证。">
+<title>关于 · 几何有名定理图谱</title>
+<meta name="description" content="几何有名定理图谱：这个项目是什么、数据从哪里来、许可证。">
 <style>
 :root{
   --bg:#f7f8f9; --card:#fff; --ink:#16181a; --dim:#4a5056; --faint:#8b949c;
   --line:#e3e6e9; --accent:#bc4c00;
   --sans:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB",
          "Microsoft YaHei","Noto Sans CJK SC",sans-serif;
+  /* 和首页同一套宋体栈，标题用它 */
+  --serif:"Songti SC","STSong","Source Han Serif SC","Noto Serif CJK SC","STZhongsong",SimSun,serif;
   --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Noto Sans Mono CJK SC",monospace;
 }
 @media (prefers-color-scheme:dark){
@@ -30,7 +32,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
 a{color:var(--accent)}
 .back{font-size:13px;text-decoration:none}
 .back:hover{text-decoration:underline}
-h1{font-size:24px;margin:14px 0 18px;letter-spacing:.5px}
+h1{font-family:var(--serif);font-size:30px;font-weight:600;margin:14px 0 18px;letter-spacing:1.5px}
 h2{font-size:16px;margin:28px 0 8px;letter-spacing:.4px}
 p{color:var(--dim);margin:0 0 12px}
 ul{color:var(--dim);padding-left:1.2em;margin:0 0 12px}
@@ -39,13 +41,13 @@ code{font-family:var(--mono);font-size:13px;background:var(--card);
   border:1px solid var(--line);border-radius:4px;padding:1px 5px}
 footer{margin-top:40px;padding-top:16px;border-top:1px solid var(--line);
   font-family:var(--mono);font-size:11.5px;color:var(--faint)}
-@media (max-width:520px){ .wrap{padding:24px 14px 56px} h1{font-size:21px} }
+@media (max-width:520px){ .wrap{padding:24px 14px 56px} h1{font-size:24px;letter-spacing:1px} }
 </style>
 </head>
 <body>
 <div class="wrap">
 
-<a class="back" href="index.html">← 返回几何图谱</a>
+<a class="back" href="index.html">← 返回图谱</a>
 <h1>关于</h1>
 
 <p>这是一张有名平面几何定理的关系图。它不是定理手册，也不是用来发现新定理的工具，
@@ -79,10 +81,10 @@ Brianchon 定理是 Pascal 定理的对偶。拿不准的一律不收。</p>
 没有统计脚本。断网也能完整打开。数据用 <code>&lt;script src&gt;</code> 加载而不是
 <code>fetch</code>，所以直接双击文件、或部署在任何子路径下都能工作。</p>
 
-<footer>几何图谱 · 数据版本 <span id="ver"></span></footer>
+<footer>几何有名定理图谱 · 数据版本 <span id="ver"></span></footer>
 
 </div>
-<script src="data/atlas.js?v=20261101j"></script>
+<script src="data/atlas.js?v=20261101k"></script>
 <script>
 document.getElementById('ver').textContent =
   (window.ATLAS && window.ATLAS.version) || '—';
