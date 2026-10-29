@@ -304,38 +304,64 @@
       // 白点给六个切点（它们是能动的那六个），六边形顶点是推出来的，画淡一点
       return out.concat(V.map((q) => dot(q, 'dimpt')), T6.map((q) => dot(q)), [dot(B, 'key')]);
     },
-    // Pappus：两条直线上各三点，三组交叉连线的交点共线
-    P03: (g) => {
-      const at = (U, W, k) => ({ x: U.x + (W.x - U.x) * k, y: U.y + (W.y - U.y) * k });
-      const A3 = [0.42, 0.78, 1.18].map((k) => at(g.A, g.B, k));
-      const B3 = [0.45, 0.82, 1.22].map((k) => at(g.A, g.C, k));
+    /* Pappus：两条直线上各三点，三组交叉连线的交点共线。
+       和 P01 / P02 同一个道理 —— <b>两条直线钉死，六个点在线上滑</b>。
+       靠形变三角形只是把两条线的夹角掰一掰，六个点跟着整体平移，定理自己的
+       自由度（点在线上的位置）一点没动。
+       基准和滑动量都是搜出来的。这里最难满足的是<b>三个交点要分得开</b>：六个点
+       在过同一顶点的两条线上，交点天然聚堆 —— 三十万次随机里只有 1% 的配置三个
+       交点能拉开 20px，原来那组基准就是挤在一起的（图上两个橙点几乎重合）。
+       现在整段形变里最近两交点 ≥ 18px、交点位移最大 60px。 */
+    P03: (g, k) => {
+      const G = geom(0);                       // 两条直线用不形变的那个
+      const PA = [0.683, 0.87, 1.414], SA = [0.6, 0.62, 0.27];
+      const PB = [0.823, 1.137, 1.436], SB = [-0.88, -1.1, 0.28];
+      const kk = k || 0;
+      const at = (U, W, t) => ({ x: U.x + (W.x - U.x) * t, y: U.y + (W.y - U.y) * t });
+      const A3 = PA.map((t, i) => at(G.A, G.B, t + kk * SA[i]));
+      const B3 = PB.map((t, i) => at(G.A, G.C, t + kk * SB[i]));
       const X = [xl2(A3[1], B3[2], A3[2], B3[1]), xl2(A3[0], B3[2], A3[2], B3[0]),
                  xl2(A3[0], B3[1], A3[1], B3[0])];
-      if (!X.every(Boolean)) return [line(g.A, g.B, 'aux')];
-      const out = [line(g.A, A3[2], 'aux'), line(g.A, B3[2], 'aux')];
+      if (!X.every(Boolean)) return [line(G.A, G.B, 'aux')];
+      const out = [line(G.A, A3[2], 'aux'), line(G.A, B3[2], 'aux')];
       [[[A3[1], B3[2]], [A3[2], B3[1]]], [[A3[0], B3[2]], [A3[2], B3[0]]],
        [[A3[0], B3[1]], [A3[1], B3[0]]]].forEach((two, i) =>
         two.forEach(([p, q]) => out.push(line(p, q, ['amb2', 'medp2', 'grnp2'][i]))));
-      const e2 = thru(X, 0.14);
+      const e2 = thru(X, 0.50);   // 三个交点挨得近，一圈彩色连线压上来，不延长就看不出有这条线
       out.push(line(e2[0], e2[1], 'halo'), line(e2[0], e2[1], 'ln'));
       return out.concat(A3.concat(B3).map((q) => dot(q)), X.map((q) => dot(q, 'key')));
     },
-    // Desargues：两个三角形透视于一点，三组对应边的交点共线
-    P04: (g) => {
+    /* Desargues：两个三角形透视于一点，三组对应边的交点共线。
+       <b>第一个三角形和透视中心 O 钉死，变的是三个比例</b> —— 第二个三角形沿着三条
+       射线伸缩，三个交点跟着走，透视轴始终穿过它们。靠形变三角形只是把第一个
+       三角形揉一揉，第二个被动跟随，看不出「透视」这件事。
+       变化量是挑出来的：最猛的一组交点位移 203px，整张图乱晃、画框还被撑大，
+       所以卡在 40–70px，再在这个前提下挑第二个三角形「呼吸」最明显的那组
+       （面积比在 0.26–0.50 之间变化）。 */
+    P04: (g, k) => {
       // 透视中心 O 必须在三角形<b>里面</b>，小三角形才会嵌在大的里面 —— O 在外面时
       // 顶点朝 O 缩只会往外跑，怎么搜都是两个三角形互相穿插的一团乱麻（我按
       // 「O 在上方 + 嵌套」搜过，四十万次零命中，就是这个道理）。
       // O 用重心坐标写，形变的时候它自动跟着留在三角形内部。
       const UU = [0.488, 0.288, 0.224], KK = [0.551, 0.77, 0.313];
-      const O = { x: UU[0] * g.A.x + UU[1] * g.B.x + UU[2] * g.C.x,
-                  y: UU[0] * g.A.y + UU[1] * g.B.y + UU[2] * g.C.y };
-      const V = [g.A, g.B, g.C];
-      const V2 = V.map((q, i) => ({ x: O.x + (q.x - O.x) * KK[i], y: O.y + (q.y - O.y) * KK[i] }));
+      const G = geom(0);                       // 三角形和 O 都用不形变的那个
+      const SK = [0.42, 0.27, 0.68];           // 三个比例随形变走，这才是定理的自由度
+      const kk = k || 0;
+      const O = { x: UU[0] * G.A.x + UU[1] * G.B.x + UU[2] * G.C.x,
+                  y: UU[0] * G.A.y + UU[1] * G.B.y + UU[2] * G.C.y };
+      const V = [G.A, G.B, G.C];
+      const V2 = V.map((q, i) => { const t = KK[i] + kk * SK[i];
+        return { x: O.x + (q.x - O.x) * t, y: O.y + (q.y - O.y) * t }; });
       const X = [[0, 1], [1, 2], [2, 0]].map(([m, n]) => xl2(V[m], V[n], V2[m], V2[n]));
-      if (!X.every(Boolean)) return [tri(g.A, g.B, g.C)];
+      if (!X.every(Boolean)) return [tri(V[0], V[1], V[2])];
       const out = [];
       V.forEach((q) => out.push(line(O, q, 'thin')));
-      out.push(tri(V[0], V[1], V[2], 'tri'), tri(V2[0], V2[1], V2[2], 'thinw'));
+      // 三组对应边同色（大三角形实、小三角形细），和大图一致。两个都画白的话
+      // 既分不出谁是谁，又跟结论线（透视轴）的白撞上
+      [[0, 1], [1, 2], [2, 0]].forEach(([m, n], i) => {
+        out.push(line(V[m], V[n], ['amb2', 'medp2', 'grnp2'][i]),
+                 line(V2[m], V2[n], ['ambt', 'medt', 'grnt'][i]));   // 细实线，不要虚线 —— 会和 O 的射线混
+      });
       // 三组对应边的延长线在这里<b>不画</b>：两个三角形 + 三条射线 + 三组延长线 + 轴，
       // 十五条线塞进 200x140 就是一团浆糊。缩略图只要签名 —— 两个嵌套的三角形、
       // 一个中心、一条轴。延长线留给大图和视频。
