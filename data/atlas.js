@@ -159,7 +159,7 @@ window.ATLAS = {
       deps: ["K06"],
       source: "Frederick Soddy，1936", demo: "family/figures.html#soddy" },
     { id: "K08", layer: "euc", family: "circle", name: "Casey 定理",
-      statement: "托勒密定理把四个点换成与同一个圆相切的四个圆后仍然成立。",
+      statement: "四个圆都与同一个圆相切时，把托勒密等式里的线段长换成两圆的<b>公切线长</b> t，等式仍然成立：t(A,C)·t(B,D) = t(A,B)·t(C,D) + t(A,D)·t(B,C)。四个圆缩成点时它就是托勒密定理。",
       deps: ["M09"],
       source: "John Casey，1866" },
 
