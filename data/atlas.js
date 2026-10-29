@@ -17,7 +17,7 @@ window.ATLAS = {
     { id: "nine-point", name: "九点圆家族",   intro: "三角形里最密集的一族结果，全都挂在欧拉线和九点圆上。" },
     { id: "circle",     name: "圆",           intro: "圆与圆的关系：幂、根轴、相切。" },
     { id: "projective", name: "射影",         intro: "只用「共线」和「共点」说话，不涉及长度和角度。" },
-    { id: "inequality", name: "内切与外接",     intro: "内切圆与外接圆之间的关系：距离、半径、以及闭合。" },
+    { id: "inequality", name: "双心",           intro: "同一个三角形既有外接圆又有内切圆 —— 这两个圆的半径 R、r 和圆心距 OI 之间的关系，以及由它决定的闭合现象。" },
     { id: "solid",      name: "空间",         intro: "把平面上的结果搬到四面体里。" }
   ],
 
