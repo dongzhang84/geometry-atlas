@@ -30,6 +30,11 @@
     // 拿破仑那张要装下三个外接正三角形，三角形本身得画小一点
     B01: { A: { x: 104, y: 44 }, B: { x: 52, y: 110 }, C: { x: 152, y: 108 } },
     B02: { A: { x: 76, y: 14 }, B: { x: 18, y: 128 }, C: { x: 188, y: 128 } },
+    // 射影四条：Pascal / Brianchon 拿外接圆当圆锥曲线，所以三角形要画小、给圆让位
+    P01: { A: { x: 112, y: 40 }, B: { x: 56, y: 106 }, C: { x: 150, y: 104 } },
+    P02: { A: { x: 108, y: 44 }, B: { x: 58, y: 104 }, C: { x: 146, y: 100 } },
+    P03: { A: { x: 30, y: 20 }, B: { x: 110, y: 126 }, C: { x: 190, y: 52 } },
+    P04: { A: { x: 53.2, y: 21.1 }, B: { x: 176.1, y: 53.1 }, C: { x: 43.4, y: 115.1 } },
   };
   /** 等边位置：底边不动，A 抬到正上方 */
   const apexOf = (T) => ({ x: (T.B.x + T.C.x) / 2,
@@ -96,6 +101,31 @@
     }
     return out;
   }
+
+  /* ---------- 射影四条共用的小工具 ---------- */
+  const PJ_BASE6 = [0.45, 1.35, 2.25, 3.25, 4.25, 5.35];
+  const PJ_ORD6 = [0, 4, 1, 3, 5, 2];        // 交叉六边形：三个交点全落在 0.75R 以内
+  const xl2 = (P1, P2, P3, P4) => {
+    const d1 = sub(P2, P1), d2 = sub(P4, P3), den = d1.x * d2.y - d1.y * d2.x;
+    if (Math.abs(den) < 1e-9) return null;
+    const w = sub(P3, P1), k = (w.x * d2.y - w.y * d2.x) / den;
+    return { x: P1.x + d1.x * k, y: P1.y + d1.y * k };
+  };
+  /** 结论线：取最远的一对交点当端点再往两头延 */
+  const thru = (X, e) => {
+    let bi = [0, 1], bd = -1;
+    [[0, 1], [1, 2], [0, 2]].forEach((ij) => {
+      const d = len(sub(X[ij[0]], X[ij[1]])); if (d > bd) { bd = d; bi = ij; }
+    });
+    const p = X[bi[0]], q = X[bi[1]], d = sub(q, p);
+    return [{ x: p.x - d.x * e, y: p.y - d.y * e }, { x: q.x + d.x * e, y: q.y + d.y * e }];
+  };
+  /** 只画伸出线段之外的那一截，压在白边上会看成断线 */
+  const extS = (P1, P2, q, cls) => {
+    const d = sub(P2, P1), L2 = d.x * d.x + d.y * d.y;
+    const sp = ((q.x - P1.x) * d.x + (q.y - P1.y) * d.y) / L2;
+    return (sp >= 0 && sp <= 1) ? null : line(sp < 0 ? P1 : P2, q, cls);
+  };
 
   /** 给定形变参数 k，把这张图要用到的点和圆都算出来 */
   function geom(k) {
@@ -222,6 +252,82 @@
       });
       return [tri(A, B, C), line(F, A, 'amb2'), line(F, B, 'amb2'), line(F, C, 'amb2')]
         .concat(arcs, [dot(F, 'key')]);
+    },
+    /* ── 射影 ─────────────────────────────────────────────── */
+    // Pascal：外接圆当圆锥曲线，内接交叉六边形，三组对边的交点共线
+    P01: (g) => {
+      const R = g.circum.r, O = g.circum;
+      const on = (t) => ({ x: O.x + R * Math.cos(t), y: O.y + R * Math.sin(t) });
+      const P = PJ_ORD6.map((k) => on(PJ_BASE6[k]));
+      const side = [0, 1, 2, 3, 4, 5].map((k) => [P[k], P[(k + 1) % 6]]);
+      const X = [[0, 3], [1, 4], [2, 5]].map(([m, n]) =>
+        xl2(side[m][0], side[m][1], side[n][0], side[n][1]));
+      if (!X.every(Boolean)) return [circle(O, 'conic')];
+      const out = [circle(O, 'conic')];
+      side.forEach(([p, q]) => out.push(line(p, q, 'thinw')));
+      [[0, 3], [1, 4], [2, 5]].forEach(([m, n], i) => {
+        const cls = ['amb', 'medp', 'grnp'][i];
+        [m, n].forEach((k) => { const e = extS(side[k][0], side[k][1], X[i], cls); if (e) out.push(e); });
+      });
+      const e2 = thru(X, 0.14);
+      out.push(line(e2[0], e2[1], 'ln'));
+      return out.concat(P.map((q) => dot(q)), X.map((q) => dot(q, 'key')));
+    },
+    // Brianchon：外切六边形，三条对角线共点（Pascal 的对偶）
+    P02: (g) => {
+      const R = g.circum.r, O = g.circum;
+      const tx = (f, h) => {
+        const c = Math.cos((f - h) / 2);
+        if (Math.abs(c) < 1e-6) return null;
+        return { x: O.x + R * Math.cos((f + h) / 2) / c, y: O.y + R * Math.sin((f + h) / 2) / c };
+      };
+      const V = [0, 1, 2, 3, 4, 5].map((k) => tx(PJ_BASE6[k], PJ_BASE6[(k + 1) % 6]));
+      if (!V.every(Boolean)) return [circle(O, 'conic')];
+      const B = xl2(V[0], V[3], V[1], V[4]);
+      const out = [circle(O, 'conic')];
+      [0, 1, 2, 3, 4, 5].forEach((k) => out.push(line(V[k], V[(k + 1) % 6], 'thinw')));
+      [[0, 3], [1, 4], [2, 5]].forEach(([m, n], i) =>
+        out.push(line(V[m], V[n], ['amb2', 'medp2', 'grnp2'][i])));
+      return out.concat(V.map((q) => dot(q)), [dot(B, 'key')]);
+    },
+    // Pappus：两条直线上各三点，三组交叉连线的交点共线
+    P03: (g) => {
+      const at = (U, W, k) => ({ x: U.x + (W.x - U.x) * k, y: U.y + (W.y - U.y) * k });
+      const A3 = [0.42, 0.78, 1.18].map((k) => at(g.A, g.B, k));
+      const B3 = [0.45, 0.82, 1.22].map((k) => at(g.A, g.C, k));
+      const X = [xl2(A3[1], B3[2], A3[2], B3[1]), xl2(A3[0], B3[2], A3[2], B3[0]),
+                 xl2(A3[0], B3[1], A3[1], B3[0])];
+      if (!X.every(Boolean)) return [line(g.A, g.B, 'aux')];
+      const out = [line(g.A, A3[2], 'aux'), line(g.A, B3[2], 'aux')];
+      [[[A3[1], B3[2]], [A3[2], B3[1]]], [[A3[0], B3[2]], [A3[2], B3[0]]],
+       [[A3[0], B3[1]], [A3[1], B3[0]]]].forEach((two, i) =>
+        two.forEach(([p, q]) => out.push(line(p, q, ['amb2', 'medp2', 'grnp2'][i]))));
+      const e2 = thru(X, 0.14);
+      out.push(line(e2[0], e2[1], 'ln'));
+      return out.concat(A3.concat(B3).map((q) => dot(q)), X.map((q) => dot(q, 'key')));
+    },
+    // Desargues：两个三角形透视于一点，三组对应边的交点共线
+    P04: (g) => {
+      // 透视中心 O 必须在三角形<b>里面</b>，小三角形才会嵌在大的里面 —— O 在外面时
+      // 顶点朝 O 缩只会往外跑，怎么搜都是两个三角形互相穿插的一团乱麻（我按
+      // 「O 在上方 + 嵌套」搜过，四十万次零命中，就是这个道理）。
+      // O 用重心坐标写，形变的时候它自动跟着留在三角形内部。
+      const UU = [0.488, 0.288, 0.224], KK = [0.551, 0.77, 0.313];
+      const O = { x: UU[0] * g.A.x + UU[1] * g.B.x + UU[2] * g.C.x,
+                  y: UU[0] * g.A.y + UU[1] * g.B.y + UU[2] * g.C.y };
+      const V = [g.A, g.B, g.C];
+      const V2 = V.map((q, i) => ({ x: O.x + (q.x - O.x) * KK[i], y: O.y + (q.y - O.y) * KK[i] }));
+      const X = [[0, 1], [1, 2], [2, 0]].map(([m, n]) => xl2(V[m], V[n], V2[m], V2[n]));
+      if (!X.every(Boolean)) return [tri(g.A, g.B, g.C)];
+      const out = [];
+      V.forEach((q) => out.push(line(O, q, 'thin')));
+      out.push(tri(V[0], V[1], V[2], 'tri'), tri(V2[0], V2[1], V2[2], 'thinw'));
+      // 三组对应边的延长线在这里<b>不画</b>：两个三角形 + 三条射线 + 三组延长线 + 轴，
+      // 十五条线塞进 200x140 就是一团浆糊。缩略图只要签名 —— 两个嵌套的三角形、
+      // 一个中心、一条轴。延长线留给大图和视频。
+      const e3 = thru(X, 0.10);
+      out.push(line(e3[0], e3[1], 'ln'));
+      return out.concat(X.map((q) => dot(q, 'key')), [dot(O, 'key')]);
     },
     // 拿破仑：三边向外各作正三角形，三个中心又成正三角形
     B01: (g) => {
