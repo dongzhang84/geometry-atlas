@@ -86,6 +86,10 @@
     descartes: [[C_AMB, '圆①'], [C_BLU, '圆②'], [C_GRN, '圆③'], [C_ORG, '第四个圆（两个解）']],
     casey: [[C_WHT, '大圆与四个小圆'], [C_AMB, '两条对角线'], [C_BLU, '一组对边'], [C_GRN, '另一组对边']],
     heron: [[C_GRN, '内切圆'], [C_AMB, 's−a（一道刻度）'], [C_BLU, 's−b（两道）'], [C_PUR, 's−c（三道）']],
+    eulerformula: [[C_GRY, '外接圆'], [C_GRN, '内切圆'], [C_ORG, '线段 OI'],
+                   [C_AMB, '过 I 的弦 AX'], [C_PUR, 'XI = XB = XC（鸡爪定理）']],
+    eulerineq: [[C_GRY, '外接圆'], [C_ORG, '线段 OI'], [C_AMB, '半径 R'],
+                [C_GRN, '内切圆与 2r']],
     brahmagupta: [[C_GRY, '外接圆'], [C_AMB, '边 a'], [C_BLU, '边 b'], [C_GRN, '边 c'], [C_PUR, '边 d']],
     ptolemy: [[C_ORG, '对角线 AC 与分点 K'], [C_AMB, '相等的两个角'], [C_BLU, '△ABK ∽ △DBC'], [C_GRN, '△ABD ∽ △KBC']],
     vanaubel: [[C_BLU, '一对正方形与它们的连线'], [C_GRN, '另一对'], [C_ORG, '可拖的第四个顶点 D']],
@@ -159,6 +163,9 @@
       if (d.S2 && d.r2 > 0 && d.r2 < 60 * g.R)
         out.push({ x: d.S2.x - d.r2, y: d.S2.y - d.r2 }, { x: d.S2.x + d.r2, y: d.S2.y + d.r2 });
       return out;
+    }
+    if (state.tab === 'eulerformula' || state.tab === 'eulerineq') {
+      return [{ x: g.O.x - g.R, y: g.O.y - g.R }, { x: g.O.x + g.R, y: g.O.y + g.R }];
     }
     if (state.tab === 'heron') {
       // 默认分支会把<b>外接圆和垂心</b>算进来，可这张图一个都没画 ——
@@ -240,6 +247,16 @@
     const d1 = sub(Q, P), d2 = sub(V2, U), den = d1.x * d2.y - d1.y * d2.x;
     if (Math.abs(den) < 1e-12) return null;
     return add(P, mul(d1, ((U.x - P.x) * d2.y - (U.y - P.y) * d2.x) / den));
+  }
+  /* 欧拉公式：X 是直线 AI 与外接圆的第二个交点，也就是弧 BC 的中点（鸡爪定理） */
+  function eulerICfg(g) {
+    const d = sub(g.I, g.A), L = len(d);
+    if (L < 1e-9 || g.R < 1e-9) return null;
+    const u = mul(d, 1 / L);
+    const X = add(g.A, mul(u, 2 * ((g.O.x - g.A.x) * u.x + (g.O.y - g.A.y) * u.y)));
+    const OI = len(sub(g.O, g.I));
+    return { X, OI, IA: len(sub(g.I, g.A)), IX: len(sub(g.I, X)),
+             lhs: g.R * g.R - OI * OI, rhs: 2 * g.R * g.r };
   }
   /* 海伦：s−a、s−b、s−c 就是三个顶点到内切圆的切线长，每条在周界上出现两次 */
   function heronCfg(g) {
@@ -1150,6 +1167,70 @@
         '它们中心的连线始终等长（刻度）、始终垂直（直角记号）。<br>' +
         '<span style="color:' + C_BLU + '">蓝 = ' + fx(c.d1) + '</span>　' +
         '<span style="color:' + C_GRN + '">绿 = ' + fx(c.d2) + '</span>　夹角 = ' + c.ang.toFixed(2) + '°');
+    },
+    eulerformula(g) {
+      const c = eulerICfg(g);
+      if (!c) return info('欧拉公式', '三点快要共线了，把它们拖开。');
+      circle(g.O, g.R, css('--muted'), 1.5);
+      circle(g.I, g.r, C_GRN, 1.8);
+      seg(g.A, c.X, C_AMB, 2.4);                       // 过 I 的弦：I 对外接圆的幂就在这条上
+      // 鸡爪定理：X 是弧 BC 的中点，XI = XB = XC。三条都用虚线 ——
+      // XI 和弦 AX 是同一段，画成实线会把底下那条琥珀弦整个盖掉
+      [[c.X, g.I], [c.X, g.B], [c.X, g.C]].forEach(([P, Q]) => {
+        seg(P, Q, C_PUR, 2.2, [6, 5]); tickN(P, Q, 2, C_PUR);
+      });
+      seg(g.O, g.I, C_ORG, 2.8);
+      lab2(mid(g.O, g.I), 'OI', C_ORG, 0, -14);
+      dot(c.X, C_AMB, 6); lab(c.X, 'X', 4, 17);
+      dot(g.O, C_ORG, 5.5); lab(g.O, 'O', 13, -8);
+      dot(g.I, C_GRN, 5.5); lab(g.I, 'I', -13, 9);
+      fml('OI² ＝ R² − 2Rr',
+        fx(c.OI * c.OI) + ' ＝ ' + fx(g.R * g.R) + ' − ' + fx(2 * g.R * g.r) +
+        ' ＝ ' + fx(g.R * g.R - 2 * g.R * g.r));
+      return info('欧拉公式：外心到内心的距离满足 <b>OI² = R² − 2Rr</b>。',
+        '这条的先决条件是<b>圆幂</b>，而证明正好就是圆幂：过内心 I 沿 AI 作弦交外接圆于 A、X，' +
+        '于是 <span style="color:' + C_AMB + '">IA·IX</span> = R² − OI²。' +
+        '再拆开两个因子 —— IA = r/sin(A/2)、IX = 2R·sin(A/2)，sin 消掉，乘积正好 2Rr。<br>' +
+        '中间那一步靠<b>鸡爪定理</b>：<span style="color:' + C_PUR + '">X 是弧 BC 的中点，' +
+        'XI = XB = XC</span>（两道刻度）。<br>' +
+        '实测：IA·IX = ' + fx(c.IA * c.IX) + '，2Rr = ' + fx(c.rhs) +
+        '；R² − OI² = ' + fx(c.lhs) + '。');
+    },
+    eulerineq(g) {
+      const c = eulerICfg(g);
+      if (!c) return info('欧拉不等式', '三点快要共线了，把它们拖开。');
+      circle(g.O, g.R, css('--muted'), 1.5);
+      circle(g.I, g.r, C_GRN, 1.8);
+      const near = c.OI < 0.035 * g.R;
+      if (!near) { seg(g.O, g.I, C_ORG, 2.8); lab2(mid(g.O, g.I), 'OI', C_ORG, 0, -14); }
+      // R 和 2r 要<b>同一个起点</b>才比得出长短。第一版一条从 O 出发、一条从 I 出发，
+      // 错开着放，根本看不出谁长 —— 而这张图的全部意思就是比这两个长度
+      const e = { x: Math.cos(-0.62), y: Math.sin(-0.62) };
+      const nv = { x: -e.y, y: e.x }, off = 0.17 * g.R;
+      const P0 = g.O, Q0 = { x: g.O.x + nv.x * off, y: g.O.y + nv.y * off };
+      const Pr = { x: P0.x + e.x * g.R, y: P0.y + e.y * g.R };
+      const Qr = { x: Q0.x + e.x * 2 * g.r, y: Q0.y + e.y * 2 * g.r };
+      seg(P0, Pr, C_AMB, 3.2); seg(Q0, Qr, C_GRN, 3.2);
+      lab2({ x: P0.x + e.x * g.R * 0.5, y: P0.y + e.y * g.R * 0.5 }, 'R', C_AMB, 10, -10);
+      lab2({ x: Q0.x + e.x * g.r + nv.x * off * 0.9, y: Q0.y + e.y * g.r + nv.y * off * 0.9 },
+           '2r', C_GRN, 0, 5);          // 再往外挪一点，别压在自己那条线上
+      // 缺口：两个终点之间那一截
+      if (g.R - 2 * g.r > 0.012 * g.R) {
+        const Qp = { x: P0.x + e.x * 2 * g.r, y: P0.y + e.y * 2 * g.r };
+        seg(Qp, { x: Qp.x + nv.x * off, y: Qp.y + nv.y * off }, css('--muted'), 1.4, [4, 3]);
+        seg(Qp, Pr, C_ORG, 4.0);
+      }
+      if (near) { dot(g.O, C_ORG, 6.5); lab(g.O, 'O = I', 24, -8); }
+      else { dot(g.O, C_ORG, 5.5); lab(g.O, 'O', 13, -8);
+             dot(g.I, C_GRN, 5.5); lab(g.I, 'I', -13, 9); }
+      fml('R ≥ 2r',
+        fx(g.R) + ' ≥ ' + fx(2 * g.r) + '　　缺口 ' + fx(g.R - 2 * g.r) +
+        '　　OI = ' + fx(c.OI));
+      return info('欧拉不等式：外接圆半径至少是内切圆半径的两倍 —— <b>R ≥ 2r</b>，等号仅在正三角形时成立。',
+        '它从欧拉公式一眼可得：OI² = R² − 2Rr，而 <b>OI² ≥ 0</b>，所以 R ≥ 2r。' +
+        '<b>把三角形拖成正三角形</b>，O 和 I 合到一点，OI → 0，缺口同步收到零。<br>' +
+        (near ? '<b>O 和 I 已经重合 —— 这是正三角形，R = 2r 取到等号。</b>'
+              : '现在 OI = ' + fx(c.OI) + '，缺口 R − 2r = ' + fx(g.R - 2 * g.r) + '。'));
     },
     casey(g) {
       const c = caseyCfg(g);

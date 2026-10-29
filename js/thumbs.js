@@ -58,6 +58,9 @@
     // 四条边 118 / 98 / 58 / 67，<b>对边之比 2.05 和 1.45</b> —— 两对正方形大小明显不同，
     // 不会像第一版那样长成一个对称的十字
     B03: { A: { x: 40, y: 34 }, B: { x: 158, y: 26 }, C: { x: 120, y: 116 } },
+    // 不等式这两张要<b>明显不等边</b>：R ≥ 2r 很紧，三角形一「胖」缺口就看不见了
+    I01: { A: { x: 54, y: 30 }, B: { x: 28, y: 112 }, C: { x: 172, y: 112 } },
+    I02: { A: { x: 54, y: 30 }, B: { x: 28, y: 112 }, C: { x: 172, y: 112 } },
   };
   /** 等边位置：底边不动，A 抬到正上方 */
   const apexOf = (T) => ({ x: (T.B.x + T.C.x) / 2,
@@ -210,6 +213,16 @@
     return { x: o.x, y: o.y, r: len(sub(o, A)) };
   }
 
+  /** 内心和内切圆半径 */
+  function incirc(g) {
+    const a = len(sub(g.C, g.B)), b = len(sub(g.A, g.C)), c = len(sub(g.B, g.A));
+    const p = a + b + c;
+    if (p < 1e-6) return null;
+    const ar = Math.abs((g.B.x - g.A.x) * (g.C.y - g.A.y) - (g.C.x - g.A.x) * (g.B.y - g.A.y)) / 2;
+    return { I: { x: (a * g.A.x + b * g.B.x + c * g.C.x) / p,
+                  y: (a * g.A.y + b * g.B.y + c * g.C.y) / p },
+             r: ar / (p / 2) };
+  }
   /* ---------- 度量这一族共用 ---------- */
   /** 在线段 PQ 的「远离 G」那一侧作正方形 */
   function sqOutT(P, Q, G) {
@@ -352,6 +365,34 @@
       });
       return [tri(A, B, C), line(F, A, 'amb2'), line(F, B, 'amb2'), line(F, C, 'amb2')]
         .concat(arcs, [dot(F, 'key')]);
+    },
+    /* ── 不等式 ───────────────────────────────────────────── */
+    /* 欧拉公式：外接圆 + 内切圆 + 线段 OI，再加过 I 的那条弦 AX。
+       形变动顶点 A —— OI 跟着变，而 OI² = R² − 2Rr 一直成立 */
+    I01: (g) => {
+      const c = incirc(g); if (!c) return [tri(g.A, g.B, g.C, 'tri')];
+      const O = g.circum;
+      const d = sub(c.I, g.A), L = len(d);
+      if (L < 1e-6) return [tri(g.A, g.B, g.C, 'tri')];
+      const u = mul(d, 1 / L);
+      const X = { x: g.A.x + u.x * 2 * ((O.x - g.A.x) * u.x + (O.y - g.A.y) * u.y),
+                  y: g.A.y + u.y * 2 * ((O.x - g.A.x) * u.x + (O.y - g.A.y) * u.y) };
+      return [circle(O, 'conic'), circle({ x: c.I.x, y: c.I.y, r: c.r }, 'grnp2'),
+              tri(g.A, g.B, g.C, 'tri'),
+              line(g.A, X, 'amb2'), line(X, g.B, 'purd'), line(X, g.C, 'purd'),
+              line(O, c.I, 'keyd'),
+              dot(g.A), dot(g.B), dot(g.C), dot(X, '', 3.0),
+              dot(O, 'key', 3.2), dot(c.I, '', 3.0)];
+    },
+    /* 欧拉不等式：就画两个圆和 OI。<b>形变把三角形推向正三角形</b> ——
+       内切圆相对越长越大、两个圆心越走越近，这本身就是 R ≥ 2r 在收紧。
+       R 和 2r 的对比条在缩略图这个尺寸下只是几条斜线，读不出来，不画 */
+    I02: (g) => {
+      const c = incirc(g); if (!c) return [tri(g.A, g.B, g.C, 'tri')];
+      const O = g.circum;
+      return [circle(O, 'conic'), circle({ x: c.I.x, y: c.I.y, r: c.r }, 'grnp2'),
+              tri(g.A, g.B, g.C, 'tri'), line(O, c.I, 'keyd'),
+              dot(g.A), dot(g.B), dot(g.C), dot(O, 'key', 3.4), dot(c.I, '', 3.2)];
     },
     /* ── 度量 ─────────────────────────────────────────────── */
     /* 勾股：直角三角形 + 三个正方形。<b>形变动的是两条直角边的比</b>，
