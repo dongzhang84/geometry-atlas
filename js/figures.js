@@ -250,11 +250,32 @@
     const w = sub(P3, P1), k = (w.x * d2.y - w.y * d2.x) / den;
     return { x: P1.x + d1.x * k, y: P1.y + d1.y * k };
   };
+  /** 六个点在圆锥曲线上的位置。<b>六个都能拖</b> —— 它们才是这两条定理的点，
+      之前只有第一个能动、其余五个和 A/B/C 一样杵着不动，拖半天图上没有对应关系。 */
   const pjAngles = () => {
-    const a = PJ_BASE.slice();
-    if (state.theta !== undefined) a[0] = state.theta;
-    return a;
+    if (!state.hex) state.hex = PJ_BASE.slice();
+    return state.hex;
   };
+  /** 命中哪个点（返回角度数组的下标），没命中返回 -1 */
+  function pjHit(g, p) {
+    const a = pjAngles(); let hit = -1;
+    a.forEach((th, i) => {
+      const q = S({ x: g.O.x + g.R * Math.cos(th), y: g.O.y + g.R * Math.sin(th) });
+      if (Math.hypot(q.x - p.x, q.y - p.y) < HIT()) hit = i;
+    });
+    return hit;
+  }
+  /** Pappus 的六个点：各自在自己那条直线上的参数，六个都能拖 */
+  const papParams = () => {
+    if (!state.pap) state.pap = { a: [0.42, 0.78, 1.18], b: [0.45, 0.82, 1.22] };
+    return state.pap;
+  };
+  function papHit(g, p) {
+    const c = pappusCfg(g); let hit = null;
+    c.A3.forEach((q, i) => { const t = S(q); if (Math.hypot(t.x - p.x, t.y - p.y) < HIT()) hit = ['a', i]; });
+    c.B3.forEach((q, i) => { const t = S(q); if (Math.hypot(t.x - p.x, t.y - p.y) < HIT()) hit = ['b', i]; });
+    return hit;
+  }
   function pascalCfg(g) {
     const on = (th) => ({ x: g.O.x + g.R * Math.cos(th), y: g.O.y + g.R * Math.sin(th) });
     const A6 = pjAngles(), P = PJ_ORD.map((k) => on(A6[k]));
@@ -279,8 +300,9 @@
   }
   function pappusCfg(g) {
     const at = (U, W, k) => ({ x: U.x + (W.x - U.x) * k, y: U.y + (W.y - U.y) * k });
-    const A3 = [0.42, 0.78, 1.18].map((k) => at(g.A, g.B, k));
-    const B3 = [0.45, 0.82, 1.22].map((k) => at(g.A, g.C, k));
+    const pp = papParams();
+    const A3 = pp.a.map((k) => at(g.A, g.B, k));
+    const B3 = pp.b.map((k) => at(g.A, g.C, k));
     const X = [xl2(A3[1], B3[2], A3[2], B3[1]),
                xl2(A3[0], B3[2], A3[2], B3[0]),
                xl2(A3[0], B3[1], A3[1], B3[0])];
@@ -308,6 +330,13 @@
     const X = pair.map(([m, n]) => xl2(V[m], V[n], V2[m], V2[n]));
     return { O, V, V2, pair, X };
   }
+  /** 结论线要带一层底色描边。默认构型我卡掉了「结论线和某条边近乎平行」，可<b>用户一拖，
+      迟早会拖到擦在一起的位置</b> —— 白线压在彩色的边上，两条糊成一条。先用画布底色
+      描一道粗的，再画白线，这样不管压在什么上面都看得出是两条。 */
+  function segHalo(P, R, c, w) {
+    seg(P, R, css('--panel'), w + 3.4);
+    seg(P, R, c, w);
+  }
   /** 结论线：取最远的一对交点当端点再往两头延。直接拿第一个和第三个的话，
       中间那个可能落在线段外面，线就盖不住它。 */
   function thruLine(X, ext) {
@@ -329,7 +358,6 @@
   const DRAW = {
     /* ── 共点与共线 ───────────────────────────────────────── */
     pascal(g) {
-      if (state.theta === undefined) state.theta = PJ_BASE[0];
       const c = pascalCfg(g);
       if (!c.X.every(Boolean)) return info('Pascal 定理', '这个位置上有两条对边平行，交点跑到无穷远。把点拖开一点。');
       circle(g.O, g.R, css('--muted'), 1.4);
@@ -341,29 +369,26 @@
         [m, n].forEach((k) => extSeg(c.side[k][0], c.side[k][1], c.X[i], PJ_TRIO[i], 1.2));
       });
       const e = thruLine(c.X, 0.22);
-      seg(e[0], e[1], col(C_WHT), 3.0);
+      segHalo(e[0], e[1], col(C_WHT), 3.0);
       c.X.forEach((q) => dot(q, C_ORG, 6));
-      c.P.forEach((q) => dot(q, col(C_WHT), 4.5));
-      ring(c.P[0], 9, C_ORG, 1.8);        // 能拖的那个套个圈，别和三个交点一样是橙点
+      c.P.forEach((q, i) => { dot(q, col(C_WHT), 5); lab(q, 'ABCDEF'[i], -15, -9); });
       return info('Pascal 定理：圆锥曲线的内接六边形，三组对边的交点共线 —— 这条线叫 Pascal 线。',
-        '在画面上拖动（顶点以外的地方）让套圈的那个点沿圆走，也可以拖动 A、B、C 改变这个圆。' +
+        '<b>A 到 F 六个点都能拖</b>，拖着它们沿圆走，三个交点始终在一条直线上。' +
         '圆就是这里的圆锥曲线；六边形是交叉的（凸六边形的对边几乎平行，三个交点会跑到画面外）。' +
         '<b>同色的两条边是一组对边</b>，虚线是它们的延长线，橙点是交点，白粗线是 Pascal 线。');
     },
     brianchon(g) {
-      if (state.theta === undefined) state.theta = PJ_BASE[0];
       const c = brianchonCfg(g);
       if (!c.V.length || !c.B) return info('Brianchon 定理', '这个位置上有两条切线平行，顶点跑到无穷远。把点拖开一点。');
       circle(g.O, g.R, css('--muted'), 1.4);
       [0, 1, 2, 3, 4, 5].forEach((k) => seg(c.V[k], c.V[(k + 1) % 6], col(C_WHT), 1.5));
       c.diag.forEach(([p, q], i) => seg(p, q, PJ_TRIO[i], 1.8));
-      c.T6.forEach((q) => dot(q, css('--muted'), 4));
-      ring(c.T6[0], 9, C_ORG, 1.8);
-      c.V.forEach((q) => dot(q, col(C_WHT), 4.5));
+      c.T6.forEach((q, i) => { dot(q, col(C_WHT), 5); lab(q, 'ABCDEF'[i], -15, -9); });
+      c.V.forEach((q) => dot(q, css('--muted'), 4));
       dot(c.B, C_ORG, 7);
       return info('Brianchon 定理：圆锥曲线的外切六边形，三条对角线共点 —— 这是 Pascal 定理的对偶（点 ↔ 线，共线 ↔ 共点）。',
-        '在画面上拖动让第一个切点沿圆走，也可以拖动 A、B、C 改变这个圆。' +
-        '灰点是六个切点，白色六边形的每条边都是圆的切线；琥珀、蓝、绿是三条对角线，橙点是它们的交点。');
+        '<b>A 到 F 是六个切点，都能拖</b>，拖着它们沿圆走，三条对角线始终交于一点。' +
+        '白色六边形的每条边都是过对应切点的切线，灰点是六边形的顶点；琥珀、蓝、绿是三条对角线，橙点是它们的交点。');
     },
     pappus(g) {
       const c = pappusCfg(g);
@@ -372,13 +397,14 @@
       lineInf(g.A, g.B, sec, 1.3); lineInf(g.A, g.C, sec, 1.3);
       c.pair.forEach((two, i) => two.forEach(([p, q]) => seg(p, q, PJ_TRIO[i], 1.5)));
       const e = thruLine(c.X, 0.30);
-      seg(e[0], e[1], col(C_WHT), 3.2);
+      segHalo(e[0], e[1], col(C_WHT), 3.2);
       c.X.forEach((q) => dot(q, C_ORG, 6));
-      c.A3.concat(c.B3).forEach((q) => dot(q, col(C_WHT), 4.5));
+      c.A3.forEach((q, i) => { dot(q, col(C_WHT), 5); lab(q, 'ABC'[i], -15, -9); });
+      c.B3.forEach((q, i) => { dot(q, col(C_WHT), 5); lab(q, "ABC"[i] + '′', -15, -9); });
       return info('Pappus 定理：两条直线上各取三点，三组交叉连线的交点共线。' +
         '它是 Pascal 定理的特例 —— 圆锥曲线退化成两条直线时就是它。',
-        '拖动顶点 A、B、C 改变这两条直线（用的是 AB、AC 所在的直线）。' +
-        '白点是两条线上各三个点，琥珀、蓝、绿是三组交叉连线，橙点是它们的交点，白粗线是 Pappus 线。');
+        '<b>A B C 和 A′ B′ C′ 六个点都能拖</b>，各自沿自己那条直线滑动；灰色小圈是两条直线的控制点，拖它们可以改变两条线的夹角。' +
+        '琥珀、蓝、绿是三组交叉连线，橙点是它们的交点，白粗线是 Pappus 线。');
     },
     desargues(g) {
       const c = desarguesCfg(g);
@@ -395,10 +421,10 @@
         extSeg(c.V2[m], c.V2[n], c.X[i], PJ_TRIO[i], 1.1);
       });
       const e = thruLine(c.X, 0.16);
-      seg(e[0], e[1], col(C_WHT), 3.2);
+      segHalo(e[0], e[1], col(C_WHT), 3.2);
       c.X.forEach((q) => dot(q, C_ORG, 6));
       ring(c.O, 8, C_ORG, 2.2); lab(c.O, 'O', 11, -11);   // 中心是空心圈，交点是实心点
-      c.V2.forEach((q) => dot(q, col(C_WHT), 4.5));
+      c.V2.forEach((q, i) => { dot(q, col(C_WHT), 4.5); lab(q, 'ABC'[i] + '′', 13, -8); });
       return info('Desargues 定理：两个三角形透视于一点 O，当且仅当它们透视于一条线 —— 三组对应边的交点共线，这条线叫透视轴。',
         '在画面上拖动（顶点以外的地方）移动透视中心 O，也可以拖动 A、B、C。' +
         '灰虚线是 O 到三个顶点的射线，第二个三角形（细线）就长在上面；<b>同色的两条边是一组对应边</b>，' +
@@ -1321,14 +1347,14 @@
     const NO_TRI = ['orthocentric', 'conic', 'pascal', 'brianchon', 'pappus', 'desargues'];
     if (NO_TRI.indexOf(state.tab) < 0) tri(g.A, g.B, g.C, ink, 1.3);
     const info = DRAW[state.tab](g);
-    // Pascal / Brianchon / Pappus 里 A、B、C 不是图的一部分，只是改变舞台的控制点。
-    // 画成实心白点的话，圆上就有九个一模一样的白点（六个是六边形顶点，三个是手柄），
-    // 读图的人没法分辨。改成淡灰空心圈。
-    const HANDLE = ['pascal', 'brianchon', 'pappus'];
-    if (HANDLE.indexOf(state.tab) >= 0) {
-      [[g.A, 'A'], [g.B, 'B'], [g.C, 'C']].forEach(([p, n]) => {
-        ring(p, 5.5, css('--muted'), 1.5); lab(p, n, -16, -9, css('--muted'));
-      });
+    // Pascal / Brianchon 的六个点自己标了 A–F，三角形顶点再标一次 A、B、C 就成了
+    // 一张图上两套 ABC；而且拖它们只是把那个圆挪一挪、缩一缩，和定理无关（要缩放
+    // 有右上角的按钮）。<b>干脆不画、也不让拖。</b>
+    // Pappus 不一样：拖顶点会改变两条直线的夹角，是有意义的，所以留着，但不标字母。
+    if (state.tab === 'pascal' || state.tab === 'brianchon') {
+      /* 不画手柄 */
+    } else if (state.tab === 'pappus') {
+      [g.A, g.B, g.C].forEach((p) => ring(p, 5.5, css('--muted'), 1.5));
     } else {
       [[g.A, 'A'], [g.B, 'B'], [g.C, 'C']].forEach(([p, n]) => { dot(p, ink, 5.5); lab(p, n, -16, -9); });
     }
@@ -1518,10 +1544,25 @@
   /* ---------- 拖动 ---------- */
   let drag = null;
   const pos = (e) => { const r = cv.getBoundingClientRect(); return { x: (e.clientX - r.left) * W / r.width, y: (e.clientY - r.top) * H / r.height }; };
-  const draggablePoint = () => ['simson', 'homothety', 'conic', 'poncelet', 'ceva', 'fermat', 'pascal', 'brianchon', 'desargues'].includes(state.tab);
+  const draggablePoint = () => ['simson', 'homothety', 'conic', 'poncelet', 'ceva', 'fermat', 'desargues'].includes(state.tab);
+  /** 拖六个点中的一个：沿圆滑动 */
+  function moveHex(i, p) {
+    const w = Wd(p), g = geo();
+    pjAngles()[i] = Math.atan2(w.y - g.O.y, w.x - g.O.x);
+    draw();
+  }
+  /** 拖 Pappus 的六个点中的一个：投影到自己那条直线上 */
+  function movePap(which, i, p) {
+    const w = Wd(p), g = geo(), pp = papParams();
+    const U = g.A, V2 = which === 'a' ? g.B : g.C, d = sub(V2, U), L2 = d.x * d.x + d.y * d.y;
+    if (L2 < 1e-12) return;
+    const t = ((w.x - U.x) * d.x + (w.y - U.y) * d.y) / L2;
+    pp[which][i] = Math.max(0.10, Math.min(1.75, t));   // 别滑到 A 的另一侧，也别跑出画框
+    draw();
+  }
   function movePoint(p) {
     const w = Wd(p), g = geo();
-    if (state.tab === 'simson' || state.tab === 'homothety' || state.tab === 'pascal' || state.tab === 'brianchon')
+    if (state.tab === 'simson' || state.tab === 'homothety')
       state.theta = Math.atan2(w.y - g.O.y, w.x - g.O.x);
     else if (state.tab === 'conic') state.P = state.onCircle ? onCircumcircle(w, g) : w;
     else if (state.tab === 'poncelet' || state.tab === 'ceva' || state.tab === 'fermat') state.P = w;
@@ -1557,6 +1598,16 @@
     if (touches.size === 2) { drag = { pinch: true, d0: Math.max(spread(), 1), z0: state.zoom }; cv.setPointerCapture(e.pointerId); return; }
     if (touches.size > 2 || (drag && drag.pinch)) return;
     if (is3D()) { drag = { rot: true, x: p.x, y: p.y }; cv.setPointerCapture(e.pointerId); return; }
+    // 先看有没有抓到「图上的点」—— 它们才是定理的主角，优先级高于三角形顶点
+    if (state.tab === 'pascal' || state.tab === 'brianchon') {
+      const h = pjHit(geo(), p);
+      if (h >= 0) { drag = { hex: h }; cv.setPointerCapture(e.pointerId); return; }
+      return;                       // 这两条只有那六个点能拖，别让人误拖到看不见的三角形
+    }
+    if (state.tab === 'pappus') {
+      const h = papHit(geo(), p);
+      if (h) { drag = { pap: h }; cv.setPointerCapture(e.pointerId); return; }
+    }
     let vi = -1;
     state.V.forEach((v, i) => { const s = S(v); if (Math.hypot(s.x - p.x, s.y - p.y) < HIT()) vi = i; });
     if (vi >= 0) drag = { v: vi };
@@ -1568,6 +1619,8 @@
     if (touches.has(e.pointerId)) touches.set(e.pointerId, pos(e));
     if (!drag) return; const p = pos(e);
     if (drag.pinch) { if (touches.size >= 2) setZoom(drag.z0 * spread() / drag.d0); return; }
+    if (drag.hex !== undefined) { moveHex(drag.hex, p); return; }
+    if (drag.pap) { movePap(drag.pap[0], drag.pap[1], p); return; }
     if (drag.rot) {
       const r = curRot();
       r.yaw += (p.x - drag.x) * 0.012;

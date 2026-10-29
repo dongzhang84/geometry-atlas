@@ -104,6 +104,14 @@
 
   /* ---------- 射影四条共用的小工具 ---------- */
   const PJ_BASE6 = [-0.083, 0.852, 2.341, 3.219, 4.011, 5.36];   // 和大图同一组，理由见 figures.js
+  /* Pascal / Brianchon 这两张<b>不能靠形变三角形来动</b>：图上只用到三角形的外接圆，
+     形变三角形等于挪动和缩放那个圆，整张图就只是放大缩小，什么都没演示。
+     正确的动法是<b>圆钉死，六个点在圆上滑</b> —— 这才是定理本身：点随便动，
+     三个交点始终共线（对偶地，三条对角线始终共点）。
+     六个增量是验过的：整段形变里最小间隔 ≥ 0.73、Pascal 交点 ≤ 0.67R、
+     结论线与各边夹角 ≥ 20°、Brianchon 顶点 ≤ 1.37R，不会崩。 */
+  const PJ_SWING = [0.5, 0.9, -0.4, -0.8, 0.3, 0.7];
+  const pjAng = (k) => PJ_BASE6.map((a, i) => a + (k || 0) * PJ_SWING[i]);
   const PJ_ORD6 = [0, 4, 1, 3, 5, 2];        // 交叉六边形：三个交点全落在 0.75R 以内
   const xl2 = (P1, P2, P3, P4) => {
     const d1 = sub(P2, P1), d2 = sub(P4, P3), den = d1.x * d2.y - d1.y * d2.x;
@@ -255,10 +263,11 @@
     },
     /* ── 射影 ─────────────────────────────────────────────── */
     // Pascal：外接圆当圆锥曲线，内接交叉六边形，三组对边的交点共线
-    P01: (g) => {
-      const R = g.circum.r, O = g.circum;
+    P01: (g, k) => {
+      const O = geom(0).circum, R = O.r;     // 圆用不形变的那个：钉死舞台，只让点动
+      const A6 = pjAng(k);
       const on = (t) => ({ x: O.x + R * Math.cos(t), y: O.y + R * Math.sin(t) });
-      const P = PJ_ORD6.map((k) => on(PJ_BASE6[k]));
+      const P = PJ_ORD6.map((j) => on(A6[j]));
       const side = [0, 1, 2, 3, 4, 5].map((k) => [P[k], P[(k + 1) % 6]]);
       const X = [[0, 3], [1, 4], [2, 5]].map(([m, n]) =>
         xl2(side[m][0], side[m][1], side[n][0], side[n][1]));
@@ -272,25 +281,28 @@
         [m, n].forEach((k) => { const e = extS(side[k][0], side[k][1], X[i], cls); if (e) out.push(e); });
       });
       const e2 = thru(X, 0.45);   // 三个交点挨得近，不往两头多延一点，白线短得看不出是条线
-      out.push(line(e2[0], e2[1], 'ln'));
+      out.push(line(e2[0], e2[1], 'halo'), line(e2[0], e2[1], 'ln'));
       return out.concat(P.map((q) => dot(q)), X.map((q) => dot(q, 'key')));
     },
     // Brianchon：外切六边形，三条对角线共点（Pascal 的对偶）
-    P02: (g) => {
-      const R = g.circum.r, O = g.circum;
+    P02: (g, k) => {
+      const O = geom(0).circum, R = O.r;     // 同上：圆钉死，六个切点在圆上滑
+      const A6 = pjAng(k);
       const tx = (f, h) => {
         const c = Math.cos((f - h) / 2);
         if (Math.abs(c) < 1e-6) return null;
         return { x: O.x + R * Math.cos((f + h) / 2) / c, y: O.y + R * Math.sin((f + h) / 2) / c };
       };
-      const V = [0, 1, 2, 3, 4, 5].map((k) => tx(PJ_BASE6[k], PJ_BASE6[(k + 1) % 6]));
+      const V = [0, 1, 2, 3, 4, 5].map((j) => tx(A6[j], A6[(j + 1) % 6]));
       if (!V.every(Boolean)) return [circle(O, 'conic')];
+      const T6 = A6.map((t) => ({ x: O.x + R * Math.cos(t), y: O.y + R * Math.sin(t) }));
       const B = xl2(V[0], V[3], V[1], V[4]);
       const out = [circle(O, 'conic')];
-      [0, 1, 2, 3, 4, 5].forEach((k) => out.push(line(V[k], V[(k + 1) % 6], 'thinw')));
+      [0, 1, 2, 3, 4, 5].forEach((j) => out.push(line(V[j], V[(j + 1) % 6], 'thinw')));
       [[0, 3], [1, 4], [2, 5]].forEach(([m, n], i) =>
         out.push(line(V[m], V[n], ['amb2', 'medp2', 'grnp2'][i])));
-      return out.concat(V.map((q) => dot(q)), [dot(B, 'key')]);
+      // 白点给六个切点（它们是能动的那六个），六边形顶点是推出来的，画淡一点
+      return out.concat(V.map((q) => dot(q, 'dimpt')), T6.map((q) => dot(q)), [dot(B, 'key')]);
     },
     // Pappus：两条直线上各三点，三组交叉连线的交点共线
     P03: (g) => {
@@ -305,7 +317,7 @@
        [[A3[0], B3[1]], [A3[1], B3[0]]]].forEach((two, i) =>
         two.forEach(([p, q]) => out.push(line(p, q, ['amb2', 'medp2', 'grnp2'][i]))));
       const e2 = thru(X, 0.14);
-      out.push(line(e2[0], e2[1], 'ln'));
+      out.push(line(e2[0], e2[1], 'halo'), line(e2[0], e2[1], 'ln'));
       return out.concat(A3.concat(B3).map((q) => dot(q)), X.map((q) => dot(q, 'key')));
     },
     // Desargues：两个三角形透视于一点，三组对应边的交点共线
@@ -328,7 +340,7 @@
       // 十五条线塞进 200x140 就是一团浆糊。缩略图只要签名 —— 两个嵌套的三角形、
       // 一个中心、一条轴。延长线留给大图和视频。
       const e3 = thru(X, 0.10);
-      out.push(line(e3[0], e3[1], 'ln'));
+      out.push(line(e3[0], e3[1], 'halo'), line(e3[0], e3[1], 'ln'));
       return out.concat(X.map((q) => dot(q, 'key')), [dot(O, 'key')]);
     },
     // 拿破仑：三边向外各作正三角形，三个中心又成正三角形
@@ -525,7 +537,7 @@
 
   const body = (id, k) => {
     SHAPE = SHAPES[id] || BASE; APEX = apexOf(SHAPE);      // 这一张用哪个三角形
-    return DRAW[id](geom(k)).map((s, i) => s.replace('class="', `style="--i:${i}" class="`)).join('');
+    return DRAW[id](geom(k), k).map((s, i) => s.replace('class="', `style="--i:${i}" class="`)).join('');
   };
 
   function svgFor(id, k) {
