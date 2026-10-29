@@ -54,6 +54,10 @@
     M04: { A: { x: 92, y: 20 }, B: { x: 24, y: 116 }, C: { x: 178, y: 116 } },
     M05: { A: { x: 70, y: 28 }, B: { x: 34, y: 104 }, C: { x: 142, y: 104 } },
     M06: { A: { x: 92, y: 22 }, B: { x: 22, y: 116 }, C: { x: 178, y: 116 } },
+    M07: { A: { x: 86, y: 24 }, B: { x: 20, y: 118 }, C: { x: 180, y: 118 } },
+    // 四条边 118 / 98 / 58 / 67，<b>对边之比 2.05 和 1.45</b> —— 两对正方形大小明显不同，
+    // 不会像第一版那样长成一个对称的十字
+    B03: { A: { x: 40, y: 34 }, B: { x: 158, y: 26 }, C: { x: 120, y: 116 } },
   };
   /** 等边位置：底边不动，A 抬到正上方 */
   const apexOf = (T) => ({ x: (T.B.x + T.C.x) / 2,
@@ -424,6 +428,82 @@
               line(g.B, D, 'grnp2'), line(D, g.C, 'redp'),
               line(g.A, D, 'keyd'),
               dot(g.A), dot(g.B), dot(g.C), dot(D, 'key', 3.4)];
+    },
+    /* 海伦：三条切线长，<b>每条在周界上出现两次</b>（刻度一/二/三道）。
+       形变动顶点 A —— 三段跟着变，但「各出现两次」这件事不变 */
+    M07: (g) => {
+      const a = len(sub(g.C, g.B)), b = len(sub(g.A, g.C)), c = len(sub(g.B, g.A));
+      const s = (a + b + c) / 2;
+      if (s < 1e-6 || a + b <= c || b + c <= a || c + a <= b) return [tri(g.A, g.B, g.C, 'tri')];
+      const ar = Math.abs((g.B.x - g.A.x) * (g.C.y - g.A.y) - (g.C.x - g.A.x) * (g.B.y - g.A.y)) / 2;
+      const I = { x: (a * g.A.x + b * g.B.x + c * g.C.x) / (a + b + c),
+                  y: (a * g.A.y + b * g.B.y + c * g.C.y) / (a + b + c) };
+      const at = (P, Q, d) => { const L = len(sub(Q, P));
+        return { x: P.x + (Q.x - P.x) * d / L, y: P.y + (Q.y - P.y) * d / L }; };
+      const Tc = at(g.A, g.B, s - a), Tb = at(g.A, g.C, s - a), Ta = at(g.B, g.C, s - b);
+      const CL = ['amb2', 'medp2', 'purp2'];
+      const out = [circle({ x: I.x, y: I.y, r: ar / s }, 'grnp2')];
+      [[[g.A, Tc], [g.A, Tb]], [[g.B, Tc], [g.B, Ta]], [[g.C, Tb], [g.C, Ta]]]
+        .forEach((pr, i) => pr.forEach(([P, Q]) => out.push(line(P, Q, CL[i]))));
+      return out.concat([g.A, g.B, g.C].map((z) => dot(z)),
+                        [Ta, Tb, Tc].map((z) => dot(z, 'dimpt', 2.0)));
+    },
+    /* Brahmagupta：圆内接四边形。<b>形变让 D 滑向 A</b> —— 边 d 缩到没，就剩一个三角形，
+       公式退化成海伦 */
+    M08: (g, k) => {
+      const G0 = geom(0), O = G0.circum, R = O.r, kk = k || 0;
+      const th = [2.30, 3.62, 5.05, 0.80];
+      // 圆上按角度排是 D(0.80) → A(2.30) → B(3.62) → C(5.05)，所以边 d 是 D→A。
+      // <b>要让 d 缩短，th[3] 得往 A 那边<i>增大</i></b>（第一版减小，反而把 d 拉长了）
+      th[3] = 0.80 + (2.30 - 0.80 - 0.16) * Math.min(1, kk / 0.42);
+      const Q = th.map((t) => ({ x: O.x + R * Math.cos(t), y: O.y + R * Math.sin(t) }));
+      const CL = ['amb2', 'medp2', 'grnp2', 'purp2'];
+      const out = [circle(O, 'conic'), poly(Q, 'cycfill')];
+      Q.forEach((P, i) => out.push(line(P, Q[(i + 1) % 4], CL[i])));
+      return out.concat(Q.map((z, i) => dot(z, i === 3 && kk > 0.34 ? 'dimpt' : '')));
+    },
+    /* 托勒密：两条对角线，AC 上的 K 把它切成两段。形变让 C 在圆上滑 */
+    M09: (g, k) => {
+      const G0 = geom(0), O = G0.circum, R = O.r, kk = k || 0;
+      const th = [2.06, 3.42, 5.24 + 0.95 * kk, 0.77];
+      const Q = th.map((t) => ({ x: O.x + R * Math.cos(t), y: O.y + R * Math.sin(t) }));
+      const [A2, B2, C2, D2] = Q;
+      const ang = (P0, U, V2) => { const d1 = sub(U, P0), d2 = sub(V2, P0);
+        return Math.atan2(d1.x * d2.y - d1.y * d2.x, d1.x * d2.x + d1.y * d2.y); };
+      const t2 = Math.atan2(A2.y - B2.y, A2.x - B2.x) + ang(B2, D2, C2);
+      const u = { x: Math.cos(t2), y: Math.sin(t2) }, e = sub(C2, A2);
+      const den = u.x * e.y - u.y * e.x;
+      const K = Math.abs(den) < 1e-9 ? null
+        : { x: B2.x + u.x * (((A2.x - B2.x) * e.y - (A2.y - B2.y) * e.x) / den),
+            y: B2.y + u.y * (((A2.x - B2.x) * e.y - (A2.y - B2.y) * e.x) / den) };
+      // <b>两组对边分色</b>：四条边全白的话，图上只剩一团线，看不出等式说的是哪两组乘积
+      const SD = ['medp2', 'grnp2', 'medp2', 'grnp2'];
+      const out = [circle(O, 'conic'), poly(Q, 'cycfill')];
+      Q.forEach((P, i) => out.push(line(P, Q[(i + 1) % 4], SD[i])));
+      out.push(line(B2, D2, 'aux'), line(A2, C2, 'keyd'));
+      if (K) out.push(line(B2, K, 'amb2'));
+      return out.concat(Q.map((z) => dot(z)), K ? [dot(K, 'key', 3.4)] : []);
+    },
+    /* Van Aubel：四边向外的正方形，对边配成同色一对。形变动顶点 A */
+    B03: (g) => {
+      const D4 = { x: 66, y: 96 };
+      let Q = [g.A, g.B, g.C, D4];
+      const sgn = Q.reduce((acc, z, i) => { const w = Q[(i + 1) % 4];
+        return acc + z.x * w.y - w.x * z.y; }, 0);
+      if (sgn < 0) Q = [Q[0], Q[3], Q[2], Q[1]];
+      const PAIR = ['medp2', 'grnp2', 'medp2', 'grnp2'];
+      const O = [], out = [];
+      Q.forEach((P, i) => {
+        const U = Q[(i + 1) % 4], d = sub(U, P), n = { x: d.y, y: -d.x };
+        const S4 = [P, U, { x: U.x + n.x, y: U.y + n.y }, { x: P.x + n.x, y: P.y + n.y }];
+        O.push({ x: (S4[0].x + S4[1].x + S4[2].x + S4[3].x) / 4,
+                 y: (S4[0].y + S4[1].y + S4[2].y + S4[3].y) / 4 });
+        out.push(poly(S4, PAIR[i] + ' fillsq'));
+        S4.forEach((z, j) => out.push(line(z, S4[(j + 1) % 4], PAIR[i])));
+      });
+      Q.forEach((P, i) => out.push(line(P, Q[(i + 1) % 4], 'tri')));
+      out.push(line(O[0], O[2], 'medp2'), line(O[1], O[3], 'grnp2'));
+      return out.concat(Q.map((z) => dot(z)), O.map((z, i) => dot(z, '', 2.6)));
     },
     /* ── 圆 ─────────────────────────────────────────────── */
     /* 四张都遵守同一条：<b>舞台钉死（geom(0)），只动定理自己的自由度。</b>

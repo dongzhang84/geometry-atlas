@@ -76,6 +76,10 @@
     butterfly: [[C_WHT, '弦 PQ · 中点 M'], [C_AMB, '翅膀 AD 与 MX'], [C_BLU, '翅膀 BC 与 MY'], [C_ORG, 'M、X、Y']],
     descartes: [[C_AMB, '圆①'], [C_BLU, '圆②'], [C_GRN, '圆③'], [C_ORG, '第四个圆（两个解）']],
     casey: [[C_WHT, '大圆与四个小圆'], [C_AMB, '两条对角线'], [C_BLU, '一组对边'], [C_GRN, '另一组对边']],
+    heron: [[C_GRN, '内切圆'], [C_AMB, 's−a（一道刻度）'], [C_BLU, 's−b（两道）'], [C_PUR, 's−c（三道）']],
+    brahmagupta: [[C_GRY, '外接圆'], [C_AMB, '边 a'], [C_BLU, '边 b'], [C_GRN, '边 c'], [C_PUR, '边 d']],
+    ptolemy: [[C_ORG, '对角线 AC 与分点 K'], [C_AMB, '相等的两个角'], [C_BLU, '△ABK ∽ △DBC'], [C_GRN, '△ABD ∽ △KBC']],
+    vanaubel: [[C_BLU, '一对正方形与它们的连线'], [C_GRN, '另一对'], [C_ORG, '可拖的第四个顶点 D']],
     power: [[C_AMB, 'PA'], [C_BLU, 'PB'], [C_ORG, 'P · 切线 PT'], [C_WHT, '圆（圆锥曲线）']],
     radical: [[C_WHT, '三条根轴'], [C_ORG, '根心'], [C_AMB, '圆① 与它的切线'], [C_BLU, '圆②'], [C_GRN, '圆③']],
     monge: [[C_WHT, 'Monge 线'], [C_AMB, '第一对与它们的外位似中心'], [C_BLU, '第二对'], [C_GRN, '第三对']],
@@ -147,6 +151,15 @@
         out.push({ x: d.S2.x - d.r2, y: d.S2.y - d.r2 }, { x: d.S2.x + d.r2, y: d.S2.y + d.r2 });
       return out;
     }
+    if (state.tab === 'brahmagupta' || state.tab === 'ptolemy') {
+      return [{ x: g.O.x - g.R, y: g.O.y - g.R }, { x: g.O.x + g.R, y: g.O.y + g.R }];
+    }
+    if (state.tab === 'vanaubel') {
+      const c = vanaubelCfg(g), out = [];
+      if (c.bad) return c.Q;
+      c.sq.forEach((z) => z.S.forEach((P) => out.push(P)));
+      return out;
+    }
     if (state.tab === 'casey') {
       return [{ x: g.O.x - g.R, y: g.O.y - g.R }, { x: g.O.x + g.R, y: g.O.y + g.R }];
     }
@@ -179,6 +192,91 @@
     }
     return [g.A, g.B, g.C, g.H, { x: g.O.x - g.R, y: g.O.y - g.R }, { x: g.O.x + g.R, y: g.O.y + g.R }];
   }
+  /** n 道刻度：一样多 = 一样长。tick / tick2 只有一道两道，海伦要三道 */
+  function tickN(P, Q, n, c) {
+    const d = sub(Q, P), L = Math.max(len(d), 1e-9);
+    const u2 = { x: d.x / L, y: d.y / L }, nv = { x: -u2.y, y: u2.x };
+    const m = mid(P, Q), h = 0.055, gp = 0.045;
+    for (let k = 0; k < n; k++) {
+      const t = (k - (n - 1) / 2) * gp;
+      const c0 = { x: m.x + u2.x * t, y: m.y + u2.y * t };
+      seg({ x: c0.x - nv.x * h, y: c0.y - nv.y * h }, { x: c0.x + nv.x * h, y: c0.y + nv.y * h }, c, 2.1);
+    }
+  }
+  const shoe = (Q) => Math.abs(Q.reduce((acc, z, i) => {
+    const w = Q[(i + 1) % Q.length]; return acc + z.x * w.y - w.x * z.y; }, 0)) / 2;
+  /** 四边形简单（不自交）：两对<b>对边</b>都不相交。别用「对角线相交」—— 顶点快要重合时那个判据会失效 */
+  function simpleQuad(Q) {
+    const o = (A2, B2, C2) => (B2.x - A2.x) * (C2.y - A2.y) - (C2.x - A2.x) * (B2.y - A2.y);
+    const x = (a, b, c, d) => o(a, b, c) * o(a, b, d) < 0 && o(c, d, a) * o(c, d, b) < 0;
+    return !(x(Q[0], Q[1], Q[2], Q[3]) || x(Q[1], Q[2], Q[3], Q[0]));
+  }
+  /** 两条直线 PQ 与 UV 的交点 */
+  function segMeet(P, Q, U, V2) {
+    const d1 = sub(Q, P), d2 = sub(V2, U), den = d1.x * d2.y - d1.y * d2.x;
+    if (Math.abs(den) < 1e-12) return null;
+    return add(P, mul(d1, ((U.x - P.x) * d2.y - (U.y - P.y) * d2.x) / den));
+  }
+  /* 海伦：s−a、s−b、s−c 就是三个顶点到内切圆的切线长，每条在周界上出现两次 */
+  function heronCfg(g) {
+    const a = len(sub(g.C, g.B)), b = len(sub(g.A, g.C)), c = len(sub(g.B, g.A));
+    const s = (a + b + c) / 2;
+    if (s < 1e-9 || a + b <= c + 1e-9 || b + c <= a + 1e-9 || c + a <= b + 1e-9) return null;
+    const area = shoe([g.A, g.B, g.C]);
+    const uAB = mul(sub(g.B, g.A), 1 / c), uAC = mul(sub(g.C, g.A), 1 / b), uBC = mul(sub(g.C, g.B), 1 / a);
+    return { a, b, c, s, area, r: area / s, I: g.I,
+      ta: [s - a, s - b, s - c],
+      Tc: add(g.A, mul(uAB, s - a)),
+      Tb: add(g.A, mul(uAC, s - a)),
+      Ta: add(g.B, mul(uBC, s - b)) };
+  }
+  /* Brahmagupta 和托勒密共用：外接圆上四个可拖的点 */
+  const bgState = () => { if (!state.bgq) state.bgq = { th: [2.25, 3.55, 5.00, 0.75] }; return state.bgq; };
+  const ptState = () => { if (!state.ptq) state.ptq = { th: [2.06, 3.42, 5.24, 0.77] }; return state.ptq; };
+  const onCirc = (g, t) => ({ x: g.O.x + g.R * Math.cos(t), y: g.O.y + g.R * Math.sin(t) });
+  function cycQuad(g, th) {
+    const Q = th.map((t) => onCirc(g, t));
+    const L = [0, 1, 2, 3].map((i) => len(sub(Q[(i + 1) % 4], Q[i])));
+    return { Q, L, s: (L[0] + L[1] + L[2] + L[3]) / 2, area: shoe(Q), ok: simpleQuad(Q) };
+  }
+  /* 托勒密的证明点 K：AC 上使 ∠ABK = ∠DBC 的那一点 */
+  function ptolemyK(Q) {
+    const [A2, B2, C2, D2] = Q;
+    const ang = (P0, U, V2) => {
+      const d1 = sub(U, P0), d2 = sub(V2, P0);
+      return Math.atan2(d1.x * d2.y - d1.y * d2.x, d1.x * d2.x + d1.y * d2.y);
+    };
+    const th = Math.atan2(A2.y - B2.y, A2.x - B2.x) + ang(B2, D2, C2);
+    const u = { x: Math.cos(th), y: Math.sin(th) }, e = sub(C2, A2);
+    const den = u.x * e.y - u.y * e.x;
+    if (Math.abs(den) < 1e-12) return null;
+    const k = ((A2.x - B2.x) * e.y - (A2.y - B2.y) * e.x) / den;
+    return add(B2, mul(u, k));
+  }
+  /* Van Aubel：第四个顶点自己可拖 */
+  const vaState = () => {
+    // 默认取 (−4.2, −0.6)：四边形是凸的，四条边 4.2 / 4.19 / 3.32 / 2.84 —— 
+    // 相近的那两条是<b>相邻</b>边，不是对边，所以图不会看着像个对称特例
+    if (!state.vad) state.vad = { x: -4.2, y: -0.6 };
+    return state.vad;
+  };
+  function vanaubelCfg(g) {
+    let Q = [g.A, g.B, g.C, vaState()];
+    if (!simpleQuad(Q)) return { Q, bad: true };
+    // 外法向取 −i·d 要求逆时针；顺时针就把顶点倒过来
+    const sgn = Q.reduce((acc, z, i) => { const w = Q[(i + 1) % 4]; return acc + z.x * w.y - w.x * z.y; }, 0);
+    const R2 = sgn < 0 ? [Q[0], Q[3], Q[2], Q[1]] : Q;
+    const sq = R2.map((P, i) => {
+      const U = R2[(i + 1) % 4], d = sub(U, P), n = { x: d.y, y: -d.x };
+      const S4 = [P, U, add(U, n), add(P, n)];
+      return { S: S4, c: mul(S4.reduce(add, { x: 0, y: 0 }), 0.25) };
+    });
+    const O = sq.map((z) => z.c);
+    const v1 = sub(O[2], O[0]), v2 = sub(O[3], O[1]);
+    const ang = Math.abs(Math.atan2(v1.x * v2.y - v1.y * v2.x, v1.x * v2.x + v1.y * v2.y)) * 180 / Math.PI;
+    return { Q, R2, sq, O, d1: len(v1), d2: len(v2), ang };
+  }
+
   /** 三边向外各作一个正三角形：顶点在中点沿「背离第三个顶点」的法向、距离 |UW|·√3/2 处 */
   function napTri(A, B, C) {
     const one = (U, W, V) => {
@@ -905,6 +1003,112 @@
         '包住时曲率按约定取负）—— 它们是同一个二次方程的两个根。' +
         '<br>实测：<b>(Σk)² = ' + fx(lhs) + '　2Σk² = ' + fx(rhs) + '</b>' +
         (big ? '　　k₄′ = ' + fx(-1 / d.r2) : '　（外圆太大，没画）'));
+    },
+    heron(g) {
+      const c = heronCfg(g);
+      if (!c) return info('海伦公式', '三点快要共线了，把它们拖开。');
+      circle(c.I, c.r, C_GRN, 1.6);
+      triSides(g, col(C_WHT), 1.6);
+      // 内切圆按惯例是绿的，所以三条切线长取<b>琥珀/蓝/紫</b> —— 第三条再用绿就和圆撞色了
+      const CL = [C_AMB, C_BLU, C_PUR];
+      // 每条切线长各出现两次 —— 刻度一道 / 两道 / 三道，一眼看出哪两段相等
+      [[[g.A, c.Tc], [g.A, c.Tb]], [[g.B, c.Tc], [g.B, c.Ta]], [[g.C, c.Tb], [g.C, c.Ta]]]
+        .forEach((pair, i) => pair.forEach(([P, Q]) => { seg(P, Q, CL[i], 3.0); tickN(P, Q, i + 1, CL[i]); }));
+      [c.Ta, c.Tb, c.Tc].forEach((z) => dot(z, css('--muted'), 3.6));
+      const her = Math.sqrt(c.s * c.ta[0] * c.ta[1] * c.ta[2]);
+      return info('海伦公式：三角形面积只由三边决定，S = √(s(s−a)(s−b)(s−c))。',
+        '公式里那三个括号不是凑出来的 —— <b>s−a、s−b、s−c 就是三个顶点到内切圆的切线长</b>，' +
+        '每一条在周界上都出现两次（刻度一道/两道/三道），三段加起来正好是半周长 s。<br>' +
+        's = ' + fx(c.s) + '　<span style="color:' + CL[0] + '">s−a = ' + fx(c.ta[0]) + '</span>' +
+        '　<span style="color:' + CL[1] + '">s−b = ' + fx(c.ta[1]) + '</span>' +
+        '　<span style="color:' + CL[2] + '">s−c = ' + fx(c.ta[2]) + '</span><br>' +
+        '面积 = ' + fx(c.area) + '，公式算出来 = ' + fx(her) + '。');
+    },
+    brahmagupta(g) {
+      const c = cycQuad(g, bgState().th);
+      if (!c.ok) return info('Brahmagupta 公式', '四个点绕过头了，把它们按顺序拖回来。');
+      circle(g.O, g.R, css('--muted'), 1.5);
+      fillPoly(c.Q, C_ORG, 0.10);
+      const CL = [C_AMB, C_BLU, C_GRN, C_PUR], NM = ['a', 'b', 'c', 'd'];
+      c.Q.forEach((P, i) => {
+        const U = c.Q[(i + 1) % 4];
+        seg(P, U, CL[i], 2.6);
+        const m = mid(P, U), o = mul(sub(m, g.O), 1 / Math.max(len(sub(m, g.O)), 1e-9));
+        lab2(add(m, mul(o, 0.26)), NM[i], CL[i], 0, 4);
+      });
+      c.Q.forEach((P, i) => { dot(P, col(C_WHT), 5); lab(P, 'ABCD'[i],
+        Math.cos(bgState().th[i]) * 17, Math.sin(bgState().th[i]) * 17); });   // 画布 y 向下，朝外是 +sin
+      const br = Math.sqrt(Math.max(0, (c.s - c.L[0]) * (c.s - c.L[1]) * (c.s - c.L[2]) * (c.s - c.L[3])));
+      const dmin = Math.min(...c.L), small = dmin < 0.14 * c.s;
+      return info('Brahmagupta 公式：圆内接四边形的面积只由四条边决定，S = √((s−a)(s−b)(s−c)(s−d))。',
+        '四个点都在圆上，所以拖它们永远是圆内接四边形，面积和公式一直相等。' +
+        '<b>把某一个点拖到贴着相邻的点</b>，那条边趋于零，四边形塌成三角形，' +
+        '(s−d) 就变成 s —— 公式退化成海伦公式。<br>' +
+        '四边 = ' + c.L.map(fx).join(' / ') + '　面积 = ' + fx(c.area) + '，公式 = ' + fx(br) +
+        (small ? '<br><b>最短的边已经快没了 —— 这时候算的就是海伦公式。</b>' : ''));
+    },
+    ptolemy(g) {
+      const c = cycQuad(g, ptState().th);
+      if (!c.ok) return info('托勒密定理', '四个点绕过头了，把它们按顺序拖回来。');
+      const [A2, B2, C2, D2] = c.Q;
+      const K = ptolemyK(c.Q);
+      circle(g.O, g.R, css('--muted'), 1.5);
+      // <b>一次只亮一对</b>：四个三角形同时上色会把圆内糊成一片蓝绿，谁跟谁相似全看不出来
+      const pp = state.ptp === undefined ? 0 : state.ptp;
+      if (K) {
+        if (pp === 0) { fillPoly([A2, B2, K], C_BLU, 0.26); fillPoly([D2, B2, C2], C_BLU, 0.26); }
+        else { fillPoly([A2, B2, D2], C_GRN, 0.24); fillPoly([K, B2, C2], C_GRN, 0.24); }
+      }
+      c.Q.forEach((P, i) => seg(P, c.Q[(i + 1) % 4], col(C_WHT), 1.9));
+      seg(B2, D2, css('--muted'), 1.7);
+      seg(A2, C2, C_ORG, 2.6);
+      if (K) {
+        seg(B2, K, C_AMB, 2.0, [6, 5]);
+        arcAng(B2, A2, K, 0.30, C_AMB);
+        arcAng(B2, D2, C2, 0.42, C_AMB);
+        dot(K, C_ORG, 5); lab(K, 'K', 8, 16);
+      }
+      c.Q.forEach((P, i) => { dot(P, col(C_WHT), 5); lab(P, 'ABCD'[i],
+        Math.cos(ptState().th[i]) * 17, Math.sin(ptState().th[i]) * 17); });   // 画布 y 向下，朝外是 +sin
+      const L = c.L, AC = len(sub(C2, A2)), BD = len(sub(D2, B2));
+      // 圆内接四边形里「对角线等长」只说明是等腰梯形。<b>矩形要求两条对角线都是直径</b>
+      const rect = Math.abs(AC - 2 * g.R) < 0.03 * g.R && Math.abs(BD - 2 * g.R) < 0.03 * g.R;
+      return info('托勒密定理：圆内接四边形中，两条对角线之积等于两组对边乘积之和。',
+        '<b>橙色的对角线 AC 被 K 切成两段，这两段正好对应等式右边的两个乘积</b>：' +
+        '∠ABK = ∠DBC 让 △ABK ∽ △DBC，给出 AK·BD = AB·CD；' +
+        '△ABD ∽ △KBC 给出 KC·BD = AD·BC。两式一加就是托勒密。' +
+        '用上面的按钮切换看哪一对。<br>' +
+        (pp === 0
+          ? '<span style="color:' + C_BLU + '">AK·BD = ' + fx(len(sub(K || A2, A2)) * BD) +
+            '，AB·CD = ' + fx(L[0] * L[2]) + '</span><br>'
+          : '<span style="color:' + C_GRN + '">KC·BD = ' + fx(len(sub(C2, K || C2)) * BD) +
+            '，AD·BC = ' + fx(L[3] * L[1]) + '</span><br>') +
+        'AC·BD = ' + fx(AC * BD) + '　AB·CD + AD·BC = ' + fx(L[0] * L[2] + L[3] * L[1]) +
+        (rect ? '<br><b>两条对角线一样长了 —— 这是矩形，此时托勒密就是勾股定理。</b>' : ''));
+    },
+    vanaubel(g) {
+      const c = vanaubelCfg(g);
+      if (c.bad) {
+        c.Q.forEach((P, i) => seg(P, c.Q[(i + 1) % 4], C_RED, 1.8, [5, 4]));
+        dot(vaState(), C_ORG, 6);
+        return info('Van Aubel 定理', '四边形自交了 —— 「向外」就没有定义。把 D 拖回去。');
+      }
+      const PAIR = [C_BLU, C_GRN, C_BLU, C_GRN];
+      c.sq.forEach((z, i) => { fillPoly(z.S, PAIR[i], 0.10);
+        z.S.forEach((P, k) => seg(P, z.S[(k + 1) % 4], PAIR[i], 1.8)); });
+      c.R2.forEach((P, i) => seg(P, c.R2[(i + 1) % 4], col(C_WHT), 2.0));
+      seg(c.O[0], c.O[2], C_BLU, 2.8); tick(c.O[0], c.O[2], C_BLU);
+      seg(c.O[1], c.O[3], C_GRN, 2.8); tick(c.O[1], c.O[3], C_GRN);
+      const X = segMeet(c.O[0], c.O[2], c.O[1], c.O[3]);
+      if (X) rightAngle(X, c.O[2], c.O[3], col(C_WHT));
+      c.O.forEach((z, i) => dot(z, PAIR[i], 5));
+      dot(vaState(), C_ORG, 6.5);
+      lab(vaState(), 'D', 0, -16, C_ORG);
+      return info('Van Aubel 定理：在四边形四边向外作正方形，两条中心连线等长且互相垂直。',
+        '拖 A、B、C 和橙色的 D 把四边形揉成任意形状 —— 对边的两个正方形配成同色一对，' +
+        '它们中心的连线始终等长（刻度）、始终垂直（直角记号）。<br>' +
+        '<span style="color:' + C_BLU + '">蓝 = ' + fx(c.d1) + '</span>　' +
+        '<span style="color:' + C_GRN + '">绿 = ' + fx(c.d2) + '</span>　夹角 = ' + c.ang.toFixed(2) + '°');
     },
     casey(g) {
       const c = caseyCfg(g);
@@ -1936,7 +2140,9 @@
     // 射影那四条自己画舞台（圆、两条直线、两个三角形），默认的 ABC 三角形只会添乱
     const NO_TRI = ['orthocentric', 'conic', 'pascal', 'brianchon', 'pappus', 'desargues',
                     'power', 'radical', 'monge', 'miquel', 'butterfly', 'casey', 'descartes',
-                    'pythagoras', 'lawcosines'];
+                    'pythagoras', 'lawcosines',
+                    // 这四条自己画主体：海伦的三边由切线长拼出来，另外三条画的是四边形
+                    'heron', 'brahmagupta', 'ptolemy', 'vanaubel'];
     if (NO_TRI.indexOf(state.tab) < 0) tri(g.A, g.B, g.C, ink, 1.3);
     const info = DRAW[state.tab](g);
     // Pascal / Brianchon 的六个点自己标了 A–F，三角形顶点再标一次 A、B、C 就成了
@@ -1945,7 +2151,9 @@
     // Pappus 不一样：拖顶点会改变两条直线的夹角，是有意义的，所以留着，但不标字母。
     if (state.tab === 'pythagoras') {        // A 换成了 A′（由 DRAW 自己画），这里只画 B、C
       [[g.B, 'B'], [g.C, 'C']].forEach(([p2, n]) => { dot(p2, ink, 5.5); lab(p2, n, -16, -9); });
-    } else if (['pascal', 'brianchon', 'power', 'butterfly', 'casey'].indexOf(state.tab) >= 0) {
+    } else if (['pascal', 'brianchon', 'power', 'butterfly', 'casey',
+                // 这两条的 A–D 画在圆上、由 DRAW 自己标，再画一套三角形手柄就是两套字母
+                'brahmagupta', 'ptolemy'].indexOf(state.tab) >= 0) {
       /* 不画手柄 */
     } else if (state.tab === 'pappus') {
       [g.A, g.B, g.C].forEach((p) => ring(p, 5.5, css('--muted'), 1.5));
@@ -2008,6 +2216,11 @@
         c.onchange = () => { state.show[key] = c.checked; draw(); };
         l.append(c, '显示' + n); optsEl.appendChild(l);
       });
+    }
+    if (state.tab === 'ptolemy') {
+      const pp = state.ptp === undefined ? 0 : state.ptp;
+      optsEl.appendChild(chip('△ABK ∽ △DBC', pp === 0, () => { state.ptp = 0; renderOpts(); draw(); }));
+      optsEl.appendChild(chip('△ABD ∽ △KBC', pp === 1, () => { state.ptp = 1; renderOpts(); draw(); }));
     }
     if (state.tab === 'casey') {
       const c = caseyState();
@@ -2224,6 +2437,18 @@
         if (Math.hypot(z.x - p.x, z.y - p.y) < HIT()) { drag = { bf: i }; cv.setPointerCapture(e.pointerId); return; }
       }
     }
+    if (state.tab === 'brahmagupta' || state.tab === 'ptolemy') {   // 圆上四个点
+      const g0 = geo(), st = state.tab === 'brahmagupta' ? bgState() : ptState();
+      for (let i = 0; i < 4; i++) {
+        const z = S(onCirc(g0, st.th[i]));
+        if (Math.hypot(z.x - p.x, z.y - p.y) < HIT()) { drag = { cyc: i }; cv.setPointerCapture(e.pointerId); return; }
+      }
+      return;                                    // 这两张只拖圆上这四个点
+    }
+    if (state.tab === 'vanaubel') {              // 第四个顶点
+      const z = S(vaState());
+      if (Math.hypot(z.x - p.x, z.y - p.y) < HIT()) { drag = { vad: true }; cv.setPointerCapture(e.pointerId); return; }
+    }
     if (state.tab === 'casey') {                 // 圆上四个点
       const g0 = geo(), th = caseyState().th;
       for (let i = 0; i < 4; i++) {
@@ -2275,6 +2500,10 @@
       draw(); return; }
     if (drag.bf !== undefined) { const w = Wd(p), g0 = geo();
       bfState().th[drag.bf] = Math.atan2(w.y - g0.O.y, w.x - g0.O.x); draw(); return; }
+    if (drag.cyc !== undefined) { const w = Wd(p), g0 = geo();
+      (state.tab === 'brahmagupta' ? bgState() : ptState()).th[drag.cyc] =
+        Math.atan2(w.y - g0.O.y, w.x - g0.O.x); draw(); return; }
+    if (drag.vad) { const w = Wd(p); state.vad = { x: w.x, y: w.y }; draw(); return; }
     if (drag.cs !== undefined) { const w = Wd(p), g0 = geo();
       caseyState().th[drag.cs] = Math.atan2(w.y - g0.O.y, w.x - g0.O.x); draw(); return; }
     if (drag.thp) { const w = Wd(p), g0 = geo();
